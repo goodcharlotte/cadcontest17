@@ -1,0 +1,12 @@
+./rpgen ../testcase/unit1/F.v ../testcase/unit1/G.v ../testcase/unit1/weight.txt ../patch/patch1.v ../out/out1.v
+./rpgen ../testcase/unit2/F.v ../testcase/unit2/G.v ../testcase/unit2/weight.txt ../patch/patch2.v ../out/out2.v
+./rpgen ../testcase/unit3/F.v ../testcase/unit3/G.v ../testcase/unit3/weight.txt ../patch/patch3.v ../out/out3.v
+./rpgen ../testcase/unit4/F.v ../testcase/unit4/G.v ../testcase/unit4/weight.txt ../patch/patch4.v ../out/out4.v
+./rpgen ../testcase/unit5/F.v ../testcase/unit5/G.v ../testcase/unit5/weight.txt ../patch/patch5.v ../out/out5.v
+./rpgen ../testcase/unit6/F.v ../testcase/unit6/G.v ../testcase/unit6/weight.txt ../patch/patch6.v ../out/out6.v
+./rpgen ../testcase/unit7/F.v ../testcase/unit7/G.v ../testcase/unit7/weight.txt ../patch/patch7.v ../out/out7.v
+./rpgen ../testcase/unit8/F.v ../testcase/unit8/G.v ../testcase/unit8/weight.txt ../patch/patch8.v ../out/out8.v
+./rpgen ../testcase/unit9/F.v ../testcase/unit9/G.v ../testcase/unit9/weight.txt ../patch/patch9.v ../out/out9.v
+./rpgen ../testcase/unit10/F.v ../testcase/unit10/G.v ../testcase/unit10/weight.txt ../patch/patch10.v ../out/out10.v
+./rpgen ../testcase/unit11/F.v ../testcase/unit11/G.v ../testcase/unit11/weight.txt ../patch/patch11.v ../out/out11.v
+./rpgen ../testcase/unit12/F.v ../testcase/unit12/G.v ../testcase/unit12/weight.txt ../patch/patch12.v ../out/out12.v
