@@ -1,4 +1,4 @@
 all:
-	g++ -o ./rpgen main.cpp circuit.cpp node.cpp -g -O3
+	g++ -o ./rpgen *.cpp -g -O3
 clean:
-	rm ./rpgen
+	rm -f ./rpgen

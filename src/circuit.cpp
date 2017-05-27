@@ -98,6 +98,9 @@ bool Circuit_t::readfile(char* fname)
     }
     
     file.close();
+	allnodevalue.resize(allnodevec.size());
+
+
     return true;
 }
 
@@ -165,7 +168,7 @@ bool Circuit_t::writefile(char* fname)
         file << " );" << endl;
 
     }
-
+	
     file << "endmodule" << endl;
     file.close();
     return true;
