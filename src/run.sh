@@ -1,1 +1,5 @@
-./rpgen ../testcase/unit4/F.v ../testcase/unit4/G.v ../testcase/unit4/weight.txt patch.v out.v
+case_num=$1
+if [ -z $1 ]; then
+    case_num="1"
+fi
+./rpgen ../testcase/unit$case_num/F.v ../testcase/unit$case_num/G.v ../testcase/unit$case_num/weight.txt patch.v out.v
