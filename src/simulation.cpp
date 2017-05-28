@@ -1,5 +1,6 @@
 #include <iostream>
 #include <fstream>
+#include <queue>
 //#include <string> 
 #include <stdlib.h>
 #include <bitset>
@@ -48,15 +49,108 @@ vector<int> generate_graycode(int n)
 }
 
 
-
-
-void Circuit_t::topology(int graycode_diff)
+void Circuit_t::topology(int start_node_id)
 {
-	//do by YP
-	for (int i = 0; i < allnodevec.size(); i++) {
-		topology_order.push_back(i);
-	}
+    topology_order.clear();
+    queue<int> wait_sort_node;
+    int front_node;
+    int input_node;
+    bool ready_flag;
+    bool all_simulation;
+    front_node = -1;
+    ready_flag = false;
+    all_simulation = false;
+    input_node = -1;
 
+    
+	if (start_node_id == SIM_ALL) {
+        all_simulation = true;
+    } else {
+        all_simulation = false;
+    }
+
+    //mark nodes ready to sort or not
+    vector<bool> visit_flag(allnodevec.size(), !all_simulation);
+
+    for (int i = 0; i < target.size(); i++) {
+        topology_order.push_back(target[i]);
+        visit_flag[target[i]] = true;
+    }
+ 
+	if (all_simulation) {
+    //topology sort all nodes
+       for (int i = 0; i < pi.size(); i++) {
+            topology_order.push_back(pi[i]);
+            visit_flag[pi[i]] = true;
+        }
+
+
+        //push all gates (except for: PIs, TARGETs)
+        for (int i = 0; i < allnodevec.size(); i++) {
+            if (allnodevec[i].getType() != PORT) {
+                wait_sort_node.push(i);
+            }
+        }
+
+        while (wait_sort_node.size() != 0)
+        {
+            ready_flag = true;
+            front_node = wait_sort_node.front();
+
+            for (int in_i = 0; in_i < allnodevec[front_node].in.size(); in_i++) {
+                input_node = allnodevec[front_node].in[in_i];
+
+                if ( visit_flag[input_node] == false ) {
+                //not ready to push in topology_order
+                    wait_sort_node.push(front_node);
+                    ready_flag = false;
+                    break;
+                }
+            }
+
+            if (ready_flag == true) {
+            //all inputs of the node have already been pushed
+                topology_order.push_back(front_node);
+                visit_flag[front_node] = true;
+            }
+
+            wait_sort_node.pop();
+        }
+
+    } else {
+        // assign start_node_id
+        visit_flag[start_node_id] = false;
+        wait_sort_node.push(start_node_id);
+
+        //find all fanout of start_node_id
+        while (wait_sort_node.size() != 0) {
+            front_node = wait_sort_node.front();
+            for (int i = 0; i < allnodevec.size(); i++) {
+                if ((allnodevec[i].getType() != PORT) && (visit_flag[i] == true)) {
+                    ready_flag = true;
+                    for (int in_i = 0; in_i < allnodevec[i].in.size(); in_i++) {
+                        if (front_node == allnodevec[i].in[in_i]) {
+                            ready_flag = false;
+                            break;
+                        }
+                    }
+                    if (ready_flag == false) {
+                        visit_flag[i] = false;
+                        wait_sort_node.push(i);
+                    }
+                }
+            }
+            wait_sort_node.pop();
+            topology_order.push_back(front_node);
+        }
+    }
+
+	//do by YP
+    cout << "Topology(" << start_node_id << "):" << endl;
+	for (int i = 0; i < topology_order.size(); i++) {
+		cout << allnodevec[topology_order[i]].getName() << endl;
+	}
+    cout << endl;
 }
 
 
@@ -185,7 +279,7 @@ void Circuit_t::simulation(int gray_diff)
 		//cout<<"GRAY_NO_CHAGNE "<<endl;
 	} else if (gray_diff == GRAY_INIT) {
 		//cout<<"GRAY_INIT "<<endl;
-		topology(-1);
+		topology(SIM_ALL);
 		init_simulation();
 	} else if (gray_diff >= 0) {
 		allnodevalue[pi[gray_to_change]] = ~ (allnodevalue[pi[gray_to_change]]);

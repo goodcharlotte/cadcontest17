@@ -35,7 +35,7 @@ int main(int argc, char * argv[])
 				} else {
 					cktf.simulation(GRAY_NO_CHAGNE);
 				}
-				
+				/*
 				#if EN_DEBUG_SIM
 				cout<< "Iput pattern--- "<<endl;
 				cout<< "target ="<<" "<< j <<endl;
@@ -50,6 +50,7 @@ int main(int argc, char * argv[])
 				}
 				cout<< "------------"<<endl;
 				#endif
+                */
 			}	
 		}
 		

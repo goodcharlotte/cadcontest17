@@ -18,6 +18,7 @@ vector<int> generate_graycode(int n);
 #define GRAY_INIT -1
 #define GRAY_ERROR -2
 #define GRAY_NO_CHAGNE -3
+#define SIM_ALL -1
 	
 //              0     1    2    3    4    5    6    7     8
 enum GateType {BUF, NOT, AND, NAND, OR, NOR, XOR, NXOR, PORT};
@@ -60,7 +61,7 @@ public:
     bool readfile(char* fname);
     bool writefile(char* fname);
     void print();
-	void topology(int graycode_diff_bit);
+	void topology(int start_node_id);
 	int get_pi_size() { return pi.size(); }
 	void init_simulation();
 	void simulation(int gray_diff);
@@ -68,6 +69,7 @@ public:
 	int calculate_gate_out(GateType gate_type, vector<int> in);
 	void print_pi();
 	void print_po();
+    void print_topology();
 };
 
 #endif
