@@ -334,5 +334,15 @@ void Circuit_t::simulation(int gray_diff)
 	po_value.resize(0);
 	for(int i = 0; i < po.size(); i++) { 
 		po_value.push_back(allnodevalue[po[i]]);
-	}		
+	}
+    print_topology();	
+}
+
+void Circuit_t::print_topology()
+{
+    cout << "Topology value: " << endl;
+    for(int i = 0; i < topology_order.size(); i++) {
+        cout << allnodevec[topology_order[i]].getName() << " " << bitset<32>(allnodevalue[topology_order[i]]) << endl;
+    }
+    cout << endl;
 }
