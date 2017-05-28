@@ -193,22 +193,16 @@ int Circuit_t::calculate_gate_out(GateType gate_type, vector<int> in)
 		for(int i = 1; i < in.size(); i++) {
 			switch(gate_type) {  
 				case AND:
+				case NAND:
 					result = result & allnodevalue[in[i]];  	
 					break;
-				case NAND:
-					result = ~(result & allnodevalue[in[i]]); 
-					break;
 				case OR:
+				case NOR:
 					result = result | allnodevalue[in[i]];
 					break;
-				case NOR:
-					result = ~(result | allnodevalue[in[i]]);
-					break;
 				case XOR:
-					result = result ^ allnodevalue[in[i]];
-					break;
 				case NXOR:
-					result = ~(result ^ allnodevalue[in[i]]);
+					result = result ^ allnodevalue[in[i]];
 					break;
 				case PORT:
 					cout << "Error: calculate_gate_out case PORT, PI & target node should not go there!!" <<endl; 
@@ -225,7 +219,16 @@ int Circuit_t::calculate_gate_out(GateType gate_type, vector<int> in)
 					break;					
 			}  
 		}
+		
+		if ((gate_type == NAND) || (gate_type == NOR) || (gate_type == NXOR)) {
+			result = ~ result;
+
+		}
 	}
+	
+	
+	
+	
 	return result;
 }
 
@@ -306,6 +309,12 @@ void Circuit_t::simulation(int gray_diff)
 		topology(pi[gray_to_change]);
 	}
 	
+	//cout<<"Before..."<<endl;
+    //for(int i = 0; i < allnodevec.size(); i++) {
+	//cout << allnodevec[i].getName() << " " << bitset<32>(allnodevalue[i]) << endl;
+    //
+    //}
+	
 	
 	GateType type;
 	for(int i = 0; i < topology_order.size(); i++) {
@@ -315,6 +324,13 @@ void Circuit_t::simulation(int gray_diff)
 			allnodevalue[topology_order[i]] = calculate_gate_out(type, allnodevec[topology_order[i]].in);
 		}
 	}
+	//cout<<"After..."<<endl;
+    //for(int i = 0; i < allnodevec.size(); i++) {
+	//cout << allnodevec[i].getName() << " " << bitset<32>(allnodevalue[i]) << endl;
+    //
+    //}
+	
+	
 	po_value.resize(0);
 	for(int i = 0; i < po.size(); i++) { 
 		po_value.push_back(allnodevalue[po[i]]);
