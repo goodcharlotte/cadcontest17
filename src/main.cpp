@@ -35,7 +35,7 @@ int main(int argc, char * argv[])
 				} else {
 					cktf.simulation(GRAY_NO_CHAGNE);
 				}
-				/*
+			
 				#if EN_DEBUG_SIM
 				cout<< "Iput pattern--- "<<endl;
 				cout<< "target ="<<" "<< j <<endl;
@@ -46,11 +46,11 @@ int main(int argc, char * argv[])
 				cktg.print_po();
 				cout<< "*****cktf xor cktg *****" <<endl;
 				for(int i = 0; i < cktf.po_value.size(); i++) { 
-					cout<< bitset<32>(cktf.po_value[i] ^ cktg.po_value[i]) <<endl;
+					cout<< bitset<SHOW_BIT_SET>(cktf.po_value[i] ^ cktg.po_value[i]) <<endl;
 				}
 				cout<< "------------"<<endl;
 				#endif
-                */
+           
 			}	
 		}
 		

@@ -13,12 +13,21 @@ using namespace::std;
   if (EN_DEBUG_SIM) { cout << x << endl; } \
 } while (0)
 
-vector<int> generate_graycode(int n);
-#define OFFSET_BIT 5  
+
+#define OFFSET_BIT 5 
+
+#if OFFSET_BIT == 6
+#define SHOW_BIT_SET  64
+#else 
+#define SHOW_BIT_SET 32
+#endif
+
 #define GRAY_INIT -1
 #define GRAY_ERROR -2
 #define GRAY_NO_CHAGNE -3
 #define SIM_ALL -1
+	
+vector<int> generate_graycode(int n);	
 	
 //              0     1    2    3    4    5    6    7     8
 enum GateType {BUF, NOT, AND, NAND, OR, NOR, XOR, NXOR, PORT};

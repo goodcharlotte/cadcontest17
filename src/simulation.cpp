@@ -13,7 +13,7 @@ using namespace::std;
 
 vector<int> generate_graycode(int n)
 {
-	cout<<"start generate_graycode ..."<<endl;
+	debug_print("start generate_graycode...");
 	vector<int> greySeq;
 	vector<int> graydiff;
 	
@@ -36,7 +36,8 @@ vector<int> generate_graycode(int n)
 	cout<< "greySeq.size() = " << greySeq.size() <<endl;
 	cout<< "graydiff.size() = " << graydiff.size() <<endl;
 	for (int i = 0; i < greySeq.size(); i++) {
-		cout<< bitset<32>(greySeq[i]) <<endl;
+		
+		cout<< bitset<SHOW_BIT_SET>(greySeq[i]) <<endl;
 	}
 	for (int i = 0; i < graydiff.size(); i++) {
 		cout<< graydiff[i];
@@ -44,7 +45,7 @@ vector<int> generate_graycode(int n)
 	cout<<endl;
 	#endif 
 	
-	cout<<"end generate_graycode ..."<<endl;
+	debug_print("end generate_graycode...");
 	return graydiff;
 }
 
@@ -145,20 +146,37 @@ void Circuit_t::topology(int start_node_id)
         }
     }
 
-	//do by YP
+	#if EN_DEBUG_SIM
     cout << "Topology(" << start_node_id << "):" << endl;
 	for (int i = 0; i < topology_order.size(); i++) {
 		cout << allnodevec[topology_order[i]].getName() << endl;
 	}
     cout << endl;
+	#endif
 }
 
 
 
 void Circuit_t::input_target_pattern(int target_value)
 {
+	
+	#if OFFSET_BIT == 5
+		int set_all_bit = 4294967295;
+	#elif OFFSET_BIT == 6
+		long long int set_all_bit = 18446744073709551615;
+	#else 
+		int set_all_bit;
+		cout << "Error : Please choose OFFSET_BIT = 5 or 6" <<endl;
+		exit(1);
+	#endif 
+	
+	
 	for(int i = 0; i<target.size(); i++) {
-		allnodevalue[target[i]] = target_value & (1 << i);
+		if (target_value & (1 << i)) {
+			allnodevalue[target[i]] = set_all_bit;
+		} else {
+			allnodevalue[target[i]] = 0;
+		}
 	}
 
 }
@@ -166,20 +184,14 @@ void Circuit_t::input_target_pattern(int target_value)
 
 int Circuit_t::calculate_gate_out(GateType gate_type, vector<int> in)
 {
-	int result = 0;
-	for(int i = 0; i < in.size(); i++) {
-		if(i == 0) {
-			result = allnodevalue[in[i]];
-		}
-		else {
-			switch(gate_type)
-			{  
-				case BUF:  
-					result = result;
-					break;  
-				case NOT:  
-					result = ~result;  
-					break;
+	int result = allnodevalue[in[0]];;
+	if (gate_type == BUF) {
+		return result;
+	} else if (gate_type == NOT) {
+		return ~result; 
+	} else { 
+		for(int i = 1; i < in.size(); i++) {
+			switch(gate_type) {  
 				case AND:
 					result = result & allnodevalue[in[i]];  	
 					break;
@@ -202,8 +214,15 @@ int Circuit_t::calculate_gate_out(GateType gate_type, vector<int> in)
 					cout << "Error: calculate_gate_out case PORT, PI & target node should not go there!!" <<endl; 
 					exit(1);
 					break;
-			//	default:  
-					  
+				case BUF:
+				case NOT:
+					cout << "Error: calculate_gate_out case BUF & NOT should not go there!!" <<endl; 
+					exit(1);
+					break;	
+				default:
+					cout << "Error: calculate_gate_out case default , should not go there!!" <<endl; 
+					exit(1);
+					break;					
 			}  
 		}
 	}
@@ -214,7 +233,7 @@ int Circuit_t::calculate_gate_out(GateType gate_type, vector<int> in)
 void Circuit_t::print_pi()
 {
 	for(int i = 0; i < pi.size(); i++) { 
-		cout<<  bitset<32>(allnodevalue[pi[i]]) << endl;
+		cout<<  bitset<SHOW_BIT_SET>(allnodevalue[pi[i]]) << endl;
 	}
 	
 }
@@ -223,7 +242,7 @@ void Circuit_t::print_pi()
 void Circuit_t::print_po()
 {
 	for(int i = 0; i < po_value.size(); i++) { 
-		cout<<  bitset<32>(po_value[i]) << endl;
+		cout<<  bitset<SHOW_BIT_SET>(po_value[i]) << endl;
 	}
 	
 }
@@ -238,13 +257,14 @@ void Circuit_t::init_simulation()
                            16711935  ,
                            65535     };
 	#elif OFFSET_BIT == 6
-	int offset_value[6] = {6148914691236517205,
+	long long int offset_value[6] = {6148914691236517205,
 						   3689348814741910323,
 						   1085102592571150095,
 						   71777214294589695,
 						   281470681808895,
 						   4294967295};
 	#else 
+		int offset_value[5];
 		cout << "Error : Please choose OFFSET_BIT = 5 or 6" <<endl;
 		exit(1);
 	#endif 
