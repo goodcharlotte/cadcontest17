@@ -105,7 +105,7 @@ int Circuit_t::calculate_gate_out(GateType gate_type, vector<int> in)
 					result = ~(result ^ allnodevalue[in[i]]);
 					break;
 				case PORT:
-					cout << "calculate_gate_out case PORT, PI node should not go there!!" <<endl; 
+					cout << "Error: calculate_gate_out case PORT, PI & target node should not go there!!" <<endl; 
 					exit(1);
 					break;
 			//	default:  
@@ -154,11 +154,8 @@ void Circuit_t::init_simulation()
 		cout << "Error : Please choose OFFSET_BIT = 5 or 6" <<endl;
 		exit(1);
 	#endif 
-	//initialize
 	
-	allnodevalue.resize(allnodevec.size());
 	input_target_pattern(0);
-
 	int pi_szie = pi.size();
 	if (pi_szie <= OFFSET_BIT) {
 		for (int i = 0; i < pi_szie; i++) {
