@@ -73,13 +73,13 @@ void Circuit_t::topology(int start_node_id)
     //mark nodes ready to sort or not
     vector<bool> visit_flag(allnodevec.size(), !all_simulation);
 
-    for (int i = 0; i < target.size(); i++) {
-        topology_order.push_back(target[i]);
-        visit_flag[target[i]] = true;
-    }
- 
 	if (all_simulation) {
     //topology sort all nodes
+        for (int i = 0; i < target.size(); i++) {
+            topology_order.push_back(target[i]);
+            visit_flag[target[i]] = true;
+        }
+
        for (int i = 0; i < pi.size(); i++) {
             topology_order.push_back(pi[i]);
             visit_flag[pi[i]] = true;
@@ -122,6 +122,13 @@ void Circuit_t::topology(int start_node_id)
         // assign start_node_id
         visit_flag[start_node_id] = false;
         wait_sort_node.push(start_node_id);
+
+        // push t_x nodes fanouts
+        for (int i = 0; i < target.size(); i++) {
+            visit_flag[target[i]] = false;
+            wait_sort_node.push(target[i]);
+        }
+
 
         //find all fanout of start_node_id
         while (wait_sort_node.size() != 0) {
