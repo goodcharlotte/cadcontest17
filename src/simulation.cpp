@@ -166,26 +166,13 @@ void Circuit_t::topology(int start_node_id)
 
 void Circuit_t::input_target_pattern(int target_value)
 {
-	
-	#if OFFSET_BIT == 5
-		int set_all_bit = 4294967295;
-	#elif OFFSET_BIT == 6
-		long long int set_all_bit = 18446744073709551615;
-	#else 
-		int set_all_bit;
-		cout << "Error : Please choose OFFSET_BIT = 5 or 6" <<endl;
-		exit(1);
-	#endif 
-	
-	
 	for(int i = 0; i<target.size(); i++) {
 		if (target_value & (1 << i)) {
-			allnodevalue[target[i]] = set_all_bit;
+			allnodevalue[target[i]] = -1;   //all bits are 1
 		} else {
 			allnodevalue[target[i]] = 0;
 		}
 	}
-
 }
 
 
