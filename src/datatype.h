@@ -72,6 +72,7 @@ public:
     void print();
 	void topology(int start_node_id);
 	int get_pi_size() { return pi.size(); }
+	int get_po_size() { return po.size(); }
 	void init_simulation();
 	void simulation(int gray_diff);
 	void input_target_pattern(int target_value);

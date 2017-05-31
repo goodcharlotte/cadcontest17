@@ -152,7 +152,7 @@ void Circuit_t::topology(int start_node_id)
             topology_order.push_back(front_node);
         }
     }
-
+/*
 	#if EN_DEBUG_SIM
     cout << "Topology(" << start_node_id << "):" << endl;
 	for (int i = 0; i < topology_order.size(); i++) {
@@ -160,6 +160,7 @@ void Circuit_t::topology(int start_node_id)
 	}
     cout << endl;
 	#endif
+*/
 }
 
 
@@ -329,7 +330,7 @@ void Circuit_t::simulation(int gray_diff)
 	for(int i = 0; i < po.size(); i++) { 
 		po_value.push_back(allnodevalue[po[i]]);
 	}
-    print_topology();	
+    //print_topology();	
 }
 
 void Circuit_t::print_topology()
