@@ -8,11 +8,12 @@
 using namespace::std;
 
 
-#define EN_DEBUG_SIM 1
-#define debug_print(x) do { \
-  if (EN_DEBUG_SIM) { cout << x << endl; } \
-} while (0)
-
+#define EN_DEBUG_SIM 0
+#if EN_DEBUG_SIM
+#define debug_print(x) do {  cout << x << endl;} while (0)
+#else 
+#define debug_print(x) 
+#endif 
 
 #define OFFSET_BIT 5 
 
@@ -28,7 +29,9 @@ using namespace::std;
 #define SIM_ALL -1
 	
 vector<int> generate_graycode(int n);	
-	
+void find_signature(vector< vector<string> > &sig, int target_leng ,int po_diff[]);	
+
+
 //              0     1    2    3    4    5    6    7     8
 enum GateType {BUF, NOT, AND, NAND, OR, NOR, XOR, NXOR, PORT};
 

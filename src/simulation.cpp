@@ -1,15 +1,20 @@
 #include <iostream>
 #include <fstream>
 #include <queue>
-//#include <string> 
-#include <stdlib.h>
+#include <string.h> 
+#include <cstdlib>
 #include <bitset>
 #include <math.h>
 #include "datatype.h"
-
-
-
 using namespace::std;
+
+
+#define GET_BIT(num,bit)  ( (num >> bit ) & 1 )
+
+void McCluskey(vector< vector<string> > &sig, int target_leng, int minterm[]);
+
+
+
 
 vector<int> generate_graycode(int n)
 {
@@ -49,6 +54,29 @@ vector<int> generate_graycode(int n)
 	return graydiff;
 }
 
+
+void McCluskey(vector< vector<string> > &sig, int target_leng, int minterm[])
+{
+	
+	
+}
+
+
+void find_signature(vector< vector<string> > &sig, int target_leng ,int po_diff[])
+{
+	int t_minterm[target_leng];
+	for (int bit = SHOW_BIT_SET - 1; bit >= 0 ; bit--) {
+		memset(t_minterm, 0, sizeof(t_minterm));
+		for (int tar = 0; tar < target_leng ; tar++) {
+			if (!GET_BIT(po_diff[tar], bit)) {
+				t_minterm[tar] = 1;
+			}
+		}
+		McCluskey(sig, target_leng, t_minterm);
+	}
+	
+	
+}
 
 void Circuit_t::topology(int start_node_id)
 {
@@ -203,11 +231,6 @@ int Circuit_t::calculate_gate_out(GateType gate_type, vector<int> in)
 					cout << "Error: calculate_gate_out case PORT, PI & target node should not go there!!" <<endl; 
 					exit(1);
 					break;
-				case BUF:
-				case NOT:
-					cout << "Error: calculate_gate_out case BUF & NOT should not go there!!" <<endl; 
-					exit(1);
-					break;	
 				default:
 					cout << "Error: calculate_gate_out case default , should not go there!!" <<endl; 
 					exit(1);
@@ -232,8 +255,7 @@ void Circuit_t::print_pi()
 {
 	for(int i = 0; i < pi.size(); i++) { 
 		cout<<  bitset<SHOW_BIT_SET>(allnodevalue[pi[i]]) << endl;
-	}
-	
+	}	
 }
 
 
