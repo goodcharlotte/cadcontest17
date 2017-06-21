@@ -9,16 +9,131 @@
 using namespace::std;
 
 
-#define GET_BIT(num,bit)  ( (num >> bit ) & 1 )
+#define GET_BIT(num,bit)  ((num >> bit ) & 1)
+#define STR_COMPARE_FAIL  "fail"
+#define SYMBOL_ERROR      'X'
 
-void McCluskey(vector< vector<string> > &sig, int target_leng, int minterm[]);
+string compare_minterm(string str1, string str2);
+string to_str(int num, int leng);
+vector<string> McCluskey(vector<string> minterm);
 
 
+void print_signature(const vector< vector<string> > &sig)
+{
+	for (int i = 0; i < sig.size(); i++) {
+		for (int j = 0; j < sig[i].size(); j++) {
+			cout << sig[i][j] << " , ";
+		}
+		cout << endl;
+	}	
+}
+
+string compare_minterm(string str1, string str2) {
+	
+	if (str1.size() != str2.size()) {
+		cout << "Error : in compare_minterm , str1.size() != str2.size()" << endl;
+		exit(1);
+	}
+	int size = str1.size();
+	int diff_idx = -1;
+	for (int i = 0; i < size; i++) {
+		if (str1[i] != str2 [i]) {
+			if (diff_idx < 0) {
+				diff_idx = i;
+			} else {
+				return STR_COMPARE_FAIL;				
+			}		
+		}
+	}
+	str1[diff_idx]='-';
+	return str1;
+}
+
+string to_str(int num, int leng)
+{
+	string str;
+	for(int i = 0; i < leng; i++) {
+		if (num & 1) {
+			str = '1' + str;
+		} else {			
+			str = '0' + str;
+		}
+		num = num >> 1;
+	}		
+	return str;
+}
+
+
+vector<string> McCluskey(vector<string> minterm)
+{
+	int size = minterm.size();
+	vector <string> vector_str_temp;
+	string str_temp;
+	if (size == 1) {
+		debug_print(minterm[0] << " VS " << "...");
+		debug_print( " ==> "<< minterm[0]<<endl);
+		vector_str_temp.push_back(minterm[0]);
+		return vector_str_temp;
+	} else {
+		for (int i = 0; i < size ; i++) {
+			for (int j = i + 1; j < size; j++){
+				debug_print(minterm[i] << " VS "<< minterm[j]);
+				str_temp = compare_minterm(minterm[i], minterm[j]);
+				debug_print(" ==> "<< str_temp <<endl);
+				if (str_temp != STR_COMPARE_FAIL) {
+					vector_str_temp.push_back(str_temp);
+				}	
+			}
+		}
+		if (vector_str_temp.size() > 0) {
+			return McCluskey(vector_str_temp);
+		} else {
+			return minterm;
+		}
+	}
+
+
+	
+		
+}
+
+void find_signature(vector< vector<string> > &sig, int target_leng ,int po_diff[])
+{
+	
+	int str_size = (int)log2(target_leng);
+	vector<string> tar_minterm;
+	string tar_str;
+	for (int bit = SHOW_BIT_SET - 1; bit >= 0 ; bit--) {
+		debug_print("bit" << bit);
+		debug_print("  minterm = ");
+		tar_minterm.clear();
+		for (int tar = 0; tar < target_leng ; tar++) {
+			if ( ! GET_BIT(po_diff[tar], bit)) {
+				tar_str = to_str(tar, str_size);
+				debug_print(tar_str << " ");
+				tar_minterm.push_back(tar_str);			
+			}			
+		}
+		debug_print("\n");
+		tar_minterm = McCluskey(tar_minterm);
+		if (tar_minterm.size() == 0) {
+			tar_minterm.push_back(string(str_size, SYMBOL_ERROR));
+		}
+		sig.push_back(tar_minterm);
+		debug_print("Final tar_minterm ");
+		for (int i = 0; i < tar_minterm.size(); i++) {
+			debug_print(tar_minterm[i] << " , ");
+		}
+		debug_print("\n=========\n");
+	}
+	
+	
+}
 
 
 vector<int> generate_graycode(int n)
 {
-	debug_print("start generate_graycode...");
+	debug_print("start generate_graycode...\n");
 	vector<int> greySeq;
 	vector<int> graydiff;
 	
@@ -50,33 +165,14 @@ vector<int> generate_graycode(int n)
 	cout<<endl;
 	#endif 
 	
-	debug_print("end generate_graycode...");
+	debug_print("end generate_graycode...\n");
 	return graydiff;
 }
 
 
-void McCluskey(vector< vector<string> > &sig, int target_leng, int minterm[])
-{
-	
-	
-}
 
 
-void find_signature(vector< vector<string> > &sig, int target_leng ,int po_diff[])
-{
-	int t_minterm[target_leng];
-	for (int bit = SHOW_BIT_SET - 1; bit >= 0 ; bit--) {
-		memset(t_minterm, 0, sizeof(t_minterm));
-		for (int tar = 0; tar < target_leng ; tar++) {
-			if (!GET_BIT(po_diff[tar], bit)) {
-				t_minterm[tar] = 1;
-			}
-		}
-		McCluskey(sig, target_leng, t_minterm);
-	}
-	
-	
-}
+
 
 void Circuit_t::topology(int start_node_id)
 {
@@ -207,7 +303,7 @@ void Circuit_t::input_target_pattern(int target_value)
 
 int Circuit_t::calculate_gate_out(GateType gate_type, vector<int> in)
 {
-	int result = allnodevalue[in[0]];;
+	int result = allnodevalue[in[0]];
 	if (gate_type == BUF) {
 		return result;
 	} else if (gate_type == NOT) {

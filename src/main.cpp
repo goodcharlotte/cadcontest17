@@ -51,22 +51,25 @@ int main(int argc, char * argv[])
 			#endif
 			xor_f_g[j] = 0;
 			for(int k = 0; k < cktf.po_value.size(); k++) { 
-				debug_print( bitset<SHOW_BIT_SET>(cktf.po_value[k] ^ cktg.po_value[k]));
+				debug_print( bitset<SHOW_BIT_SET>(cktf.po_value[k] ^ cktg.po_value[k]) << endl);
 				xor_f_g[j] = xor_f_g[j] | (cktf.po_value[k] ^ cktg.po_value[k]);
-				
 				//cout<<"xor_f_g["<<j<<"] "<< bitset<SHOW_BIT_SET>(xor_f_g[j])<<endl;
 			}
 			
 			
-		}	
+		}
+		#if EN_DEBUG_SIM
 		cout<< "*****xor_f_g*****" <<endl;	
 		for (int i = 0; i < target_leng; i++) {
 			cout<<"target = "<< i <<" , "<<bitset<SHOW_BIT_SET>(xor_f_g[i]) <<endl;
 		}
+		#endif
+		
 		find_signature(signature, target_leng,xor_f_g);
-		cout<< "------------"<<endl;
+		
 	}
 
+	print_signature(signature);
 	
    // cktg.writefile(argv[5]);
     return 0;
