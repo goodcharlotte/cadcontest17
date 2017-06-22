@@ -29,7 +29,7 @@ using namespace::std;
 #define SIM_ALL -1
 
 vector<int> generate_graycode(int n);	
-void find_signature(vector< vector<string> > &sig, int target_leng ,int po_diff[]);
+void find_signature(vector< vector<string> > &sig, int target_size, int pi_size, int po_diff[]);
 void print_signature(const vector< vector<string> > &sig);
 
 //              0     1    2    3    4    5    6    7     8

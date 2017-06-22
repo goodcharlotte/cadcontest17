@@ -23,9 +23,10 @@ int main(int argc, char * argv[])
 	//cktf.print();
 	
 
-
-	vector<int> graydiff = generate_graycode(cktf.get_pi_size() - OFFSET_BIT);
-	int target_leng = (int)pow(2, ((cktf.target).size()));
+	int pi_size = cktf.get_pi_size();
+	vector<int> graydiff = generate_graycode(pi_size - OFFSET_BIT);
+	int target_size = (cktf.target).size();
+	int target_leng = (int)pow(2, target_size);
 	int xor_f_g[target_leng];
 	vector< vector<string> > signature;
 	
@@ -65,7 +66,7 @@ int main(int argc, char * argv[])
 		}
 		#endif
 		
-		find_signature(signature, target_leng,xor_f_g);
+		find_signature(signature, target_size, pi_size, xor_f_g);
 		
 	}
 

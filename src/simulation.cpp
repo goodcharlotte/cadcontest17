@@ -8,8 +8,7 @@
 #include "datatype.h"
 using namespace::std;
 
-
-#define GET_BIT(num,bit)  ((num >> bit ) & 1)
+#define GET_BIT(num,shift)  ((num >> shift ) & 1)
 #define STR_COMPARE_FAIL  "fail"
 #define SYMBOL_ERROR      'X'
 
@@ -97,19 +96,23 @@ vector<string> McCluskey(vector<string> minterm)
 		
 }
 
-void find_signature(vector< vector<string> > &sig, int target_leng ,int po_diff[])
+void find_signature(vector< vector<string> > &sig, int target_size, int pi_size, int po_diff[])
 {
 	
-	int str_size = (int)log2(target_leng);
+	
 	vector<string> tar_minterm;
 	string tar_str;
-	for (int bit = SHOW_BIT_SET - 1; bit >= 0 ; bit--) {
+	int end = 0;
+	if (pi_size < OFFSET_BIT) {
+		end = 	SHOW_BIT_SET - (int)pow(2, pi_size);
+	}
+	for (int bit = SHOW_BIT_SET - 1; bit >= end ; bit--) {
 		debug_print("bit" << bit);
 		debug_print("  minterm = ");
 		tar_minterm.clear();
-		for (int tar = 0; tar < target_leng ; tar++) {
+		for (int tar = 0; tar < target_size ; tar++) {
 			if ( ! GET_BIT(po_diff[tar], bit)) {
-				tar_str = to_str(tar, str_size);
+				tar_str = to_str(tar, target_size);
 				debug_print(tar_str << " ");
 				tar_minterm.push_back(tar_str);			
 			}			
@@ -117,7 +120,7 @@ void find_signature(vector< vector<string> > &sig, int target_leng ,int po_diff[
 		debug_print("\n");
 		tar_minterm = McCluskey(tar_minterm);
 		if (tar_minterm.size() == 0) {
-			tar_minterm.push_back(string(str_size, SYMBOL_ERROR));
+			tar_minterm.push_back(string(target_size, SYMBOL_ERROR));
 		}
 		sig.push_back(tar_minterm);
 		debug_print("Final tar_minterm ");
