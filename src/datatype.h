@@ -15,7 +15,7 @@ using namespace::std;
 #define debug_print(x) 
 #endif 
 
-#define OFFSET_BIT 5 
+#define OFFSET_BIT 5
 
 #if OFFSET_BIT == 6
 #define SHOW_BIT_SET  64
@@ -31,6 +31,7 @@ using namespace::std;
 vector<int> generate_graycode(int n);	
 void find_signature(vector< vector<string> > &sig, int target_size, int pi_size, int po_diff[]);
 void print_signature(const vector< vector<string> > &sig);
+void write_pla(const vector< vector<string> > &sig, vector<string> &piName, vector<string> &targetName,vector<int> graydiff);
 
 //              0     1    2    3    4    5    6    7     8
 enum GateType {BUF, NOT, AND, NAND, OR, NOR, XOR, NXOR, PORT};
@@ -59,16 +60,18 @@ public:
 class Circuit_t
 {
 private:
-    vector<Node_t> allnodevec;
+    //vector<Node_t> allnodevec;
     map<string, int> allnodemap;
     map<string, int>::iterator iter;
-    vector<int> pi;
+    //vector<int> pi;
     vector<int> po;
     vector<int> topology_order;
 	vector<int> greycode_diff;
-	
+
 public:
     Circuit_t();
+    vector<int> pi;
+    vector<Node_t> allnodevec;
 	vector<int> target;
 	vector<int> po_value;
 	vector<int> allnodevalue;
@@ -76,7 +79,7 @@ public:
     bool writefile(char* fname);
     void print();
 	void topology(int start_node_id);
-	int get_pi_size() { return pi.size(); }
+    int get_pi_size() { return pi.size(); }
 	int get_po_size() { return po.size(); }
 	void init_simulation();
 	void simulation(int gray_diff);
@@ -86,5 +89,6 @@ public:
 	void print_po();
     void print_topology();
 };
+
 
 #endif

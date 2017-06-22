@@ -72,6 +72,25 @@ int main(int argc, char * argv[])
 
 	print_signature(signature);
 	
+    vector<string> piName;
+    vector<string> targetName;
+
+    piName.resize(cktf.get_pi_size());
+    for(int i = 0; i < cktf.get_pi_size(); i++) {
+        int node_id;
+        node_id = cktf.pi[i];
+        piName[i] = cktf.allnodevec[node_id].getName();
+    }
+
+    targetName.resize(cktf.target.size());
+    for(int i = 0; i < cktf.target.size(); i++) {
+        int node_id;
+        node_id = cktf.target[i];
+        targetName[i] = cktf.allnodevec[node_id].getName();
+    }
+    
+    write_pla(signature, piName, targetName, graydiff);
+
    // cktg.writefile(argv[5]);
     return 0;
 }
