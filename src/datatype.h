@@ -8,7 +8,7 @@
 using namespace::std;
 
 
-#define EN_DEBUG_SIM 0
+#define EN_DEBUG_SIM 1
 #if EN_DEBUG_SIM
 #define debug_print(x) do { cout << x; } while (0)
 #else 
@@ -27,6 +27,8 @@ using namespace::std;
 #define GRAY_ERROR -2
 #define GRAY_NO_CHAGNE -3
 #define SIM_ALL -1
+
+#define ALL_ONE 4294967295
 
 vector<int> generate_graycode(int n);	
 void find_signature(vector< vector<string> > &sig, int target_size, int pi_size, int po_diff[]);
@@ -88,7 +90,7 @@ public:
 	void print_pi();
 	void print_po();
     void print_topology();
-	
+	void change_node_value(int node_id);
 	///////////////////////CCW/////////////////////////////////
 	vector<int> newpi;
 	int NewPI(Circuit_t &c2);

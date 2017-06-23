@@ -185,6 +185,7 @@ void Circuit_t::topology(int start_node_id)
     int front_node;
     int input_node;
     bool ready_flag;
+    bool find_flag;
     bool all_simulation;
     front_node = -1;
     ready_flag = false;
@@ -202,6 +203,54 @@ void Circuit_t::topology(int start_node_id)
     vector<bool> visit_flag(allnodevec.size(), !all_simulation);
 
 	if (all_simulation) {
+        //topology sort all nodes
+        for (int i = 0; i < target.size(); i++) {
+            wait_sort_node.push(target[i]);
+            visit_flag[target[i]] = true;
+        }
+
+       for (int i = 0; i < pi.size(); i++) {
+            wait_sort_node.push(pi[i]);
+            visit_flag[pi[i]] = true;
+       }
+
+       //constant 0 & constant 1
+       wait_sort_node.push(0);
+       visit_flag[0] = true;
+       wait_sort_node.push(1);
+       visit_flag[1] = true;
+
+       //find all fanout of start_node_id
+       while (wait_sort_node.size() != 0) {
+            front_node = wait_sort_node.front();
+            cout << "front: " << allnodevec[front_node].getName() << endl;
+            for (int i = 0; i < allnodevec.size(); i++) {
+                find_flag = false;
+                ready_flag = true;
+                if ((allnodevec[i].getType() != PORT) && (visit_flag[i] == false)) {
+                    for (int in_i = 0; in_i < allnodevec[i].in.size(); in_i++) {
+                        if (front_node == allnodevec[i].in[in_i]) {
+                            find_flag = true;
+                        }
+                        if (visit_flag[ allnodevec[i].in[in_i] ] == false) {
+                            ready_flag = false;
+                            break;
+                        }
+                    }
+                    if (ready_flag && find_flag) {
+                        wait_sort_node.push(i);
+                        visit_flag[i] = true;
+                        cout << "Push: " << allnodevec[i].getName() << endl;
+                    }
+                }
+            }
+            topology_order.push_back(front_node);
+            wait_sort_node.pop();
+            cout << "=============" << endl;
+       }
+
+
+#if 0        
     //topology sort all nodes
         for (int i = 0; i < target.size(); i++) {
             topology_order.push_back(target[i]);
@@ -211,7 +260,14 @@ void Circuit_t::topology(int start_node_id)
        for (int i = 0; i < pi.size(); i++) {
             topology_order.push_back(pi[i]);
             visit_flag[pi[i]] = true;
-        }
+       }
+
+       //constant 0 & constant 1
+       topology_order.push_back(0);
+       visit_flag[0] = true;
+       topology_order.push_back(1);
+       visit_flag[1] = true;
+
 
 
         //push all gates (except for: PIs, TARGETs)
@@ -241,10 +297,13 @@ void Circuit_t::topology(int start_node_id)
             //all inputs of the node have already been pushed
                 topology_order.push_back(front_node);
                 visit_flag[front_node] = true;
+            } else {
+                wait_sort_node.push(front_node);
             }
 
             wait_sort_node.pop();
         }
+#endif
 
     } else {
         // assign start_node_id
@@ -257,15 +316,23 @@ void Circuit_t::topology(int start_node_id)
             wait_sort_node.push(target[i]);
         }
 
+        visit_flag[0] = false;
+        wait_sort_node.push(0);
+        visit_flag[1] = false;
+        wait_sort_node.push(1);
 
-        //find all fanout of start_node_id
-        while (wait_sort_node.size() != 0) {
+
+       //find all fanout of start_node_id
+       while (wait_sort_node.size() != 0) {
             front_node = wait_sort_node.front();
+           // cout << "##front: " << front_node << endl;
             for (int i = 0; i < allnodevec.size(); i++) {
                 if ((allnodevec[i].getType() != PORT) && (visit_flag[i] == true)) {
                     ready_flag = true;
                     for (int in_i = 0; in_i < allnodevec[i].in.size(); in_i++) {
+                        //cout << "fanout: " << allnodevec[i].in[in_i] << endl;
                         if (front_node == allnodevec[i].in[in_i]) {
+                            //cout << "##find fanout:" << allnodevec[i].in[in_i] << endl;
                             ready_flag = false;
                             break;
                         }
@@ -280,15 +347,15 @@ void Circuit_t::topology(int start_node_id)
             topology_order.push_back(front_node);
         }
     }
-/*
-	#if EN_DEBUG_SIM
+
+	#if 1
     cout << "Topology(" << start_node_id << "):" << endl;
 	for (int i = 0; i < topology_order.size(); i++) {
 		cout << allnodevec[topology_order[i]].getName() << endl;
 	}
     cout << endl;
 	#endif
-*/
+
 }
 
 
@@ -405,6 +472,12 @@ void Circuit_t::init_simulation()
 		}
 	}
 
+    //constant 0 & constant 1
+    if (allnodevalue.size() > 1) {
+        allnodevalue[0] = 0;
+        allnodevalue[1] = -1;
+    }
+
 }
 
 
@@ -437,15 +510,14 @@ void Circuit_t::simulation(int gray_diff)
 	for(int i = 0; i < topology_order.size(); i++) {
 		type = allnodevec[topology_order[i]].getType();
 		if (type != PORT) {
-			//not PI, t_x
+			//not PI, t_x, constant 0, constant 1
 			allnodevalue[topology_order[i]] = calculate_gate_out(type, allnodevec[topology_order[i]].in);
 		}
 	}
-	//cout<<"After..."<<endl;
-    //for(int i = 0; i < allnodevec.size(); i++) {
-	//cout << allnodevec[i].getName() << " " << bitset<32>(allnodevalue[i]) << endl;
-    //
-    //}
+	cout<<"After..."<<endl;
+    for(int i = 0; i < allnodevec.size(); i++) {
+        cout << allnodevec[i].getName() << "\t" << bitset<32>(allnodevalue[i]) << endl;
+    }
 	
 	
 	po_value.resize(0);
