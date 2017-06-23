@@ -20,6 +20,7 @@ int main(int argc, char * argv[])
         return 0; 
     }
 	
+	cktf.NewPI(cktg);
 	//cktf.print();
 	
 
@@ -92,5 +93,6 @@ int main(int argc, char * argv[])
     write_pla(signature, piName, targetName, graydiff);
 
    // cktg.writefile(argv[5]);
+  
     return 0;
 }

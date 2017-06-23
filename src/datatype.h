@@ -88,6 +88,13 @@ public:
 	void print_pi();
 	void print_po();
     void print_topology();
+	
+	///////////////////////CCW/////////////////////////////////
+	vector<int> newpi;
+	int NewPI(Circuit_t &c2);
+	void CompareNode(int node1, int node2, Circuit_t &c2);
+	bool IsPiReplace(int node1, vector <int> &New, vector <int> &relateNode, vector <int> &NodetoCheck, vector <int> &visit, vector <int> &ready);
+	void ReplacePi(vector <int> &New, vector <int> &RelateNode);
 };
 
 
