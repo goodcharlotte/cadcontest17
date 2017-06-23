@@ -76,7 +76,7 @@ public:
 	vector<int> po_value;
 	vector<int> allnodevalue;
     bool readfile(char* fname);
-    bool writefile(char* fname);
+    bool writefile(char* fname, vector<int> candidate);
     void print();
 	void topology(int start_node_id);
     int get_pi_size() { return pi.size(); }

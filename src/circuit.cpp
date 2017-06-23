@@ -104,7 +104,7 @@ bool Circuit_t::readfile(char* fname)
     return true;
 }
 
-bool Circuit_t::writefile(char* fname)
+bool Circuit_t::writefile(char* fname, vector<int> candidate)
 {   
     ofstream file(fname);
     if (!file) return false;
@@ -167,6 +167,25 @@ bool Circuit_t::writefile(char* fname)
         }
         file << " );" << endl;
 
+    }
+    
+    if (candidate.size() != 0) {
+        file << "patch p0 (";
+        for (int i = 0; i < target.size(); i++) {
+            if (i == 0) {
+                file << "." << allnodevec[target[i]].getName() << "(" 
+                << allnodevec[target[i]].getName() << ")";
+            } else {
+                file << ", ." << allnodevec[target[i]].getName() << "("
+                << allnodevec[target[i]].getName() << ")";
+            }
+        }
+        for (int i = 0; i < candidate.size(); i++) {
+            file << ", ." << allnodevec[candidate[i]].getName() << "(" 
+                 << allnodevec[candidate[i]].getName() 
+                 << ")";
+        }
+        file << ");" << endl;
     }
 	
     file << "endmodule" << endl;

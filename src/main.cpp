@@ -92,7 +92,7 @@ int main(int argc, char * argv[])
     
     write_pla(signature, piName, targetName, graydiff);
 
-   // cktg.writefile(argv[5]);
+    cktf.writefile(argv[5], cktf.pi);
   
     return 0;
 }
