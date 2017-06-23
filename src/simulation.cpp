@@ -192,7 +192,6 @@ void Circuit_t::topology(int start_node_id)
     all_simulation = false;
     input_node = -1;
 
-    
 	if (start_node_id == SIM_ALL) {
         all_simulation = true;
     } else {
@@ -249,72 +248,10 @@ void Circuit_t::topology(int start_node_id)
             cout << "=============" << endl;
        }
 
-
-#if 0        
-    //topology sort all nodes
-        for (int i = 0; i < target.size(); i++) {
-            topology_order.push_back(target[i]);
-            visit_flag[target[i]] = true;
-        }
-
-       for (int i = 0; i < pi.size(); i++) {
-            topology_order.push_back(pi[i]);
-            visit_flag[pi[i]] = true;
-       }
-
-       //constant 0 & constant 1
-       topology_order.push_back(0);
-       visit_flag[0] = true;
-       topology_order.push_back(1);
-       visit_flag[1] = true;
-
-
-
-        //push all gates (except for: PIs, TARGETs)
-        for (int i = 0; i < allnodevec.size(); i++) {
-            if (allnodevec[i].getType() != PORT) {
-                wait_sort_node.push(i);
-            }
-        }
-
-        while (wait_sort_node.size() != 0)
-        {
-            ready_flag = true;
-            front_node = wait_sort_node.front();
-
-            for (int in_i = 0; in_i < allnodevec[front_node].in.size(); in_i++) {
-                input_node = allnodevec[front_node].in[in_i];
-
-                if ( visit_flag[input_node] == false ) {
-                //not ready to push in topology_order
-                    wait_sort_node.push(front_node);
-                    ready_flag = false;
-                    break;
-                }
-            }
-
-            if (ready_flag == true) {
-            //all inputs of the node have already been pushed
-                topology_order.push_back(front_node);
-                visit_flag[front_node] = true;
-            } else {
-                wait_sort_node.push(front_node);
-            }
-
-            wait_sort_node.pop();
-        }
-#endif
-
     } else {
         // assign start_node_id
         visit_flag[start_node_id] = false;
         wait_sort_node.push(start_node_id);
-
-        // push t_x nodes fanouts
-        for (int i = 0; i < target.size(); i++) {
-            visit_flag[target[i]] = false;
-            wait_sort_node.push(target[i]);
-        }
 
         visit_flag[0] = false;
         wait_sort_node.push(0);
@@ -338,7 +275,6 @@ void Circuit_t::topology(int start_node_id)
                         }
                     }
                     if (ready_flag == false) {
-                        visit_flag[i] = false;
                         wait_sort_node.push(i);
                     }
                 }
@@ -347,18 +283,33 @@ void Circuit_t::topology(int start_node_id)
             topology_order.push_back(front_node);
         }
     }
+    
+    // push t_x nodes fanouts
+    for (int i = 0; i < target.size(); i++) {
+        visit_flag[target[i]] = false;
+        wait_sort_node.push(target[i]);
+    }
+
+    visit_flag[0] = false;
+    wait_sort_node.push(0);
+    visit_flag[1] = false;
+    wait_sort_node.push(1);
+
+   
 
 	#if 1
+    if((start_node_id == -1)||(start_node_id == 12)){
     cout << "Topology(" << start_node_id << "):" << endl;
 	for (int i = 0; i < topology_order.size(); i++) {
 		cout << allnodevec[topology_order[i]].getName() << endl;
 	}
     cout << endl;
+    }
 	#endif
 
 }
 
-
+ 
 
 void Circuit_t::input_target_pattern(int target_value)
 {
@@ -515,10 +466,10 @@ void Circuit_t::simulation(int gray_diff)
 			allnodevalue[topology_order[i]] = calculate_gate_out(type, allnodevec[topology_order[i]].in);
 		}
 	}
-	cout<<"After..."<<endl;
-    for(int i = 0; i < allnodevec.size(); i++) {
-        cout << allnodevec[i].getName() << "\t" << bitset<32>(allnodevalue[i]) << endl;
-    }
+	//cout<<"After..."<<endl;
+    //for(int i = 0; i < allnodevec.size(); i++) {
+        //cout << allnodevec[i].getName() << "\t" << bitset<32>(allnodevalue[i]) << endl;
+    //}
 	
 	
 	po_value.resize(0);
