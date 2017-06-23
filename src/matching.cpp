@@ -13,9 +13,9 @@ vector<int> visitNodC1, visitNodC2;
 
 int Circuit_t::NewPI(Circuit_t &c2)        //c2 == cktg
 {
-
 	vector<int>::iterator eraseit;
-	
+	int temp_node;
+	int find;
 	vector< vector<int> > group;
 	vector<int> tempgroup;
 	vector<int> temp;
@@ -24,6 +24,9 @@ int Circuit_t::NewPI(Circuit_t &c2)        //c2 == cktg
 	vector <int> NodetoCheck;
 	vector <int> ready;
 	vector <int> relateNode;
+	vector <int> removeCandiate;
+	vector <int> removeNode;
+	
 
 	
 
@@ -125,13 +128,12 @@ int Circuit_t::NewPI(Circuit_t &c2)        //c2 == cktg
 	
 
 	if ( newpi.size() >= pi.size() ){
-//		cout<<"newpi.size >= pi.size"<<endl;
-//		cout<<"newpi: "<<newpi.size()<<" pi.size: "<<pi.size()<<endl;
+		//cout<<"newpi.size >= pi.size"<<endl;
+	//	cout<<"newpi: "<<newpi.size()<<" pi.size: "<<pi.size()<<endl;
 		newpi.clear();
 		newpi.assign(pi.begin(), pi.end());
 		c2.newpi.clear();
 		c2.newpi.assign(c2.pi.begin(), c2.pi.end());
-		return 0;
 	}
 	else {
 		c2.newpi.clear();
@@ -139,9 +141,102 @@ int Circuit_t::NewPI(Circuit_t &c2)        //c2 == cktg
 			c2.newpi.push_back(WireMapC1[newpi[i]]);
 		}
 	}
-/*	
-	cout<<"newpi: "<<newpi.size()<<" pi.size: "<<pi.size()<<endl;
 	
+	removeCandiate.clear();
+	
+	for (int i = 0; i < newpi.size(); i++) {
+		
+	
+		if (allnodevec[newpi[i]].out.size() == 0) {
+//			cout<<"C1 candidate node: "<<allnodevec[newpi[i]].getName()<<endl;
+			removeCandiate.push_back(WireMapC1[newpi[i]]);
+		}
+		else if (allnodevec[newpi[i]].out.size() == 1 && (allnodevec[newpi[i]].getType() == BUF || allnodevec[newpi[i]].getType() == NOT || allnodevec[newpi[i]].getType() == PORT) ) {
+			temp_node = newpi[i];
+			
+			while (allnodevec[temp_node].out.size() == 1) {
+				temp_node = allnodevec[temp_node].out[0];
+					
+				if (allnodevec[temp_node].out.size() == 0 && (allnodevec[temp_node].getType() == BUF || allnodevec[temp_node].getType() == NOT) && WireMapC1[temp_node] !=-1 ) {
+//					cout<<"C1 candidate node: "<<allnodevec[newpi[i]].getName()<<endl;
+					removeCandiate.push_back(WireMapC1[newpi[i]]);
+					
+					break;
+				}
+				else if (allnodevec[temp_node].getType() != BUF && allnodevec[temp_node].getType() != NOT) {
+					break;
+				}
+				else if (WireMapC1[temp_node] ==-1) {
+					break;
+				}
+			}
+		}
+		else ;
+	}
+	
+	
+	for (int i = 0; i < c2.newpi.size(); i++) {
+		find = 0;
+		
+		for (int j = 0; j < removeCandiate.size(); j++) {
+			if(c2.newpi[i] == removeCandiate[j]) {
+				find = 1;
+				break;
+			}
+			else {
+				
+			}
+		}
+		
+		if (find == 0){
+			continue;
+		}
+	
+		if (c2.allnodevec[c2.newpi[i]].out.size() == 0) {
+//			cout<<"C2 candidate node: "<<c2.allnodevec[c2.newpi[i]].getName()<<endl;
+			removeNode.push_back(c2.newpi[i]);
+		}
+		else if (c2.allnodevec[c2.newpi[i]].out.size() == 1 && (c2.allnodevec[c2.newpi[i]].getType() == BUF || c2.allnodevec[c2.newpi[i]].getType() == NOT || c2.allnodevec[c2.newpi[i]].getType() == PORT) ) {
+			temp_node = c2.newpi[i];
+			
+			while (c2.allnodevec[temp_node].out.size() == 1) {
+				temp_node = c2.allnodevec[temp_node].out[0];
+					
+				if (c2.allnodevec[temp_node].out.size() == 0 && (c2.allnodevec[temp_node].getType() == BUF || c2.allnodevec[temp_node].getType() == NOT) && WireMapC2[temp_node] !=-1 ) {
+//					cout<<"C2 candidate node: "<<c2.allnodevec[c2.newpi[i]].getName()<<endl;
+					removeNode.push_back(c2.newpi[i]);
+					
+					break;
+				}
+				else if (c2.allnodevec[temp_node].getType() != BUF && c2.allnodevec[temp_node].getType() != NOT) {
+					break;
+				}
+				else if (WireMapC2[temp_node] ==-1) {
+					break;
+				}
+			}
+		}
+		else ;
+	}
+	
+	for (int i = 0; i < removeNode.size(); i++) {
+		for (int j = 0; j < c2.newpi.size(); j++) {
+			if (removeNode[i] == c2.newpi[j]) {
+				cout<<"C1redundant node: "<<allnodevec[newpi[j]].getName()<<"C2redundant node: "<<c2.allnodevec[c2.newpi[j]].getName()<<endl;
+				newpi.erase(newpi.begin()+j);
+				c2.newpi.erase(c2.newpi.begin()+j);
+				break;
+			}
+			else {
+				
+			}
+		}
+	}
+	
+	
+	
+	cout<<"newpi: "<<newpi.size()<<" pi.size: "<<pi.size()<<endl;
+	/*
 	cout<<endl<<endl<<"Final pi C1: ";
 	for(int i = 0; i < newpi.size(); i++) {
 		cout<<allnodevec[newpi[i]].getName()<<" ";
@@ -154,9 +249,7 @@ int Circuit_t::NewPI(Circuit_t &c2)        //c2 == cktg
 	}
 	cout<<endl;
 	*/
-	return 1;
-	
-	
+	return 0;
 	
 }
 
@@ -203,7 +296,7 @@ bool Circuit_t::IsPiReplace(int node, vector <int> &New, vector <int> &relateNod
 	currentNextlevelNodeNum = nextlevelNode.size();
 	
 	if (currentNextlevelNodeNum == 0) {
-//		cout<<allnodevec[node].getName()<<" is PO"<<endl;
+	//	cout<<allnodevec[node].getName()<<" is PO"<<endl;
 		return 0;
 	}
 	
