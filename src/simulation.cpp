@@ -103,6 +103,7 @@ void find_signature(vector< vector<string> > &sig, int target_size, int pi_size,
 	vector<string> tar_minterm;
 	string tar_str;
 	int end = 0;
+	int tar_leng = (int)pow(2, target_size);
 	if (pi_size < OFFSET_BIT) {
 		end = 	SHOW_BIT_SET - (int)pow(2, pi_size);
 	}
@@ -110,7 +111,7 @@ void find_signature(vector< vector<string> > &sig, int target_size, int pi_size,
 		debug_print("bit" << bit);
 		debug_print("  minterm = ");
 		tar_minterm.clear();
-		for (int tar = 0; tar < target_size ; tar++) {
+		for (int tar = 0; tar < tar_leng ; tar++) {
 			if ( ! GET_BIT(po_diff[tar], bit)) {
 				tar_str = to_str(tar, target_size);
 				debug_print(tar_str << " ");
