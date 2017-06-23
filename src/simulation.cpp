@@ -253,6 +253,12 @@ void Circuit_t::topology(int start_node_id)
         visit_flag[start_node_id] = false;
         wait_sort_node.push(start_node_id);
 
+        // push t_x nodes fanouts
+        for (int i = 0; i < target.size(); i++) {
+            visit_flag[target[i]] = false;
+            wait_sort_node.push(target[i]);
+        }
+
         visit_flag[0] = false;
         wait_sort_node.push(0);
         visit_flag[1] = false;
@@ -283,19 +289,7 @@ void Circuit_t::topology(int start_node_id)
             topology_order.push_back(front_node);
         }
     }
-    
-    // push t_x nodes fanouts
-    for (int i = 0; i < target.size(); i++) {
-        visit_flag[target[i]] = false;
-        wait_sort_node.push(target[i]);
-    }
-
-    visit_flag[0] = false;
-    wait_sort_node.push(0);
-    visit_flag[1] = false;
-    wait_sort_node.push(1);
-
-   
+  
 
 	#if 1
     if((start_node_id == -1)||(start_node_id == 12)){
