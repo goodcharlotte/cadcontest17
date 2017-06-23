@@ -28,7 +28,7 @@ using namespace::std;
 #define GRAY_NO_CHAGNE -3
 #define SIM_ALL -1
 
-#define ALL_ONE 4294967295
+
 
 vector<int> generate_graycode(int n);	
 void find_signature(vector< vector<string> > &sig, int target_size, int pi_size, int po_diff[]);

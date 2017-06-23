@@ -421,7 +421,7 @@ int Circuit_t::calculate_gate_out(GateType gate_type, vector<int> in)
 void Circuit_t::print_pi()
 {
 	for(int i = 0; i < pi.size(); i++) { 
-		cout<<  bitset<SHOW_BIT_SET>(allnodevalue[pi[i]]) << endl;
+		cout << allnodevec[pi[i]].getName() <<"  "<< bitset<SHOW_BIT_SET>(allnodevalue[pi[i]]) << endl;
 	}	
 }
 
@@ -429,10 +429,11 @@ void Circuit_t::print_pi()
 void Circuit_t::print_po()
 {
 	for(int i = 0; i < po_value.size(); i++) { 
-		cout<<  bitset<SHOW_BIT_SET>(po_value[i]) << endl;
+		cout << allnodevec[po[i]].getName() <<"  "<< bitset<SHOW_BIT_SET>(po_value[i]) << endl;
 	}
 	
 }
+
 
 void Circuit_t::init_simulation() 
 {
