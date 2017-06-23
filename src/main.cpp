@@ -71,7 +71,7 @@ int main(int argc, char * argv[])
 		
 	}
 
-	print_signature(signature);
+	//print_signature(signature);
 	
     vector<string> piName;
     vector<string> targetName;
@@ -91,7 +91,7 @@ int main(int argc, char * argv[])
     }
     
     write_pla(signature, piName, targetName, graydiff);
-
+     
     cktf.writefile(argv[5], cktf.pi);
   
     return 0;

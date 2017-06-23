@@ -8,7 +8,7 @@
 using namespace::std;
 
 
-#define EN_DEBUG_SIM 1
+#define EN_DEBUG_SIM 0
 #if EN_DEBUG_SIM
 #define debug_print(x) do { cout << x; } while (0)
 #else 

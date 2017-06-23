@@ -222,7 +222,6 @@ void Circuit_t::topology(int start_node_id)
        //find all fanout of start_node_id
        while (wait_sort_node.size() != 0) {
             front_node = wait_sort_node.front();
-            cout << "front: " << allnodevec[front_node].getName() << endl;
             for (int i = 0; i < allnodevec.size(); i++) {
                 find_flag = false;
                 ready_flag = true;
@@ -239,13 +238,11 @@ void Circuit_t::topology(int start_node_id)
                     if (ready_flag && find_flag) {
                         wait_sort_node.push(i);
                         visit_flag[i] = true;
-                        cout << "Push: " << allnodevec[i].getName() << endl;
                     }
                 }
             }
             topology_order.push_back(front_node);
             wait_sort_node.pop();
-            cout << "=============" << endl;
        }
 
     } else {
@@ -268,14 +265,11 @@ void Circuit_t::topology(int start_node_id)
        //find all fanout of start_node_id
        while (wait_sort_node.size() != 0) {
             front_node = wait_sort_node.front();
-           // cout << "##front: " << front_node << endl;
             for (int i = 0; i < allnodevec.size(); i++) {
                 if ((allnodevec[i].getType() != PORT) && (visit_flag[i] == true)) {
                     ready_flag = true;
                     for (int in_i = 0; in_i < allnodevec[i].in.size(); in_i++) {
-                        //cout << "fanout: " << allnodevec[i].in[in_i] << endl;
                         if (front_node == allnodevec[i].in[in_i]) {
-                            //cout << "##find fanout:" << allnodevec[i].in[in_i] << endl;
                             ready_flag = false;
                             break;
                         }
@@ -291,7 +285,7 @@ void Circuit_t::topology(int start_node_id)
     }
   
 
-	#if 1
+	#if 0
     if((start_node_id == -1)||(start_node_id == 12)){
     cout << "Topology(" << start_node_id << "):" << endl;
 	for (int i = 0; i < topology_order.size(); i++) {

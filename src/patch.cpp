@@ -64,7 +64,7 @@ void write_pla(const vector< vector<string> > &sig, vector<string> &piName, vect
         sig_i = 0;
         for (gray_i = 0; gray_i < graydiff.size(); gray_i++) {
             //reverse the bit
-            diff_bit = graydiff[gray_i];
+            diff_bit = gray_pattern.size() - 1 - graydiff[gray_i];
             if (diff_bit == GRAY_INIT) {
                 gray_pattern = gray_pattern;
             } else {
@@ -78,7 +78,7 @@ void write_pla(const vector< vector<string> > &sig, vector<string> &piName, vect
             for (offset_i = 0; offset_i < SHOW_BIT_SET; offset_i++) {
                 bitset <OFFSET_BIT> bit_num(offset_i);
 
-                w_file << gray_pattern << bit_num << " ";
+                w_file << gray_pattern  << bit_num << " ";
 
                 if (sig[sig_i].size() > 0) {
                     w_file << sig[sig_i][0] << endl;
