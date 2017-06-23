@@ -1,0 +1,4 @@
+read patch.pla
+read_library mcnc.genlib
+map
+write_verilog 1.v
