@@ -68,6 +68,7 @@ private:
     //vector<int> pi;
     vector<int> po;
     vector<int> topology_order;
+    vector<int> topology_id;
 	vector<int> greycode_diff;
 
 public:
@@ -90,13 +91,14 @@ public:
 	void print_pi();
 	void print_po();
     void print_topology();
-	void change_node_value(int node_id);
+	void sort_topology();
 	///////////////////////CCW/////////////////////////////////
 	vector<int> newpi;
 	int NewPI(Circuit_t &c2);
 	void CompareNode(int node1, int node2, Circuit_t &c2);
 	bool IsPiReplace(int node1, vector <int> &New, vector <int> &relateNode, vector <int> &NodetoCheck, vector <int> &visit, vector <int> &ready);
 	void ReplacePi(vector <int> &New, vector <int> &RelateNode);
+    void UpdatePi();
 };
 
 

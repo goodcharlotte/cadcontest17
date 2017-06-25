@@ -22,7 +22,10 @@ int main(int argc, char * argv[])
 	
 	cktf.NewPI(cktg);
 	//cktf.print();
-	
+
+    cktf.UpdatePi();
+    cktg.UpdatePi();
+
 
 	int pi_size = cktf.get_pi_size();
 	vector<int> graydiff = generate_graycode(pi_size - OFFSET_BIT);
@@ -32,6 +35,7 @@ int main(int argc, char * argv[])
 	vector< vector<string> > signature;
 	
 	for(int i = 0; i < graydiff.size(); i++) {
+        cout << "sim: " << i << ", gray: " << graydiff[i] << endl;
 		cktg.simulation(graydiff[i]);
 		for(int j = 0; j < target_leng; j++) {
 			cktf.input_target_pattern(j);
@@ -40,7 +44,7 @@ int main(int argc, char * argv[])
 			} else {
 				cktf.simulation(GRAY_NO_CHAGNE);
 			}
-		
+		cout << "###########" << endl;
 			#if EN_DEBUG_SIM
 			cout<< "Iput pattern--- "<<endl;
 			cout<< "target ="<<" "<< j <<endl;
