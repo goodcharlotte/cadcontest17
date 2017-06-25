@@ -210,9 +210,9 @@ void Circuit_t::topology(int start_node_id)
             visit_flag[target[i]] = true;
         }
 
-       for (int i = 0; i < pi.size(); i++) {
-            wait_sort_node.push(pi[i]);
-            visit_flag[pi[i]] = true;
+       for (int i = 0; i < newpi.size(); i++) {
+            wait_sort_node.push(newpi[i]);
+            visit_flag[newpi[i]] = true;
        }
 
        //constant 0 & constant 1
@@ -429,18 +429,18 @@ void Circuit_t::init_simulation()
 	#endif 
 	
 	input_target_pattern(0);
-	int pi_szie = pi.size();
-	if (pi_szie <= OFFSET_BIT) {
-		for (int i = 0; i < pi_szie; i++) {
-			allnodevalue[pi[i]] = offset_value[i];
+	int newpi_szie = newpi.size();
+	if (newpi_szie <= OFFSET_BIT) {
+		for (int i = 0; i < newpi_szie; i++) {
+			allnodevalue[newpi[i]] = offset_value[i];
 		}
 	}
 	else {
 		for (int i = 0; i < OFFSET_BIT; i++) {
-			allnodevalue[pi[i]] = offset_value[i];
+			allnodevalue[newpi[i]] = offset_value[i];
 		}
-		for (int i = OFFSET_BIT; i < pi_szie; i++) {
-			allnodevalue[pi[i]] = 0;
+		for (int i = OFFSET_BIT; i < newpi_szie; i++) {
+			allnodevalue[newpi[i]] = 0;
 		}
 	}
 
@@ -467,8 +467,8 @@ void Circuit_t::simulation(int gray_diff)
 		topology(SIM_ALL);
 		init_simulation();
 	} else if (gray_diff >= 0) {
-		allnodevalue[pi[gray_to_change]] = ~ (allnodevalue[pi[gray_to_change]]);
-		topology(pi[gray_to_change]);
+		allnodevalue[newpi[gray_to_change]] = ~ (allnodevalue[newpi[gray_to_change]]);
+		topology(newpi[gray_to_change]);
 	}
 	
 	//cout<<"Before..."<<endl;

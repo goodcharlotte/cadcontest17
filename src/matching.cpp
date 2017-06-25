@@ -222,7 +222,7 @@ int Circuit_t::NewPI(Circuit_t &c2)        //c2 == cktg
 	for (int i = 0; i < removeNode.size(); i++) {
 		for (int j = 0; j < c2.newpi.size(); j++) {
 			if (removeNode[i] == c2.newpi[j]) {
-				cout<<"C1redundant node: "<<allnodevec[newpi[j]].getName()<<"C2redundant node: "<<c2.allnodevec[c2.newpi[j]].getName()<<endl;
+				//cout<<"C1redundant node: "<<allnodevec[newpi[j]].getName()<<"C2redundant node: "<<c2.allnodevec[c2.newpi[j]].getName()<<endl;
 				newpi.erase(newpi.begin()+j);
 				c2.newpi.erase(c2.newpi.begin()+j);
 				break;
@@ -235,7 +235,7 @@ int Circuit_t::NewPI(Circuit_t &c2)        //c2 == cktg
 	
 	
 	
-	cout<<"newpi: "<<newpi.size()<<" pi.size: "<<pi.size()<<endl;
+	//cout<<"newpi: "<<newpi.size()<<" pi.size: "<<pi.size()<<endl;
 	/*
 	cout<<endl<<endl<<"Final pi C1: ";
 	for(int i = 0; i < newpi.size(); i++) {
@@ -421,6 +421,7 @@ void Circuit_t::CompareNode(int node1, int node2, Circuit_t &c2)
 	return ;
 }
 
+/*
 void Circuit_t::UpdatePi()
 {
     pi.clear();
@@ -429,4 +430,4 @@ void Circuit_t::UpdatePi()
     for (int i = 0; i < newpi.size(); i++) {
         pi[i] = newpi[i];
     }
-}
+}*/

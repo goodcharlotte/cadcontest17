@@ -23,19 +23,18 @@ int main(int argc, char * argv[])
 	cktf.NewPI(cktg);
 	//cktf.print();
 
-    cktf.UpdatePi();
-    cktg.UpdatePi();
+    //cktf.UpdatePi();
+    //cktg.UpdatePi();
 
 
-	int pi_size = cktf.get_pi_size();
-	vector<int> graydiff = generate_graycode(pi_size - OFFSET_BIT);
+	int newpi_size = cktf.newpi.size();
+	vector<int> graydiff = generate_graycode(newpi_size - OFFSET_BIT);
 	int target_size = (cktf.target).size();
 	int target_leng = (int)pow(2, target_size);
 	int xor_f_g[target_leng];
 	vector< vector<string> > signature;
 	
 	for(int i = 0; i < graydiff.size(); i++) {
-        cout << "sim: " << i << ", gray: " << graydiff[i] << endl;
 		cktg.simulation(graydiff[i]);
 		for(int j = 0; j < target_leng; j++) {
 			cktf.input_target_pattern(j);
@@ -44,11 +43,10 @@ int main(int argc, char * argv[])
 			} else {
 				cktf.simulation(GRAY_NO_CHAGNE);
 			}
-		cout << "###########" << endl;
 			#if EN_DEBUG_SIM
 			cout<< "Iput pattern--- "<<endl;
 			cout<< "target ="<<" "<< j <<endl;
-			cktf.print_pi();
+			cktf.print_pi(); //old pi
 			cout<< "*****cktf output*****"<<endl;
 			cktf.print_po();
 			cout<< "*****cktg output*****" <<endl;
@@ -71,7 +69,7 @@ int main(int argc, char * argv[])
 		}
 		#endif
 		
-		find_signature(signature, target_size, pi_size, xor_f_g);
+		find_signature(signature, target_size, newpi_size, xor_f_g);
 		
 	}
 
@@ -80,10 +78,10 @@ int main(int argc, char * argv[])
     vector<string> piName;
     vector<string> targetName;
 
-    piName.resize(cktf.get_pi_size());
-    for(int i = 0; i < cktf.get_pi_size(); i++) {
+    piName.resize(cktf.newpi.size());
+    for(int i = 0; i < cktf.newpi.size(); i++) {
         int node_id;
-        node_id = cktf.pi[i];
+        node_id = cktf.newpi[i];
         piName[i] = cktf.allnodevec[node_id].getName();
     }
 
@@ -95,8 +93,9 @@ int main(int argc, char * argv[])
     }
     
     write_pla(signature, piName, targetName, graydiff);
-     
-    cktf.writefile(argv[5], cktf.pi);
+
+    system("./abc -f map.script");
+    cktf.writefile(argv[5], cktf.newpi);
   
     return 0;
 }
