@@ -15,7 +15,7 @@ int main(int argc, char * argv[])
     } 
 
     Circuit_t cktf, cktg;
-    if (!cktf.readfile(argv[1]) || !cktg.readfile(argv[2])) {
+    if (!cktf.readfile(argv[1]) || !cktg.readfile(argv[2]) || !cktf.readcost(argv[3])) {
         cout << "Read file error" << endl;
         return 0; 
     }
@@ -82,14 +82,14 @@ int main(int argc, char * argv[])
     for(int i = 0; i < cktf.newpi.size(); i++) {
         int node_id;
         node_id = cktf.newpi[i];
-        piName[i] = cktf.allnodevec[node_id].getName();
+        piName[i] = cktf.allnodevec[node_id].name;
     }
 
     targetName.resize(cktf.target.size());
     for(int i = 0; i < cktf.target.size(); i++) {
         int node_id;
         node_id = cktf.target[i];
-        targetName[i] = cktf.allnodevec[node_id].getName();
+        targetName[i] = cktf.allnodevec[node_id].name;
     }
     
     write_pla(signature, piName, targetName, graydiff);

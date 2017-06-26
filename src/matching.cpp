@@ -78,7 +78,7 @@ int Circuit_t::NewPI(Circuit_t &c2)        //c2 == cktg
 
 	for (int i = 0; i < allnodevec.size(); i++) {
 		if (WireMapC1[i] != -1) {
-//			cout<<"C1: "<<allnodevec[i].getName()<<" map C2: "<<c2.allnodevec[WireMapC1[i]].getName()<<endl;
+//			cout<<"C1: "<<allnodevec[i].name<<" map C2: "<<c2.allnodevec[WireMapC1[i]].name<<endl;
 		}
 	}
 
@@ -98,7 +98,7 @@ int Circuit_t::NewPI(Circuit_t &c2)        //c2 == cktg
 	while ( !NodetoCheck.empty() ) {
 		New.clear();
 		relateNode.clear();
-//		cout<<"Doing: "<<allnodevec[NodetoCheck[0]].getName()<<endl<<endl;
+//		cout<<"Doing: "<<allnodevec[NodetoCheck[0]].name<<endl<<endl;
 		if ( visit[NodetoCheck[0]] == 0) {
 
 			if(IsPiReplace(NodetoCheck[0], New, relateNode, NodetoCheck, visit, ready)) {
@@ -107,7 +107,7 @@ int Circuit_t::NewPI(Circuit_t &c2)        //c2 == cktg
 //				cout<<endl<<endl;
 //				cout<<"new round pi :";
 //				for (int i = 0; i < newpi.size(); i++){
-//					cout<<allnodevec[newpi[i]].getName()<<" ";
+//					cout<<allnodevec[newpi[i]].name<<" ";
 //				}
 //				cout<<endl<<endl;
 				
@@ -148,22 +148,22 @@ int Circuit_t::NewPI(Circuit_t &c2)        //c2 == cktg
 		
 	
 		if (allnodevec[newpi[i]].out.size() == 0) {
-//			cout<<"C1 candidate node: "<<allnodevec[newpi[i]].getName()<<endl;
+//			cout<<"C1 candidate node: "<<allnodevec[newpi[i]].name<<endl;
 			removeCandiate.push_back(WireMapC1[newpi[i]]);
 		}
-		else if (allnodevec[newpi[i]].out.size() == 1 && (allnodevec[newpi[i]].getType() == BUF || allnodevec[newpi[i]].getType() == NOT || allnodevec[newpi[i]].getType() == PORT) ) {
+		else if (allnodevec[newpi[i]].out.size() == 1 && (allnodevec[newpi[i]].type == BUF || allnodevec[newpi[i]].type == NOT || allnodevec[newpi[i]].type == PORT) ) {
 			temp_node = newpi[i];
 			
 			while (allnodevec[temp_node].out.size() == 1) {
 				temp_node = allnodevec[temp_node].out[0];
 					
-				if (allnodevec[temp_node].out.size() == 0 && (allnodevec[temp_node].getType() == BUF || allnodevec[temp_node].getType() == NOT) && WireMapC1[temp_node] !=-1 ) {
-//					cout<<"C1 candidate node: "<<allnodevec[newpi[i]].getName()<<endl;
+				if (allnodevec[temp_node].out.size() == 0 && (allnodevec[temp_node].type == BUF || allnodevec[temp_node].type == NOT) && WireMapC1[temp_node] !=-1 ) {
+//					cout<<"C1 candidate node: "<<allnodevec[newpi[i]].name<<endl;
 					removeCandiate.push_back(WireMapC1[newpi[i]]);
 					
 					break;
 				}
-				else if (allnodevec[temp_node].getType() != BUF && allnodevec[temp_node].getType() != NOT) {
+				else if (allnodevec[temp_node].type != BUF && allnodevec[temp_node].type != NOT) {
 					break;
 				}
 				else if (WireMapC1[temp_node] ==-1) {
@@ -193,22 +193,22 @@ int Circuit_t::NewPI(Circuit_t &c2)        //c2 == cktg
 		}
 	
 		if (c2.allnodevec[c2.newpi[i]].out.size() == 0) {
-//			cout<<"C2 candidate node: "<<c2.allnodevec[c2.newpi[i]].getName()<<endl;
+//			cout<<"C2 candidate node: "<<c2.allnodevec[c2.newpi[i]].name<<endl;
 			removeNode.push_back(c2.newpi[i]);
 		}
-		else if (c2.allnodevec[c2.newpi[i]].out.size() == 1 && (c2.allnodevec[c2.newpi[i]].getType() == BUF || c2.allnodevec[c2.newpi[i]].getType() == NOT || c2.allnodevec[c2.newpi[i]].getType() == PORT) ) {
+		else if (c2.allnodevec[c2.newpi[i]].out.size() == 1 && (c2.allnodevec[c2.newpi[i]].type == BUF || c2.allnodevec[c2.newpi[i]].type == NOT || c2.allnodevec[c2.newpi[i]].type == PORT) ) {
 			temp_node = c2.newpi[i];
 			
 			while (c2.allnodevec[temp_node].out.size() == 1) {
 				temp_node = c2.allnodevec[temp_node].out[0];
 					
-				if (c2.allnodevec[temp_node].out.size() == 0 && (c2.allnodevec[temp_node].getType() == BUF || c2.allnodevec[temp_node].getType() == NOT) && WireMapC2[temp_node] !=-1 ) {
-//					cout<<"C2 candidate node: "<<c2.allnodevec[c2.newpi[i]].getName()<<endl;
+				if (c2.allnodevec[temp_node].out.size() == 0 && (c2.allnodevec[temp_node].type == BUF || c2.allnodevec[temp_node].type == NOT) && WireMapC2[temp_node] !=-1 ) {
+//					cout<<"C2 candidate node: "<<c2.allnodevec[c2.newpi[i]].name<<endl;
 					removeNode.push_back(c2.newpi[i]);
 					
 					break;
 				}
-				else if (c2.allnodevec[temp_node].getType() != BUF && c2.allnodevec[temp_node].getType() != NOT) {
+				else if (c2.allnodevec[temp_node].type != BUF && c2.allnodevec[temp_node].type != NOT) {
 					break;
 				}
 				else if (WireMapC2[temp_node] ==-1) {
@@ -222,7 +222,7 @@ int Circuit_t::NewPI(Circuit_t &c2)        //c2 == cktg
 	for (int i = 0; i < removeNode.size(); i++) {
 		for (int j = 0; j < c2.newpi.size(); j++) {
 			if (removeNode[i] == c2.newpi[j]) {
-				//cout<<"C1redundant node: "<<allnodevec[newpi[j]].getName()<<"C2redundant node: "<<c2.allnodevec[c2.newpi[j]].getName()<<endl;
+				//cout<<"C1redundant node: "<<allnodevec[newpi[j]].name<<"C2redundant node: "<<c2.allnodevec[c2.newpi[j]].name<<endl;
 				newpi.erase(newpi.begin()+j);
 				c2.newpi.erase(c2.newpi.begin()+j);
 				break;
@@ -239,13 +239,13 @@ int Circuit_t::NewPI(Circuit_t &c2)        //c2 == cktg
 	/*
 	cout<<endl<<endl<<"Final pi C1: ";
 	for(int i = 0; i < newpi.size(); i++) {
-		cout<<allnodevec[newpi[i]].getName()<<" ";
+		cout<<allnodevec[newpi[i]].name<<" ";
 	}
 	cout<<endl;
 	
 	cout<<endl<<endl<<"Final pi C2: ";
 	for(int i = 0; i < c2.newpi.size(); i++) {
-		cout<<c2.allnodevec[c2.newpi[i]].getName()<<" ";
+		cout<<c2.allnodevec[c2.newpi[i]].name<<" ";
 	}
 	cout<<endl;
 	*/
@@ -296,17 +296,17 @@ bool Circuit_t::IsPiReplace(int node, vector <int> &New, vector <int> &relateNod
 	currentNextlevelNodeNum = nextlevelNode.size();
 	
 	if (currentNextlevelNodeNum == 0) {
-	//	cout<<allnodevec[node].getName()<<" is PO"<<endl;
+	//	cout<<allnodevec[node].name<<" is PO"<<endl;
 		return 0;
 	}
 	
 	while (lastRelateNodeNum < currentRelateNodeNum || lastNextlevelNodeNum < currentNextlevelNodeNum) {
 		lastRelateNodeNum = currentRelateNodeNum;
 		lastNextlevelNodeNum = currentNextlevelNodeNum;
-	//	cout<<allnodevec[relateNode[0]].getName()<<endl;
+	//	cout<<allnodevec[relateNode[0]].name<<endl;
 	//	cout<<"nextlevelNode : \n";
 		for (int i = 0; i < nextlevelNode.size(); i++) {
-	//		cout<<allnodevec[nextlevelNode[i]].getName()<<" ";
+	//		cout<<allnodevec[nextlevelNode[i]].name<<" ";
 			relateNode.insert(relateNode.end(), allnodevec[nextlevelNode[i]].in.begin(), allnodevec[nextlevelNode[i]].in.end());
 		}
 	//	cout<<endl;
@@ -319,7 +319,7 @@ bool Circuit_t::IsPiReplace(int node, vector <int> &New, vector <int> &relateNod
 		
 	//	cout<<"new related node: \n";
 		for (int i = 0; i < relateNode.size(); i++) {
-	//		cout<<allnodevec[relateNode[i]].getName()<<" ";
+	//		cout<<allnodevec[relateNode[i]].name<<" ";
 
 			nextlevelNode.insert(nextlevelNode.end(), allnodevec[relateNode[i]].out.begin(), allnodevec[relateNode[i]].out.end());
 		}
@@ -338,13 +338,13 @@ bool Circuit_t::IsPiReplace(int node, vector <int> &New, vector <int> &relateNod
 			visit[relateNode[i]] = 1;
 		}
 		else {
-	//		cout<<endl<<"not ready node: "<<allnodevec[relateNode[i]].getName()<<" must add in check node and check"<<endl;
+	//		cout<<endl<<"not ready node: "<<allnodevec[relateNode[i]].name<<" must add in check node and check"<<endl;
 		}
 	}
 	
 	for (int i = 0; i < relateNode.size(); i++) {
 		if (WireMapC1[relateNode[i]] == -1) {
-	//		cout<<"related node : "<<allnodevec[relateNode[i]].getName()<<" not mapped any other!"<<endl;
+	//		cout<<"related node : "<<allnodevec[relateNode[i]].name<<" not mapped any other!"<<endl;
 			return 0;
 		}
 		else {
@@ -355,7 +355,7 @@ bool Circuit_t::IsPiReplace(int node, vector <int> &New, vector <int> &relateNod
 	for (int i = 0; i < nextlevelNode.size(); i++) {
 		ready[nextlevelNode[i]] = 1;
 		if (WireMapC1[nextlevelNode[i]] == -1) {
-	//		cout<<"nextlevelNode node : "<<allnodevec[nextlevelNode[i]].getName()<<" not mapped any other!"<<endl;
+	//		cout<<"nextlevelNode node : "<<allnodevec[nextlevelNode[i]].name<<" not mapped any other!"<<endl;
 			return 0;
 		}
 		else {
@@ -365,7 +365,7 @@ bool Circuit_t::IsPiReplace(int node, vector <int> &New, vector <int> &relateNod
 	
 	New.assign(nextlevelNode.begin(), nextlevelNode.end());
 	
-//	cout<<endl<<allnodevec[node].getName()<<" done!!"<<endl;
+//	cout<<endl<<allnodevec[node].name<<" done!!"<<endl;
 	return 1;
 	
 }
@@ -374,7 +374,7 @@ void Circuit_t::CompareNode(int node1, int node2, Circuit_t &c2)
 {
 	int match;
 	int mismatch = 0;
-	if ( (allnodevec[node1].getType() != c2.allnodevec[node2].getType()) || (allnodevec[node1].in.size() != c2.allnodevec[node2].in.size()) ) {
+	if ( (allnodevec[node1].type != c2.allnodevec[node2].type) || (allnodevec[node1].in.size() != c2.allnodevec[node2].in.size()) ) {
 		mismatch = 1;
 		return ;
 	}    // type or number of fanins are different  == mismatch

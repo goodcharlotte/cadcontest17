@@ -44,47 +44,39 @@ enum GateType {BUF, NOT, AND, NAND, OR, NOR, XOR, NXOR, PORT};
 
 class Node_t
 {
-private:
+public:
     string name;
     GateType type;
-
-public:
+    int cost;
     vector<int> in;
     vector<int> out;
     Node_t(string n, GateType t);
-    inline void addinput(int i) { in.push_back(i); }
-    inline void addoutput(int i) { out.push_back(i); }
-    inline void setType(GateType t) { type = t; }
-    inline GateType getType() { return type; }
-    inline string getName() { return name; }
+    
     void print(vector<Node_t> allnode);
 };
 
 class Circuit_t
 {
-private:
-    //vector<Node_t> allnodevec;
+public:
     map<string, int> allnodemap;
     map<string, int>::iterator iter;
-    //vector<int> pi;
+    
+    vector<int> pi;
     vector<int> po;
     vector<int> topology_order;
     vector<int> topology_id;
 	vector<int> greycode_diff;
-
-public:
-    Circuit_t();
-    vector<int> pi;
     vector<Node_t> allnodevec;
 	vector<int> target;
 	vector<int> po_value;
 	vector<int> allnodevalue;
+
+    Circuit_t();
     bool readfile(char* fname);
     bool writefile(char* fname, vector<int> candidate);
+    bool readcost(char* fname);
     void print();
 	void topology(int start_node_id);
-    int get_pi_size() { return pi.size(); }
-	int get_po_size() { return po.size(); }
 	void init_simulation();
 	void simulation(int gray_diff);
 	void input_target_pattern(int target_value);
@@ -93,14 +85,13 @@ public:
 	void print_po();
     void print_topology();
 	void sort_topology();
+    void simplify(Circuit_t & oriCkt);
 	///////////////////////CCW/////////////////////////////////
 	vector<int> newpi;
 	int NewPI(Circuit_t &c2);
 	void CompareNode(int node1, int node2, Circuit_t &c2);
 	bool IsPiReplace(int node1, vector <int> &New, vector <int> &relateNode, vector <int> &NodetoCheck, vector <int> &visit, vector <int> &ready);
 	void ReplacePi(vector <int> &New, vector <int> &RelateNode);
-    //void UpdatePi();
 };
-
 
 #endif

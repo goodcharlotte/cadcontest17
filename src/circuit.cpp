@@ -7,6 +7,16 @@ Circuit_t::Circuit_t()
 {
 }
 
+void Circuit_t::simplify(Circuit_t &oriCtk)
+{
+
+}
+
+bool Circuit_t::readcost(char* fname)
+{
+    
+}
+
 bool Circuit_t::readfile(char* fname)
 {
     ifstream file(fname);
@@ -70,7 +80,7 @@ bool Circuit_t::readfile(char* fname)
                 allnodevec.push_back(*(new Node_t(tmpstr, tp)));        
             } else {
                 outidx = iter->second;
-                allnodevec[outidx].setType(tp);
+                allnodevec[outidx].type = tp;
             }
             // gate input
             int inidx;
@@ -91,8 +101,8 @@ bool Circuit_t::readfile(char* fname)
                         inidx = iter->second;
                     }
                 }
-                allnodevec[outidx].addinput(inidx);
-                allnodevec[inidx].addoutput(outidx);
+                allnodevec[outidx].in.push_back(inidx);
+                allnodevec[inidx].out.push_back(outidx);
             }
         }
     }
@@ -111,59 +121,59 @@ bool Circuit_t::writefile(char* fname, vector<int> candidate)
     
     file << "module top(" ;
     for (int i = 0; i < pi.size(); i++) {
-        file <<  allnodevec[pi[i]].getName() << ", ";
+        file <<  allnodevec[pi[i]].name << ", ";
     }
     for (int i = 0; i < po.size(); i++) {
         if (i != po.size() - 1)
-            file <<  allnodevec[po[i]].getName() << ", ";
+            file <<  allnodevec[po[i]].name << ", ";
         else
-            file <<  allnodevec[po[i]].getName() << ");" << endl;
+            file <<  allnodevec[po[i]].name << ");" << endl;
     }
     
     file << "input "; 
     for (int i = 0; i < pi.size(); i++) {
         if (i != pi.size() - 1)
-            file <<  allnodevec[pi[i]].getName() << ", ";
+            file <<  allnodevec[pi[i]].name << ", ";
         else
-            file <<  allnodevec[pi[i]].getName() << ";" << endl;
+            file <<  allnodevec[pi[i]].name << ";" << endl;
     }
     file << "output "; 
     for (int i = 0; i < po.size(); i++) {
         if (i != po.size() - 1)
-            file <<  allnodevec[po[i]].getName() << ", ";
+            file <<  allnodevec[po[i]].name << ", ";
         else
-            file <<  allnodevec[po[i]].getName() << ";" << endl;
+            file <<  allnodevec[po[i]].name << ";" << endl;
     }
     file << "wire ";
     for (int i = pi.size()+po.size()+2; i < allnodevec.size(); i++) {
         if (i != allnodevec.size() - 1)
-            file <<  allnodevec[i].getName() << ", ";
+            file <<  allnodevec[i].name << ", ";
         else
-            file <<  allnodevec[i].getName() << ";" << endl;
+            file <<  allnodevec[i].name << ";" << endl;
     }
 
     for (int i = pi.size()+2; i < allnodevec.size(); i++) {
         Node_t node = allnodevec[i];
         if (node.in.size() == 0) continue; // t_0, t_1, ...
-        if (node.getType() == BUF) {
-            file << "buf ( " << node.getName(); 
-        } else if (node.getType() == NOT) {
-            file << "not ( " << node.getName(); 
-        } else if (node.getType() == AND) {
-            file << "and ( " << node.getName(); 
-        } else if (node.getType() == NAND) {
-            file << "nand ( " << node.getName(); 
-        } else if (node.getType() == OR) {
-            file << "or ( " << node.getName(); 
-        } else if (node.getType() == NOR) {
-            file << "nor ( " << node.getName(); 
-        } else if (node.getType() == XOR) {
-            file << "xor ( " << node.getName(); 
-        } else if (node.getType() == NXOR) {
-            file << "xnor ( " << node.getName(); 
+        if (node.type == BUF) {
+            file << "buf ( " << node.name; 
+        } else if (node.type == NOT) {
+            file << "not ( " << node.name; 
+        } else if (node.type == AND) {
+            file << "and ( " << node.name; 
+        } else if (node.type == NAND) {
+            file << "nand ( " << node.name; 
+        } else if (node.type == OR) {
+            file << "or ( " << node.name; 
+        } else if (node.type == NOR) {
+            file << "nor ( " << node.name; 
+        } else if (node.type == XOR) {
+            file << "xor ( " << node.name; 
+        } else if (node.type == NXOR) {
+            file << "xnor ( " << node.name; 
         }
         for (int j=0; j<node.in.size(); j++) {
-            file << " ," << allnodevec[node.in[j]].getName();
+            file << " ," << allnodevec[node.in[j]].name;
         }
         file << " );" << endl;
 
@@ -173,16 +183,16 @@ bool Circuit_t::writefile(char* fname, vector<int> candidate)
         file << "patch p0 (";
         for (int i = 0; i < target.size(); i++) {
             if (i == 0) {
-                file << "." << allnodevec[target[i]].getName() << "(" 
-                << allnodevec[target[i]].getName() << ")";
+                file << "." << allnodevec[target[i]].name << "(" 
+                << allnodevec[target[i]].name << ")";
             } else {
-                file << ", ." << allnodevec[target[i]].getName() << "("
-                << allnodevec[target[i]].getName() << ")";
+                file << ", ." << allnodevec[target[i]].name << "("
+                << allnodevec[target[i]].name << ")";
             }
         }
         for (int i = 0; i < candidate.size(); i++) {
-            file << ", ." << allnodevec[candidate[i]].getName() << "(" 
-                 << allnodevec[candidate[i]].getName() 
+            file << ", ." << allnodevec[candidate[i]].name << "(" 
+                 << allnodevec[candidate[i]].name 
                  << ")";
         }
         file << ");" << endl;

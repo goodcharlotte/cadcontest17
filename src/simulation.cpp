@@ -227,7 +227,7 @@ void Circuit_t::topology(int start_node_id)
             for (int i = 0; i < allnodevec.size(); i++) {
                 find_flag = false;
                 ready_flag = true;
-                if ((allnodevec[i].getType() != PORT) && (visit_flag[i] == false)) {
+                if ((allnodevec[i].type != PORT) && (visit_flag[i] == false)) {
                     for (int in_i = 0; in_i < allnodevec[i].in.size(); in_i++) {
                         if (front_node == allnodevec[i].in[in_i]) {
                             find_flag = true;
@@ -284,7 +284,7 @@ void Circuit_t::topology(int start_node_id)
        while (wait_sort_node.size() != 0) {
             front_node = wait_sort_node.front();
             for (int i = 0; i < allnodevec.size(); i++) {
-                if ((allnodevec[i].getType() != PORT) && (visit_flag[i] == true)) {
+                if ((allnodevec[i].type != PORT) && (visit_flag[i] == true)) {
                     ready_flag = true;
                     for (int in_i = 0; in_i < allnodevec[i].in.size(); in_i++) {
                         if (front_node == allnodevec[i].in[in_i]) {
@@ -294,13 +294,13 @@ void Circuit_t::topology(int start_node_id)
                     }
                     if (ready_flag == false) {
                         wait_sort_node.push(i);
-                        cout << "push: " << allnodevec[i].getName() << endl;
+                        cout << "push: " << allnodevec[i].name << endl;
                     }
                 }
             }
             wait_sort_node.pop();
             topology_order.push_back(front_node);
-            cout << "pop: " << allnodevec[front_node].getName() << endl;
+            cout << "pop: " << allnodevec[front_node].name << endl;
             cout << "==========" << endl;
         }
 #endif
@@ -308,7 +308,7 @@ void Circuit_t::topology(int start_node_id)
     if((start_node_id == -1)||(start_node_id == 12)){
     cout << "Topology(" << start_node_id << "):" << endl;
 	for (int i = 0; i < topology_order.size(); i++) {
-		cout << allnodevec[topology_order[i]].getName() << endl;
+		cout << allnodevec[topology_order[i]].name << endl;
 	}
     cout << endl;
     }
@@ -392,7 +392,7 @@ int Circuit_t::calculate_gate_out(GateType gate_type, vector<int> in)
 void Circuit_t::print_pi()
 {
 	for(int i = 0; i < pi.size(); i++) { 
-		cout << allnodevec[pi[i]].getName() <<"  "<< bitset<SHOW_BIT_SET>(allnodevalue[pi[i]]) << endl;
+		cout << allnodevec[pi[i]].name <<"  "<< bitset<SHOW_BIT_SET>(allnodevalue[pi[i]]) << endl;
 	}	
 }
 
@@ -400,7 +400,7 @@ void Circuit_t::print_pi()
 void Circuit_t::print_po()
 {
 	for(int i = 0; i < po_value.size(); i++) { 
-		cout << allnodevec[po[i]].getName() <<"  "<< bitset<SHOW_BIT_SET>(po_value[i]) << endl;
+		cout << allnodevec[po[i]].name <<"  "<< bitset<SHOW_BIT_SET>(po_value[i]) << endl;
 	}
 	
 }
@@ -473,14 +473,14 @@ void Circuit_t::simulation(int gray_diff)
 	
 	//cout<<"Before..."<<endl;
     //for(int i = 0; i < allnodevec.size(); i++) {
-	//cout << allnodevec[i].getName() << " " << bitset<32>(allnodevalue[i]) << endl;
+	//cout << allnodevec[i].name << " " << bitset<32>(allnodevalue[i]) << endl;
     //
     //}
 	
 	
 	GateType type;
 	for(int i = 0; i < topology_order.size(); i++) {
-		type = allnodevec[topology_order[i]].getType();
+		type = allnodevec[topology_order[i]].type;
 		if (type != PORT) {
 			//not PI, t_x, constant 0, constant 1
 			allnodevalue[topology_order[i]] = calculate_gate_out(type, allnodevec[topology_order[i]].in);
@@ -488,7 +488,7 @@ void Circuit_t::simulation(int gray_diff)
 	}
 	//cout<<"After..."<<endl;
     //for(int i = 0; i < allnodevec.size(); i++) {
-        //cout << allnodevec[i].getName() << "\t" << bitset<32>(allnodevalue[i]) << endl;
+        //cout << allnodevec[i].name << "\t" << bitset<32>(allnodevalue[i]) << endl;
     //}
 	
 	
@@ -503,7 +503,7 @@ void Circuit_t::print_topology()
 {
     cout << "Topology value: " << endl;
     for(int i = 0; i < topology_order.size(); i++) {
-        cout << allnodevec[topology_order[i]].getName() << " " << bitset<32>(allnodevalue[topology_order[i]]) << endl;
+        cout << allnodevec[topology_order[i]].name << " " << bitset<32>(allnodevalue[topology_order[i]]) << endl;
     }
     cout << endl;
 }
