@@ -10,11 +10,13 @@ using namespace::std;
 
 
 #define EN_DEBUG_SIM 0
+
 #if EN_DEBUG_SIM
 #define debug_print(x) do { cout << x; } while (0)
 #else 
 #define debug_print(x) 
-#endif 
+#endif
+
 
 #define OFFSET_BIT 5
 
@@ -25,13 +27,11 @@ using namespace::std;
 #endif
 
 #define GRAY_INIT -1
-#define GRAY_ERROR -2
-#define GRAY_NO_CHAGNE -3
+#define GRAY_NO_CHAGNE -2
 #define SIM_ALL -1
 
 
-
-vector<int> generate_graycode(int n);	
+vector<int> gene_graycode(int n);
 void find_signature(vector< vector<string> > &sig, int target_size, int pi_size, int po_diff[]);
 void print_signature(const vector< vector<string> > &sig);
 void write_pla(const vector< vector<string> > &sig, vector<string> &piName, vector<string> &targetName,vector<int> graydiff);

@@ -9,6 +9,7 @@ using namespace std;
 
 int main(int argc, char * argv[])
 {
+	
     if (argc != 6) {
         cout << "Usage: ./rpgen <F.v> <G.v> <weight.txt> <patch.v> <out.v> " << endl;
         return 0;
@@ -19,10 +20,11 @@ int main(int argc, char * argv[])
         cout << "Read file error" << endl;
         return 0; 
     }
+	
     //====================================
     //  Preprocessing
     //====================================
-    vector<int> relatedPO, frelatedPI, grelatedPI;
+	vector<int> relatedPO, frelatedPI, grelatedPI;
     //cktf.printstatus();
     //cktf.writefile("1.v", cktf.newpi);
     cktf.removebuffer();
@@ -48,13 +50,15 @@ int main(int argc, char * argv[])
     //====================================
     //  Derive signature
     //====================================
+	
 	int newpi_size = cktf.newpi.size();
-	vector<int> graydiff = generate_graycode(newpi_size - OFFSET_BIT);
+	vector<int> graydiff = gene_graycode(newpi_size - OFFSET_BIT);
 	int target_size = (cktf.target).size();
 	int target_leng = (int)pow(2, target_size);
 	int xor_f_g[target_leng];
 	vector< vector<string> > signature;
 	
+
 	for(int i = 0; i < graydiff.size(); i++) {
 		cktg.simulation(graydiff[i]);
 		for(int j = 0; j < target_leng; j++) {
@@ -94,7 +98,6 @@ int main(int argc, char * argv[])
 	}
 
 	//print_signature(signature);
-	
     vector<string> piName;
     vector<string> targetName;
 
@@ -126,4 +129,5 @@ int main(int argc, char * argv[])
     finalckt.readfile(argv[1]);
     finalckt.writefile(argv[5], cktf.newpi);
     return 0;
+	
 }

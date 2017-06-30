@@ -14,7 +14,10 @@ using namespace::std;
 
 string compare_minterm(string str1, string str2);
 string to_str(int num, int leng);
-vector<string> McCluskey(vector<string> minterm);
+vector<string> McCluskey(vector<string> &minterm);
+bool check_repeated(string const &ele, vector<string> const &vector_in);
+vector<int> gene_graycode_recur(int n);
+
 
 void print_signature(const vector< vector<string> > &sig)
 {
@@ -62,29 +65,39 @@ string to_str(int num, int leng)
 }
 
 
-vector<string> McCluskey(vector<string> minterm)
+bool check_repeated(string const &ele, vector<string> const &vector_in)
+{
+	for (int i = 0; i < vector_in.size(); i++) {
+		if (ele == vector_in[i]) {
+			return true;
+		}
+	}
+	return false;
+}
+
+vector<string> McCluskey(vector<string> &minterm)
 {
 	int size = minterm.size();
-	vector <string> vector_str_temp;
-	string str_temp;
+	vector <string> vct_mint_mined;
+	string mint_mined;
 	if (size == 1) {
 		debug_print(minterm[0] << " VS " << "...");
 		debug_print( " ==> "<< minterm[0]<<endl);
-		vector_str_temp.push_back(minterm[0]);
-		return vector_str_temp;
+		vct_mint_mined.push_back(minterm[0]);
+		return vct_mint_mined;
 	} else {
-		for (int i = 0; i < size ; i++) {
+		for (int i = 0; i < size-1 ; i++) {
 			for (int j = i + 1; j < size; j++){
 				debug_print(minterm[i] << " VS "<< minterm[j]);
-				str_temp = compare_minterm(minterm[i], minterm[j]);
-				debug_print(" ==> "<< str_temp <<endl);
-				if (str_temp != STR_COMPARE_FAIL) {
-					vector_str_temp.push_back(str_temp);
+				mint_mined = compare_minterm(minterm[i], minterm[j]);
+				debug_print(" ==> "<< mint_mined <<endl);
+				if ((mint_mined != STR_COMPARE_FAIL) && (!check_repeated(mint_mined, vct_mint_mined))) {
+					vct_mint_mined.push_back(mint_mined);
 				}	
 			}
 		}
-		if (vector_str_temp.size() > 0) {
-			return McCluskey(vector_str_temp);
+		if (vct_mint_mined.size() > 0) {
+			return McCluskey(vct_mint_mined);
 		} else {
 			return minterm;
 		}
@@ -133,44 +146,30 @@ void find_signature(vector< vector<string> > &sig, int target_size, int pi_size,
 	
 }
 
-
-vector<int> generate_graycode(int n)
-{
-	debug_print("start generate_graycode...\n");
-	vector<int> greySeq;
-	vector<int> graydiff;
-	
-	greySeq.push_back(0);
-	int inc = 1;
-	for(int i = 1; i <= n; i++) {
-		for(int j = greySeq.size()-1; j >= 0; j--) {
-			greySeq.push_back(greySeq[j] + inc);
-		}		
-		inc <<= 1;
-	}
-	
-	graydiff.push_back(GRAY_INIT);
-	for (int i = 1; i <greySeq.size(); i++) {
-		graydiff.push_back((int)(log2(greySeq[i-1] ^ greySeq[i])));
-	} 
-	graydiff.resize(greySeq.size(), GRAY_ERROR);
-	
-	#if 0
-	cout<< "greySeq.size() = " << greySeq.size() <<endl;
-	cout<< "graydiff.size() = " << graydiff.size() <<endl;
-	for (int i = 0; i < greySeq.size(); i++) {
-		
-		cout<< bitset<SHOW_BIT_SET>(greySeq[i]) <<endl;
-	}
-	for (int i = 0; i < graydiff.size(); i++) {
-		cout<< graydiff[i];
-	}
-	cout<<endl;
-	#endif 
-	
-	debug_print("end generate_graycode...\n");
+vector<int> gene_graycode(int n) {
+	vector<int> graydiff = gene_graycode_recur(n);
+	graydiff.insert(graydiff.begin(), GRAY_INIT);
 	return graydiff;
 }
+
+vector<int> gene_graycode_recur(int n) {
+	vector<int> graydiff;
+	vector<int> graydiff_temp;
+	
+	if (n <= 0) {
+		return graydiff;
+	} else if(n == 1) {
+		graydiff.push_back(0);
+		return graydiff;
+	} else {
+		graydiff_temp = gene_graycode_recur(n-1);
+		graydiff=graydiff_temp;
+		graydiff.push_back(n-1);
+		graydiff.insert(graydiff.end(), graydiff_temp.begin(), graydiff_temp.end());
+		return graydiff;
+	}
+}
+
 
 void Circuit_t::topology(int start_node_id)
 {
@@ -441,10 +440,8 @@ void Circuit_t::simulation(int gray_diff)
 {
 	
 	int gray_to_change = gray_diff + OFFSET_BIT;
-	if (gray_diff == GRAY_ERROR) {
-		cout <<"Error: Gray code has error!"<<endl;
-		exit(1);
-	} else if (gray_diff == GRAY_NO_CHAGNE) {
+
+	if (gray_diff == GRAY_NO_CHAGNE) {
 		//cout<<"GRAY_NO_CHAGNE "<<endl;
 	} else if (gray_diff == GRAY_INIT) {
 		//cout<<"GRAY_INIT "<<endl;
