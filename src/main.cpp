@@ -93,6 +93,13 @@ int main(int argc, char * argv[])
     }
     
     write_pla(signature, piName, targetName, graydiff);
+    ofstream w_file;
+    w_file.open("map.script",ios::out);
+    w_file << "read patch.pla"  << endl;
+    w_file << "read_library mcnc.genlib" << endl;
+    w_file << "map" << endl;
+    w_file << "write_verilog " << argv[4] << endl;
+    w_file.close();
 
     system("./abc -f map.script");
     cktf.writefile(argv[5], cktf.newpi);
