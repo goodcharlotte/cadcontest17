@@ -1,5 +1,6 @@
 #include <iostream>
 #include <fstream>
+#include <queue>
 #include "datatype.h"
 using namespace::std;
 
@@ -7,14 +8,183 @@ Circuit_t::Circuit_t()
 {
 }
 
-void Circuit_t::simplify(Circuit_t &oriCtk)
+void Circuit_t::printstatus()
 {
+    cout << "---- Circuit Status ----" << endl;
+    int pisz = 0;
+    int nodesz = 0;
+    int c1, c2, c3, c4;
+    c1 = c2 = c3 = c4 = 0;
+    for (int i = 0; i < pi.size(); i++) {
+        if (allnodevec[pi[i]].out.size() != 0) pisz++;
+    }
+    for (int i = 0; i < allnodevec.size(); i++) {
+        if (allnodevec[i].out.size() != 0 && allnodevec[i].out.size() != 0) c1++;
+        else if (allnodevec[i].out.size() == 0 && allnodevec[i].out.size() != 0) c2++;
+        else if (allnodevec[i].out.size() != 0 && allnodevec[i].out.size() == 0) c3++;
+        else if (allnodevec[i].out.size() == 0 && allnodevec[i].out.size() == 0) c4++;
+    }
+    cout << "PI size: " << pisz << endl;
+    //cout << c1 << " " << c2 << " " << c3 << " " << c4 << endl;
+    cout << "node size: " << c1 << endl;
+}
 
+vector<int> Circuit_t::findRelatedPI(vector<int> relatedPO)
+{
+    queue<int> nodeque;
+    int node; 
+        
+    //cout << "removeredundant:" << po.size() << " " << relatedPO.size() << endl;
+    vector<bool> visit_flag(allnodevec.size(), false);
+    for (int i = 0; i < relatedPO.size(); i++) {
+        //cout << allnodevec[relatedPO[i]].name << endl;
+        nodeque.push(relatedPO[i]);
+    }
+
+    while (nodeque.size() != 0) {
+        node = nodeque.front();
+        for (int i = 0; i < allnodevec[node].in.size(); i++) {
+            if (visit_flag[allnodevec[node].in[i]] == false) 
+                nodeque.push(allnodevec[node].in[i]);
+        }
+        visit_flag[node] = true;
+        nodeque.pop();
+    }
+   /* 
+    for (int i = 0; i < visit_flag.size(); i++) {
+        if (visit_flag[i] == false) { 
+            //cout << "remove " <<  allnodevec[i].name << endl;
+            allnodevec[i].in.clear();
+            allnodevec[i].out.clear();
+        }
+    }
+    */
+    vector<int> relatedPI;
+    for (int i = 2; i < 2 + pi.size(); i++) {
+        if (visit_flag[i] == true)
+            relatedPI.push_back(i);
+    }
+    return relatedPI;
+}
+
+
+vector<int> Circuit_t::findRelatedPO()
+{
+    queue<int> nodeque;
+    vector<bool> visit_flag(allnodevec.size(), false);
+    for (int i = 0; i < target.size(); i++) {
+        nodeque.push(target[i]);    
+    }
+   
+    int node; 
+    vector<int> relatedPO;
+    
+    while (nodeque.size() != 0) {
+        node = nodeque.front();
+        bool find = false;
+        if (allnodevec[node].out.size() == 0) {
+            for (int i = 0; i < relatedPO.size(); i++) {
+                if (relatedPO[i] == node) {
+                    find = true;
+                    break;
+                }
+            }
+            if (!find) relatedPO.push_back(node);
+        } else {
+            for (int i = 0; i < allnodevec[node].out.size(); i++) {
+                if (visit_flag[allnodevec[node].out[i]] == false) 
+                    nodeque.push(allnodevec[node].out[i]);
+            }
+        }
+        visit_flag[node] = true;
+        nodeque.pop();    
+    }
+    return relatedPO;
+}
+
+void Circuit_t::removeredundant(vector<int> relatedPO)
+{
+    queue<int> nodeque;
+    int node; 
+        
+    //cout << "removeredundant:" << po.size() << " " << relatedPO.size() << endl;
+    vector<bool> visit_flag(allnodevec.size(), false);
+    for (int i = 0; i < relatedPO.size(); i++) {
+        //cout << allnodevec[relatedPO[i]].name << endl;
+        nodeque.push(relatedPO[i]);
+    }
+
+    while (nodeque.size() != 0) {
+        node = nodeque.front();
+        for (int i = 0; i < allnodevec[node].in.size(); i++) {
+            if (visit_flag[allnodevec[node].in[i]] == false) 
+                nodeque.push(allnodevec[node].in[i]);
+        }
+        visit_flag[node] = true;
+        nodeque.pop();
+    }
+    
+    for (int i = 0; i < visit_flag.size(); i++) {
+        if (visit_flag[i] == false) { 
+            //cout << "remove " <<  allnodevec[i].name << endl;
+            allnodevec[i].in.clear();
+            allnodevec[i].out.clear();
+        }
+    }
+}
+
+int Circuit_t::removebuffer()
+{
+    int removecnt = 0;
+    for (int i = 0; i < allnodevec.size(); i++) {
+        Node_t * node = &allnodevec[i];
+        if (node->type == BUF && node->out.size() > 0 && node->in.size() > 0) {
+            Node_t *input = &allnodevec[node->in[0]];
+            for (int j = 0; j < input->out.size(); j++) {
+                if (allnodevec[input->out[j]].name == node->name) {
+                    input->out.erase(input->out.begin()+j);
+                    break;
+                }
+            }
+            for (int j = 0; j < node->out.size(); j++) {
+                input->out.push_back(node->out[j]);
+                Node_t *output = &allnodevec[node->out[j]];
+                for (int k = 0; k < output->in.size(); k++) {
+                    if (allnodevec[output->in[k]].name == node->name) {
+                        output->in.erase(output->in.begin()+k);
+                        break;
+                    }
+                }
+                output->in.push_back(node->in[0]);
+            }
+            if (node->cost < input->cost && input->type != PORT){
+                input->name = node->name;    
+            }
+            node->in.clear();
+            node->out.clear();
+            removecnt++;
+        }
+    }
+    return removecnt;
 }
 
 bool Circuit_t::readcost(char* fname)
 {
-    
+    ifstream file(fname);
+    string nodename;
+    int nodecost;
+    int outidx;
+    while (file >> nodename >> nodecost) {
+        iter = allnodemap.find(nodename);
+        if (iter == allnodemap.end()) {
+            cout << "read cost error" << endl;
+            return false;
+        } else {
+            outidx = iter->second;
+            allnodevec[outidx].cost = nodecost;
+        }
+    }
+    return true;
 }
 
 bool Circuit_t::readfile(char* fname)

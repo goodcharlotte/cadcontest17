@@ -421,13 +421,6 @@ void Circuit_t::CompareNode(int node1, int node2, Circuit_t &c2)
 	return ;
 }
 
-/*
-void Circuit_t::UpdatePi()
+void Circuit_t::updateNewPI()
 {
-    pi.clear();
-    pi.resize(newpi.size());
-
-    for (int i = 0; i < newpi.size(); i++) {
-        pi[i] = newpi[i];
-    }
-}*/
+}
