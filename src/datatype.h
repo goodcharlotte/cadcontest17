@@ -67,6 +67,7 @@ public:
     vector<int> topology_id;
 	vector<int> greycode_diff;
     vector<Node_t> allnodevec;
+    vector< vector<int> > fanout;
 	vector<int> target;
 	vector<int> po_value;
 	vector<int> allnodevalue;
@@ -77,14 +78,15 @@ public:
     bool readcost(char* fname);
     void print();
 	void topology(int start_node_id);
-	void init_simulation();
+    void init_simulation();
+    void find_pi_fanout();
+    void quicksort(vector<int>& array, int low, int high);
 	void simulation(int gray_diff);
 	void input_target_pattern(int target_value);
 	int calculate_gate_out(GateType gate_type, vector<int> in);
 	void print_pi();
 	void print_po();
     void print_topology();
-	void sort_topology();
     void simplify(Circuit_t & oriCkt);
 	///////////////////////CCW/////////////////////////////////
 	vector<int> newpi;
