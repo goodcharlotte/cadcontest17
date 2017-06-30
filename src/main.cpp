@@ -42,6 +42,9 @@ int main(int argc, char * argv[])
     cktf.newpi = grelatedPI;
     cktg.newpi = grelatedPI;
 
+    cktf.newpo = relatedPO;
+    cktg.newpo = relatedPO;
+
     //====================================
     //  Derive signature
     //====================================
@@ -86,7 +89,6 @@ int main(int argc, char * argv[])
 			cout<<"target = "<< i <<" , "<<bitset<SHOW_BIT_SET>(xor_f_g[i]) <<endl;
 		}
 		#endif
-		
 		find_signature(signature, target_size, newpi_size, xor_f_g);
 		
 	}
