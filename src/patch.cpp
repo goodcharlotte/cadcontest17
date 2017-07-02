@@ -11,6 +11,18 @@ using namespace::std;
 
 #define INT_TYPE int
 
+bool all_dont_care(const string &out_str)
+{
+    bool DC_flag;
+    DC_flag = true;
+    for (int i = 0; i < out_str.size(); i++) {
+        if (out_str[i] != '-') {
+            DC_flag = false;
+            break;
+        }
+    }
+    return DC_flag;
+}
 
 void write_pla(const vector< vector<string> > &sig, vector<string> &piName, vector<string> &targetName,vector<int> graydiff)
 {
@@ -49,7 +61,7 @@ void write_pla(const vector< vector<string> > &sig, vector<string> &piName, vect
     }
 
     w_file << endl;
-    w_file << ".p " << sig.size() << endl;
+    //w_file << ".p " << sig.size() << endl;
  
     //initial string
     for (gray_i = 0; gray_i < (input_num - OFFSET_BIT); gray_i++) {
@@ -77,11 +89,12 @@ void write_pla(const vector< vector<string> > &sig, vector<string> &piName, vect
 
             for (offset_i = 0; offset_i < SHOW_BIT_SET; offset_i++) {
                 bitset <OFFSET_BIT> bit_num(offset_i);
-
-                w_file << gray_pattern  << bit_num << " ";
-
+                
                 if (sig[sig_i].size() > 0) {
-                    w_file << sig[sig_i][0] << endl;
+                    if (!all_dont_care(sig[sig_i][0])) {
+                        w_file << gray_pattern  << bit_num << " ";
+                        w_file << sig[sig_i][0] << endl;
+                    }
                 }
 
                 sig_i++;
@@ -98,14 +111,13 @@ void write_pla(const vector< vector<string> > &sig, vector<string> &piName, vect
             string bit_str;
             bit_str = bit_num.to_string<char,std::string::traits_type,std::string::allocator_type>();
 
-            w_file << gray_pattern << bit_str.substr((OFFSET_BIT - input_num),(OFFSET_BIT - 1)) << " ";
-
-
             if (sig[sig_i].size() > 0) {
+                if (!all_dont_care(sig[sig_i][0])) {
+                    w_file << gray_pattern << bit_str.substr((OFFSET_BIT - input_num),(OFFSET_BIT - 1)) << " ";
                     w_file << sig[sig_i][0] << endl;
+                }
             }
         }
     }
-
     w_file.close();
 }
