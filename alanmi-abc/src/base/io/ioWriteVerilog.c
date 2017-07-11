@@ -74,8 +74,8 @@ void Io_WriteVerilog( Abc_Ntk_t * pNtk, char * pFileName )
     }
 
     // write the equations for the network
-    fprintf( pFile, "// Benchmark \"%s\" written by ABC on %s\n", pNtk->pName, Extra_TimeStamp() );
-	fprintf( pFile, "\n" );
+    //fprintf( pFile, "// Benchmark \"%s\" written by ABC on %s\n", pNtk->pName, Extra_TimeStamp() );
+	//fprintf( pFile, "\n" );
 
     // write modules
     if ( pNtk->pDesign )
@@ -125,7 +125,7 @@ void Io_WriteVerilogInt( FILE * pFile, Abc_Ntk_t * pNtk )
     if ( Abc_NtkPiNum(pNtk) > 0  )
     {
         Io_WriteVerilogPis( pFile, pNtk, 3 );
-        fprintf( pFile, ",\n   " );
+        fprintf( pFile, " ,\n   " );
     }
     if ( Abc_NtkPoNum(pNtk) > 0  )
         Io_WriteVerilogPos( pFile, pNtk, 3 );
@@ -139,13 +139,13 @@ void Io_WriteVerilogInt( FILE * pFile, Abc_Ntk_t * pNtk )
 //        fprintf( pFile, "  input gclk," );
         fprintf( pFile, "  input " );
         Io_WriteVerilogPis( pFile, pNtk, 10 );
-        fprintf( pFile, ";\n" );
+        fprintf( pFile, " ;\n" );
     }
     if ( Abc_NtkPoNum(pNtk) > 0  )
     {
         fprintf( pFile, "  output" );
         Io_WriteVerilogPos( pFile, pNtk, 5 );
-        fprintf( pFile, ";\n" );
+        fprintf( pFile, " ;\n" );
     }
     // if this is not a blackbox, write internal signals
     if ( !Abc_NtkHasBlackbox(pNtk) )
@@ -205,7 +205,7 @@ void Io_WriteVerilogPis( FILE * pFile, Abc_Ntk_t * pNtk, int Start )
             LineLength  = 3;
             NameCounter = 0;
         }
-        fprintf( pFile, " %s%s", Io_WriteVerilogGetName(Abc_ObjName(pNet)), (i==Abc_NtkPiNum(pNtk)-1)? "" : "," );
+        fprintf( pFile, " %s%s", Io_WriteVerilogGetName(Abc_ObjName(pNet)), (i==Abc_NtkPiNum(pNtk)-1)? "" : " ," );
         LineLength += AddedLength;
         NameCounter++;
     }
@@ -260,7 +260,7 @@ void Io_WriteVerilogPos( FILE * pFile, Abc_Ntk_t * pNtk, int Start )
             LineLength  = 3;
             NameCounter = 0;
         }
-        fprintf( pFile, " %s%s", Io_WriteVerilogGetName(Abc_ObjName(pNet)), (i==Abc_NtkPoNum(pNtk)-1)? "" : "," );
+        fprintf( pFile, " %s%s", Io_WriteVerilogGetName(Abc_ObjName(pNet)), (i==Abc_NtkPoNum(pNtk)-1)? "" : " ," );
         LineLength += AddedLength;
         NameCounter++;
     }
