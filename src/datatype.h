@@ -6,6 +6,7 @@
 #include <fstream>
 #include <vector>
 #include <map>
+#include <bitset>
 using namespace::std;
 
 
@@ -35,7 +36,7 @@ vector<int> gene_graycode(int n);
 void find_signature(vector< vector<string> > &sig, int target_size, int pi_size, int po_diff[]);
 void print_signature(const vector< vector<string> > &sig);
 void write_pla(const vector< vector<string> > &sig, vector<string> &piName, vector<string> &targetName,vector<int> graydiff);
-
+void constructPatch(string cktF_name, string cktG_name);
 //              0     1    2    3    4    5    6    7     8
 enum GateType {BUF, NOT, AND, NAND, OR, NOR, XOR, NXOR, PORT};
 

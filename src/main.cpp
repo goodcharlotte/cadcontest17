@@ -25,9 +25,10 @@ int main(int argc, char * argv[])
     //  Preprocessing
     //====================================
 	vector<int> relatedPO;
+    vector<int> relatedPI;
     //cktf.printstatus();
     relatedPO = cktf.findRelatedPO();
-    cktg.findRelatedPI(relatedPO);
+    relatedPI = cktg.findRelatedPI(relatedPO);
     cktf.removeredundant(relatedPO);	
     cktg.removeredundant(relatedPO);	
     cktf.write_verilog("F");
@@ -38,7 +39,7 @@ int main(int argc, char * argv[])
     //====================================
     //  Construct patch
     //====================================
-
+    constructPatch("tmp1_F.v", "tmp1_G.v");
 
     //====================================
     //  Derive signature
@@ -118,10 +119,13 @@ int main(int argc, char * argv[])
     w_file.close();
 
     system("./abc -f map.script");
+    */
     Circuit_t finalckt;
     finalckt.readfile(argv[1]);
-    finalckt.writefile(argv[5], cktf.newpi);
-    */
+    finalckt.writefile(argv[5], relatedPI);
+
+
+    
 
     return 0;
 	
