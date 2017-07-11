@@ -4,3 +4,4 @@ all:
 clean:
 	rm -f ./rpgen
 	rm -f ./cada039
+	rm -f tmp*

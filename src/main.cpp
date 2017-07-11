@@ -24,33 +24,26 @@ int main(int argc, char * argv[])
     //====================================
     //  Preprocessing
     //====================================
-	vector<int> relatedPO, frelatedPI, grelatedPI;
+	vector<int> relatedPO;
     //cktf.printstatus();
-    //cktf.writefile("1.v", cktf.newpi);
-    cktf.removebuffer();
-    cktg.removebuffer();
     relatedPO = cktf.findRelatedPO();
-    frelatedPI = cktf.findRelatedPI(relatedPO);
-    grelatedPI = cktg.findRelatedPI(relatedPO);
-    if (frelatedPI.size() == grelatedPI.size()) {
-        cktf.removeredundant(relatedPO);	
-        cktg.removeredundant(relatedPO);	
-    }
-    //cktg.writefile("1.v", cktf.newpi);
-    //cktf.writefile("2.v", cktf.newpi);
-    //cktf.printstatus();
-	//cktf.NewPI(cktg);
-	//cktf.print();
-    cktf.newpi = grelatedPI;
-    cktg.newpi = grelatedPI;
+    cktg.findRelatedPI(relatedPO);
+    cktf.removeredundant(relatedPO);	
+    cktg.removeredundant(relatedPO);	
+    cktf.write_verilog("F");
+    cktg.write_verilog("G");
+    cktf.init_simp("F");
+    cktg.init_simp("G");
+     
+    //====================================
+    //  Construct patch
+    //====================================
 
-    cktf.newpo = relatedPO;
-    cktg.newpo = relatedPO;
 
     //====================================
     //  Derive signature
     //====================================
-	
+    /*
 	int newpi_size = cktf.newpi.size();
 	vector<int> graydiff = gene_graycode(newpi_size - OFFSET_BIT);
 	int target_size = (cktf.target).size();
@@ -128,6 +121,8 @@ int main(int argc, char * argv[])
     Circuit_t finalckt;
     finalckt.readfile(argv[1]);
     finalckt.writefile(argv[5], cktf.newpi);
+    */
+
     return 0;
 	
 }

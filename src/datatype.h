@@ -74,6 +74,7 @@ public:
 
     Circuit_t();
     bool readfile(char* fname);
+    bool write_verilog(string cktname);
     bool writefile(char* fname, vector<int> candidate);
     bool readcost(char* fname);
     void print();
@@ -92,6 +93,7 @@ public:
     vector<int> findRelatedPO();
     vector<int> findRelatedPI(vector<int> relatedPO);
     void printstatus();
+    void init_simp(string cktname);
 	///////////////////////CCW/////////////////////////////////
 	vector<int> newpi;
 	int NewPI(Circuit_t &c2);

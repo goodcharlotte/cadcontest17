@@ -280,7 +280,123 @@ bool Circuit_t::readfile(char* fname)
     file.close();
 	allnodevalue.resize(allnodevec.size());
 
+    return true;
+}
 
+void Circuit_t::init_simp(string cktname)
+{
+    string fname0 = "tmp0_";
+    fname0 += cktname;
+    fname0 += ".v";
+    
+    string fname1 = "tmp1_";
+    fname1 += cktname;
+    fname1 += ".v";
+
+    ofstream w_file;
+    w_file.open("simp.script",ios::out);
+    w_file << "read_verilog " << fname0  << endl;
+    w_file << "resyn2" << endl;
+    w_file << "write_verilog " << fname1 << endl;
+    w_file.close();
+
+    system("./abc -f simp.script");
+
+}
+
+bool Circuit_t::write_verilog(string cktname)
+{
+    string fname = "tmp0_";
+    fname += cktname;
+    fname += ".v";
+    ofstream file(fname.c_str());
+    bool first = true;
+    if (!file) return false;
+    file << "module " <<  cktname << " (" ;
+    vector<int> allinput;
+    vector<int> alloutput;
+    for (int i = 0; i < pi.size(); i++) {
+        if (allnodevec[pi[i]].out.size() > 0) {
+            if (first) {
+                file <<  allnodevec[pi[i]].name;
+                first = false;
+            } else {
+                file << ", " << allnodevec[pi[i]].name;
+            }
+            allinput.push_back(pi[i]);
+        }
+    }
+    if (cktname == "F") {
+        for (int i = 0; i < target.size(); i++) {
+            file << ", " << allnodevec[target[i]].name;
+            allinput.push_back(target[i]);
+        }
+    }
+    for (int i = 0; i < po.size(); i++) {
+        if (allnodevec[po[i]].in.size() > 0) {
+                file << ", " << allnodevec[po[i]].name;
+                alloutput.push_back(po[i]);
+        }
+    }
+    file  << ");" << endl;
+
+    file << "input ";
+    for (int i = 0; i<allinput.size(); i++) {
+        if (i != allinput.size() - 1)
+            file <<  allnodevec[allinput[i]].name << ", ";
+        else
+            file <<  allnodevec[allinput[i]].name << ";" << endl;
+    }
+
+    file << "output ";
+    for (int i = 0; i<alloutput.size(); i++) {
+        if (i != alloutput.size() - 1)
+            file <<  allnodevec[alloutput[i]].name << ", ";
+        else
+            file <<  allnodevec[alloutput[i]].name << ";" << endl;
+    }
+    file << "wire ";
+    first = true;
+    for (int i = pi.size()+po.size()+2; i < allnodevec.size(); i++) {
+        Node_t node = allnodevec[i];
+        if (node.in.size() == 0) continue; // t_0, t_1, ...
+        if (first) {
+            file << node.name;
+            first = false;
+        } else {
+            file << ", " << node.name;
+        }
+    }
+    file <<  ";" << endl;
+
+    for (int i = pi.size()+2; i < allnodevec.size(); i++) {
+        Node_t node = allnodevec[i];
+        if (node.in.size() == 0) continue; // t_0, t_1, ...
+        if (node.type == BUF) {
+            file << "buf ( " << node.name; 
+        } else if (node.type == NOT) {
+            file << "not ( " << node.name; 
+        } else if (node.type == AND) {
+            file << "and ( " << node.name; 
+        } else if (node.type == NAND) {
+            file << "nand ( " << node.name; 
+        } else if (node.type == OR) {
+            file << "or ( " << node.name; 
+        } else if (node.type == NOR) {
+            file << "nor ( " << node.name; 
+        } else if (node.type == XOR) {
+            file << "xor ( " << node.name; 
+        } else if (node.type == NXOR) {
+            file << "xnor ( " << node.name; 
+        }
+        for (int j=0; j<node.in.size(); j++) {
+            file << " ," << allnodevec[node.in[j]].name;
+        }
+        file << " );" << endl;
+
+    }
+    file << "endmodule" << endl;
+    file.close();
     return true;
 }
 
