@@ -17,22 +17,32 @@ void constructPatch(string cktF_name, string cktG_name);
 
 void constructPatch(string cktF_name, string cktG_name)
 {
-    string outputName = "patch.v";
+    string patchName = "patch.v";
+    string tempName = "tmp_" + patchName;
     string systemCmd;
 
     parse(cktF_name, cktG_name);
 
-    constructMux(outputName);
+    constructMux(tempName);
     
     //make sure modelNames are module F & module G
-    systemCmd = "cat " + cktF_name + " " + cktG_name + " >> " + outputName;
+    systemCmd = "cat " + cktF_name + " " + cktG_name + " >> " + tempName;
     system(systemCmd.c_str());
 
-    constructMiter(outputName);
-    constructTop(outputName);
+    constructMiter(tempName);
+    constructTop(tempName);
+
+    //optimization
+    ofstream w_file;
+    w_file.open("resynPatch.script",ios::out);
+    w_file << "read_verilog " << tempName  << endl;
+    w_file << "resyn2" << endl;
+    w_file << "write_verilog " << patchName << endl;
+    w_file.close();
+
+    system("./abc -f resynPatch.script");
 }
 
-//void parse(string &cktF_name, vector<string> &targetName, vector<string> &piName, vector<string> &poName)
 void parse(string &cktF_name, string &cktG_name)
 {
     targetName.clear();
@@ -99,7 +109,6 @@ void parse(string &cktF_name, string &cktG_name)
     file.close();
 }
 
-//void constructMux(string &outputName, vector<string> &targetName)
 void constructMux(string &outputName)
 {
     ofstream file(outputName.c_str(), ios::out);
@@ -158,9 +167,12 @@ void constructMux(string &outputName)
     file.close();
 }
 
-//void constructMiter(string &outputName, vector<string> &targetName, vector<string> &piName, vector<string> &poName)
 void constructMiter(string &outputName)
 {
+    ////////////////////
+    //     miter      //
+    ////////////////////
+    
     ofstream file(outputName.c_str(), ios::app);
     file << "\nmodule miter ( miterOutput, " ;
     for (int i = 0; i < G_piName.size(); i++) {
@@ -245,7 +257,6 @@ void constructMiter(string &outputName)
     file.close();
 }
 
-//void constructTop(string &outputName, vector<string> &targetName, vector<string> &piName, vector<string> &poName)
 void constructTop(string &outputName)
 {
     ofstream file(outputName.c_str(), ios::app);
@@ -278,19 +289,20 @@ void constructTop(string &outputName)
     }
     file << " ;\n";
     
-    //[ miterOut(2n-1) ] + muxConnect(2*((2n-1)-1)) = 6n-5
-    //[ n0 ~ n(2n-2)]
+    //[ miterOut(2^n-1) ] + muxConnect(n*(2^n-2))
+    //[ n0 ~ n(2^n-2)]
+    int totalWire = (pow(2, targetName.size()) - 1) + (targetName.size() * (pow(2, targetName.size()) - 2 ));
     file << "wire ";
-    for (int i = 0; i < (6 * targetName.size() - 5); i++) {
+    for (int i = 0; i < totalWire; i++) {
         file << "n" << i;
-        if (i < (6 * targetName.size() - 6)) {
+        if (i < (totalWire - 1)) {
             file << " , ";
         }
     }
     file << " ;\n";
 
-    //miter: 2n-1
-    for (int i = 0; i < ((2 * targetName.size()) - 1); i++) {
+    //miter: w[0]~ w[(2^n-2)]
+    for (int i = 0; i < (pow(2, targetName.size()) - 1); i++) {
         bitset<MAX_INT_SIZE> bit_str(i);
         string targetValue = bit_str.to_string();
         file << "miter p" << i << " ( .miterOutput(n" << i << "), ";
@@ -306,20 +318,23 @@ void constructTop(string &outputName)
         file << " );\n";
     }
 
-    for (int i = 0; i < ((2 * targetName.size()) - 1); i++) {
+    //mux: w[2^n-1] ~ 
+    int startWire = (pow(2, targetName.size()) - 1);
+    for (int i = 0; i < (pow(2, targetName.size()) - 1); i++) {
         bitset<MAX_INT_SIZE> bit_str(i);
         string targetValue = bit_str.to_string();
         file << "mux m" << i << " ( ";
         for (int j = 0; j < targetName.size(); j++) {
             if ( i == 0) {
-        file << "." << targetName[j] << "(" << targetName[j] << "), ";
+                file << "." << targetName[j] << "(" << targetName[j] << "), ";
             } else {
-                file << "." << targetName[j] << "(n" << ((2 * targetName.size()) - 3 + (i * 2) + j) << "), ";
+                //from last ".a"
+                file << "." << targetName[j] << "(n" << (startWire + ((i-1) * targetName.size()) + j) << "), ";
             }
         }
         for (int j = 0; j < targetName.size(); j++) {
-            if ( i < ((2 * targetName.size()) - 2)) {
-                file << ".a_" << j << "(n" << ((2 * targetName.size()) - 1 + (i * 2) + j) << "), ";
+            if ( i < (pow(2, targetName.size()) - 2)) {
+                file << ".a_" << j << "(n" << (startWire + (i * targetName.size()) + j) << "), ";
             } else {
                 file << ".a_" << j << "(1'b1), ";
             }
@@ -328,6 +343,7 @@ void constructTop(string &outputName)
         for (int j = 0; j < (targetName.size()); j++) {
             file << ".b_" << j << "(1'b" << targetValue[MAX_INT_SIZE - j - 1] << "), ";
         }
+
         file << ".sel(n" << i << "));\n"; 
     }
 
