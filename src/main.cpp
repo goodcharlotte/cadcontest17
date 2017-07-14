@@ -3,12 +3,14 @@
 #include <bitset>
 #include <math.h>
 #include <string>
+#include "core/minisat.h"
 
 using namespace std;
 
 
 int main(int argc, char * argv[])
 {
+	Solver S;  
 	
     if (argc != 6) {
         cout << "Usage: ./rpgen <F.v> <G.v> <weight.txt> <patch.v> <out.v> " << endl;

@@ -1,5 +1,5 @@
 all:
-	g++ -o ./rpgen *.cpp -g -O3
+	g++ -o ./rpgen *.cpp core/*.cpp utils/*.cpp -g -lz -O3
 	cp ./rpgen ./cada039
 clean:
 	rm -f ./rpgen
