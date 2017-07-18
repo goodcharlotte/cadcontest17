@@ -188,6 +188,7 @@ bool Circuit_t::readpatch(char* fname)
 
 }
 
+/*
 vector<int> Circuit_t::findRelatedNode(vector<int> relatedPI)
 {
 
@@ -198,3 +199,4 @@ void Circuit_t::sortcost(vector<int>& array)
 {
 
 }
+*/
