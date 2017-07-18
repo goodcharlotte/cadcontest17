@@ -50,6 +50,7 @@ public:
     string name;
     GateType type;
     int cost;
+    bool patch_flag;
     vector<int> in;
     vector<int> out;
     Node_t(string n, GateType t);
@@ -76,6 +77,7 @@ public:
 
     Circuit_t();
     bool readfile(char* fname);
+    bool readpatch(char* fname);
     bool write_verilog(string cktname);
     bool writefile(char* fname, vector<int> candidate);
     bool readcost(char* fname);
