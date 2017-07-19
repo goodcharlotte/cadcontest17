@@ -23,6 +23,9 @@ bool Circuit_t::euqal_ck(int F_nid, int P_nid)
 	CNF_fanin(ckt_sat, F_nid);
 	CNF_fanin(ckt_sat, P_nid);
 	miter2CNF(ckt_sat, F_nid, P_nid);
+	
+	ckt_sat.solve();
+	
 	//cout << "ckt_sat.nVars: " << ckt_sat.nVars() << endl;
 	//cout << "ckt_sat.nClauses: " << ckt_sat.nClauses() << endl;
 	//cout << "ckt_sat.ok: " << ckt_sat.okay() << endl;
@@ -31,7 +34,7 @@ bool Circuit_t::euqal_ck(int F_nid, int P_nid)
 
 void Circuit_t::CNF_fanin(Solver& sat, int node_id)
 {
-	cout << "====CNF_fanin, node_id " << node_id << endl;
+	//cout << "====CNF_fanin, node_id " << node_id << endl;
     vector<bool> visit_flag(allnodevec.size(), false);	
 	queue<int> nodeque;
 	nodeque.push(node_id);
@@ -45,7 +48,7 @@ void Circuit_t::CNF_fanin(Solver& sat, int node_id)
 				nodeque.push(allnodevec[node].in[i]);
 				//append clause to sat
 				gate2CNF(sat, allnodevec[node].in[i], allnodevec[node]);
-				cout << "sat.nClauses: " << sat.nClauses() << endl;
+				//cout << "sat.nClauses: " << sat.nClauses() << endl;
 			}
 				
 		}
@@ -130,7 +133,7 @@ void gate2CNF(Solver& sat, int gate_out, Node_t gate)
 			for (int i = 0; i < (gate.in).size(); i++) {
 				vec_lit.push(mkLit(gate.in[i]));		
 			}	
-			vec_lit.push(mkLit(gate_out));
+			vec_lit.push(~mkLit(gate_out));
 			sat.addClause(vec_lit);
 			
 			//-----
@@ -234,6 +237,8 @@ void gate2CNF(Solver& sat, int gate_out, Node_t gate)
 		break;		
 		
 		case PORT: 
+		
+		
 		break;
 		
 	}
@@ -254,5 +259,4 @@ void miter2CNF(Solver& sat, int gate_in_1, int gate_in_2)
 	sat.addClause( mkLit(gate_in_1),  mkLit(gate_in_2), ~mkLit(gate_out));
 	sat.addClause( mkLit(gate_in_1), ~mkLit(gate_in_2),  mkLit(gate_out));
 	sat.addClause(~mkLit(gate_in_1),  mkLit(gate_in_2),  mkLit(gate_out));	
-
 }
