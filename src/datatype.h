@@ -8,6 +8,8 @@
 #include <map>
 #include <bitset>
 #include <math.h>
+#include "core/minisat.h"
+
 using namespace::std;
 
 
@@ -38,6 +40,7 @@ void find_signature(vector< vector<string> > &sig, int target_size, int pi_size,
 void print_signature(const vector< vector<string> > &sig);
 void write_pla(const vector< vector<string> > &sig, vector<string> &piName, vector<string> &targetName,vector<int> graydiff);
 void constructPatch(string cktF_name, string cktG_name);
+
 //              0     1    2    3    4    5    6    7     8
 enum GateType {BUF, NOT, AND, NAND, OR, NOR, XOR, NXOR, PORT};
 
@@ -75,6 +78,9 @@ public:
 	vector<int> allnodevalue;
 
     Circuit_t();
+	bool euqal_ck(int F_nid, int P_nid);
+	void CNF_fanin(Solver& sat, int node_id);
+
     bool readfile(char* fname);
     bool write_verilog(string cktname);
     bool writefile(char* fname, vector<int> candidate);
