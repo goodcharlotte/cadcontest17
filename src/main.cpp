@@ -42,6 +42,11 @@ int main(int argc, char * argv[])
     //  Construct patch
     //====================================
     constructPatch("tmp1_F.v", "tmp1_G.v");
+    //patchckt = cktf + patch
+    Circuit_t patchckt;
+    patchckt.readfile(argv[1]);
+    patchckt.readpatch("patch.v");
+    patchckt.removeredundant(relatedPO);
 
     //====================================
     //  Derive signature
