@@ -3,7 +3,7 @@
 #include <bitset>
 #include <math.h>
 #include <string>
-#include "core/minisat.h"
+//#include "core/minisat.h"
 
 using namespace std;
 
