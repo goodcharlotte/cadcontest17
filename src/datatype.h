@@ -12,6 +12,10 @@
 
 using namespace::std;
 
+#define EQ_SAT 			( 0)
+#define EQ_UNSAT		( 1)
+#define EQ_INV_UNSAT	(-1)
+
 
 #define EN_DEBUG_SIM 0
 
@@ -79,7 +83,7 @@ public:
 	vector<int> allnodevalue;
 
     Circuit_t();
-	bool euqal_ck(int F_nid, int P_nid);
+	int euqal_ck(int F_nid, int P_nid);
 	void CNF_fanin(Solver& sat, int node_id);
 
     bool readfile(char* fname);
