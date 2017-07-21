@@ -60,7 +60,6 @@ void Circuit_t::CNF_fanin(Solver& sat, int node_id)
 			if (visit_flag[allnodevec[node].in[i]] == false) {
 				nodeque.push(allnodevec[node].in[i]);
 				//append clause to sat
-				//gate2CNF(sat, allnodevec[node].in[i], allnodevec[node]);
 				gate2CNF(sat, node, allnodevec[node]);
 			}
 				
@@ -72,11 +71,17 @@ void Circuit_t::CNF_fanin(Solver& sat, int node_id)
 
 void gate2CNF(Solver& sat, int gate_out, Node_t gate)
 {
+	if ((gate.in).size() == 0) {
+		return;
+	}
+
 	vec<Lit> vec_lit;
 	sat_new_var(sat, gate_out);
-	for (int i; i < (gate.in).size(); i++) {
+	for (int i = 0; i < (gate.in).size(); i++) {
 		sat_new_var(sat, gate.in[i]);
+		
 	}	
+	
 	switch (gate.type) {
 		
 		case BUF:
@@ -153,7 +158,7 @@ void gate2CNF(Solver& sat, int gate_out, Node_t gate)
 				vec_lit.push(~mkLit(gate.in[i]));
 				vec_lit.push(mkLit(gate_out));	
 				sat.addClause(vec_lit);
-			}				
+			}
 		break;	
 		case NOR: 
 			/*
