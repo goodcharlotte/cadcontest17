@@ -33,15 +33,25 @@ int Circuit_t::euqal_ck(int F_nid, int P_nid)
 	
 	// add inverter to check again
 	//TODO: try another way, bad to find fanin again
-	Solver ckt_sat_inv;
-	CNF_fanin(ckt_sat_inv, F_nid);
-	CNF_fanin(ckt_sat_inv, P_nid);
-	int F_nid_inv = inver2CNF(ckt_sat_inv, F_nid);
-	miter2CNF(ckt_sat_inv, F_nid_inv, P_nid);
-	ckt_sat_inv.solve();
-	if (ckt_sat_inv.okay() == false) {
+	Solver ckt_sat_invF;
+	CNF_fanin(ckt_sat_invF, F_nid);
+	CNF_fanin(ckt_sat_invF, P_nid);
+	int F_nid_inv = inver2CNF(ckt_sat_invF, F_nid);
+	miter2CNF(ckt_sat_invF, F_nid_inv, P_nid);
+	ckt_sat_invF.solve();
+	if (ckt_sat_invF.okay() == false) {
 		return EQ_INV_UNSAT;
 	}
+	//TODO: check whether this is must.
+	Solver ckt_sat_invP;
+	CNF_fanin(ckt_sat_invP, F_nid);
+	CNF_fanin(ckt_sat_invP, P_nid);
+	int P_nid_inv = inver2CNF(ckt_sat_invP, P_nid);
+	miter2CNF(ckt_sat_invP, F_nid, P_nid_inv);
+	ckt_sat_invP.solve();
+	if (ckt_sat_invP.okay() == false) {
+		return EQ_INV_UNSAT;
+	}	
 	
 	return EQ_SAT;
 }
