@@ -8,6 +8,7 @@
 #include <map>
 #include <bitset>
 #include <math.h>
+#include <queue>
 #include "core/minisat.h"
 
 using namespace::std;
@@ -103,9 +104,11 @@ public:
 	void print_po();
     void print_topology();
     int removebuffer();
-    void removeredundant(vector<int> relatedPO);
+    vector<int> removeredundant(vector<int> relatedPO);
     vector<int> findRelatedPO();
     vector<int> findRelatedPI(vector<int> relatedPO);
+    vector<int> findRelatedNode(vector<int> relatedPI);
+    void sortcost(vector<int> &array, int left, int right);
     void printstatus();
     void init_simp(string cktname);
 	///////////////////////CCW/////////////////////////////////

@@ -44,7 +44,6 @@ bool Circuit_t::readpatch(char* fname)
     while (1) {
         file >> tmpstr;
 		spilt_str(tmpstr);
-        cout << "\n\n1 " << tmpstr << endl;
         if (tmpstr == "module") {
             while (file >> tmpstr) {
                 if (tmpstr[tmpstr.size() -1] == ';') break;
@@ -59,7 +58,6 @@ bool Circuit_t::readpatch(char* fname)
                 } else {
                     outidx = iter->second;
                     allnodevec[outidx].patch_flag = true;
-                    cout << "Find input: " << allnodevec[outidx].name << endl;
                 }
             }
 
@@ -73,8 +71,6 @@ bool Circuit_t::readpatch(char* fname)
                 } else {
                     outidx = iter->second;
                     allnodevec[outidx].patch_flag = true;
-                    cout << "Find output: " << allnodevec[outidx].name << endl;
-					cout << "outidx: " << outidx << endl;
                 }
             }
 
@@ -112,13 +108,10 @@ bool Circuit_t::readpatch(char* fname)
             //file >> tmpstr >> tmpstr;
             file >> tmpstr;
 			spilt_str(tmpstr);
-			cout << "gate out " << tmpstr << endl;
             iter = allnodemap.find(tmpstr);
             if (iter == allnodemap.end()) {
-				cout << "not in map: " << tmpstr << endl;
                 tmpstr = "p_" + tmpstr;
             } else {
-				cout << "outidx: " << outidx << endl;
 				outidx = iter->second;
                 if (!allnodevec[outidx].patch_flag) {
                     //not PIs or POs in patch
@@ -128,7 +121,6 @@ bool Circuit_t::readpatch(char* fname)
 
             iter = allnodemap.find(tmpstr);
             if (iter == allnodemap.end()) {
-				cout << "not in map 2: " << tmpstr << endl;
                 outidx = allnodevec.size();
                 allnodemap[tmpstr] = allnodevec.size();
                 allnodevec.push_back(*(new Node_t(tmpstr, tp)));        
@@ -147,7 +139,6 @@ bool Circuit_t::readpatch(char* fname)
                 if (tmpstr == ");") break;
 				if (tmpstr[tmpstr.size() - 1] == ';') end_in = true;
 				spilt_str(tmpstr);
-				cout << "gate in " << tmpstr << endl;
                 if (tmpstr == "1'b0") {
                     inidx = 0;
                 } else if (tmpstr == "1'b1") {
@@ -155,7 +146,6 @@ bool Circuit_t::readpatch(char* fname)
                 } else {
                     iter = allnodemap.find(tmpstr);
                     if (iter == allnodemap.end()) {
-						cout << "not in map: " << tmpstr << endl;
                         tmpstr = "p_" + tmpstr;
                     } else {
                         inidx = iter->second;
@@ -174,7 +164,6 @@ bool Circuit_t::readpatch(char* fname)
                 }
                 allnodevec[outidx].in.push_back(inidx);
                 allnodevec[inidx].out.push_back(outidx);
-                cout << "tmpstr: " << tmpstr << " out:" << allnodevec[outidx].name << " in:" << allnodevec[inidx].name << endl;
 				
 				if (end_in) break;
             }
@@ -188,15 +177,94 @@ bool Circuit_t::readpatch(char* fname)
 
 }
 
-/*
+
 vector<int> Circuit_t::findRelatedNode(vector<int> relatedPI)
 {
+    queue<int> nodeque;
+    vector<bool> visit_flag(allnodevec.size(), false);
 
+    int node; 
+    for (int i = 0; i < relatedPI.size(); i++) {
+        node = relatedPI[i];
+        nodeque.push(node);
+    }
+
+    vector<int> relatedNode;
+    
+    while (nodeque.size() != 0) {
+        node = nodeque.front();
+        for (int i = 0; i < allnodevec[node].out.size(); i++) {
+            if (visit_flag[allnodevec[node].out[i]] == false) {
+                nodeque.push(allnodevec[node].out[i]);
+            }
+        }
+        visit_flag[node] = true;
+        nodeque.pop();
+    }
+
+    
+    for (int i = 0; i < target.size(); i++) {
+        nodeque.push(target[i]);
+    }
+
+    while (nodeque.size() != 0) {
+        node = nodeque.front();
+        for (int i = 0; i < allnodevec[node].out.size(); i++) {
+            if (visit_flag[allnodevec[node].out[i]] == true) {
+                nodeque.push(allnodevec[node].out[i]);
+            }
+        }
+        visit_flag[node] = false;
+        nodeque.pop();
+    }
+
+    for (int i = 0; i < allnodevec.size(); i++) {
+        if (visit_flag[i] && !allnodevec[i].patch_flag) {
+            relatedNode.push_back(i);
+        }
+    }
+
+    for (int i = 0; i < relatedPI.size(); i++) {
+        node = relatedPI[i];
+        if ((allnodevec[node].patch_flag) || (!visit_flag[node])){
+            relatedNode.push_back(node);
+        }
+    }
+
+    return relatedNode;
 }
 
 
-void Circuit_t::sortcost(vector<int>& array)
+void Circuit_t::sortcost(vector<int>& array, int left, int right)
 {
+    for (int i = 0; i < array.size() - 1; i++) {
+        for (int j = i + 1; j < array.size(); j++) {
+            if (allnodevec[array[i]].cost > allnodevec[array[j]].cost) {
+                swap(array[i], array[j]);
+            }
+        }
+    }
+    /*
+    if (left < right) {
+        // divide (partition)
+        int pivot = array[(left + right) / 2];
+        int i = left - 1, j = right + 1;
+        while (i < j) {
+            do {
+                ++i;
+            } while (allnodevec[array[i]].cost < allnodevec[pivot].cost);
 
+            do {
+                --j;
+            } while (allnodevec[array[j]].cost > allnodevec[pivot].cost);
+          
+            if (i < j) {
+                swap(array[i], array[j]);
+            }
+        }
+
+        // then conquer
+        quicksort(array, left, i - 1);
+        quicksort(array, j + 1, right);
+    }*/
 }
-*/
