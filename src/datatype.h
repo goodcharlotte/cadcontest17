@@ -39,6 +39,7 @@ using namespace::std;
 #define GRAY_NO_CHAGNE -2
 #define SIM_ALL -1
 
+#define INF 2147483647
 
 vector<int> gene_graycode(int n);
 void find_signature(vector< vector<string> > &sig, int target_size, int pi_size, int po_diff[]);
@@ -108,6 +109,7 @@ public:
     vector<int> findRelatedPO();
     vector<int> findRelatedPI(vector<int> relatedPO);
     vector<int> findRelatedNode(vector<int> relatedPI);
+    void findReplaceCost(vector<int>& ReplaceNode, vector<int>& ReplaceCost, vector<int>& allcandidate, vector<int>& allpatchnode);
     void sortcost(vector<int> &array, int left, int right);
     void printstatus();
     void init_simp(string cktname);

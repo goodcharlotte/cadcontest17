@@ -268,3 +268,37 @@ void Circuit_t::sortcost(vector<int>& array, int left, int right)
         quicksort(array, j + 1, right);
     }*/
 }
+
+
+void Circuit_t::findReplaceCost(vector<int>& ReplaceNode, vector<int>& ReplaceCost, vector<int>& allcandidate, vector<int>& allpatchnode)
+{
+    for (int p_wire = 0; p_wire < allpatchnode.size(); p_wire++) {
+        int p_node = allpatchnode[p_wire];
+        bool find_replace = false;
+        for (int can_wire = 0; can_wire < allcandidate.size(); can_wire++) {
+            int can_node = allcandidate[can_wire];
+            int check_equal = euqal_ck(can_node, p_node);
+            if (check_equal == EQ_UNSAT) {
+                find_replace = true;
+                ReplaceNode[p_wire] = allcandidate[can_wire];
+                ReplaceCost[p_wire] = allnodevec[can_node].cost;
+                break;
+            } else if (check_equal == EQ_INV_UNSAT) {
+                find_replace = true;
+                //constant 0 (id = 0), constant 1 (id = 1)
+                if (allcandidate[can_wire] == 0) {
+                    ReplaceNode[p_wire] = 1;
+                } else if (allcandidate[can_wire] == 1) {
+                    ReplaceNode[p_wire] = 0;
+                } else {
+                    ReplaceNode[p_wire] = allcandidate[can_wire] * (-1);
+                }
+                ReplaceCost[p_wire] = allnodevec[can_node].cost * (-1);
+                break;
+            }
+        }
+        if (!find_replace) {
+            ReplaceNode[p_wire] = -1;
+        }
+    }
+}

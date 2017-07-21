@@ -26,7 +26,7 @@ int main(int argc, char * argv[])
     //====================================
     //  Preprocessing
     //====================================
-	vector<int> relatedPO;
+    vector<int> relatedPO;
     vector<int> relatedPI;
     //cktf.printstatus();
     relatedPO = cktf.findRelatedPO();
@@ -44,9 +44,24 @@ int main(int argc, char * argv[])
     constructPatch("tmp1_F.v", "tmp1_G.v");
     //patchckt = cktf + patch
     Circuit_t patchckt;
+    vector<int> allpatchnode;
+    vector<int> ReplaceNode;
     patchckt.readfile(argv[1]);
+    patchckt.readcost(argv[3]);
     patchckt.readpatch("patch.v");
-    patchckt.removeredundant(relatedPO);
+    allpatchnode = patchckt.removeredundant(relatedPO);
+    ReplaceNode.resize(allpatchnode.size());
+    
+    //====================================
+    //  Find replaced wire
+    //====================================
+    vector<int> ReplaceCost(allpatchnode.size(), INF);
+    vector<int> allcandidate;
+    allcandidate = patchckt.findRelatedNode(relatedPI);
+    patchckt.sortcost(allcandidate, 0, allcandidate.size() - 1);
+    //ReplaceNode: (UNSAT) id, (INV_UNSAT) id * (-1), (No replaced node) -1
+    //ReplaceCost: (UNSAT) cost, (INV_UNSAT) cost * (-1), (No replaced node) INF
+    patchckt.findReplaceCost(ReplaceNode, ReplaceCost, allcandidate, allpatchnode);
 
     //====================================
     //  Derive signature
