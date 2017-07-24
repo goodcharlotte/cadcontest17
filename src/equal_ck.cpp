@@ -21,7 +21,10 @@ int inver2CNF(Solver& sat, int node);
 
 int Circuit_t::euqal_ck(int F_nid, int P_nid)
 {
+
 	Solver ckt_sat;	
+	sat_new_var(ckt_sat, F_nid);
+	sat_new_var(ckt_sat, P_nid);
 	CNF_fanin(ckt_sat, F_nid);
 	CNF_fanin(ckt_sat, P_nid);
 	miter2CNF(ckt_sat, F_nid, P_nid);
@@ -34,6 +37,8 @@ int Circuit_t::euqal_ck(int F_nid, int P_nid)
 	// add inverter to check again
 	//TODO: try another way, bad to find fanin again
 	Solver ckt_sat_invF;
+	sat_new_var(ckt_sat_invF, F_nid);
+	sat_new_var(ckt_sat_invF, P_nid);
 	CNF_fanin(ckt_sat_invF, F_nid);
 	CNF_fanin(ckt_sat_invF, P_nid);
 	int F_nid_inv = inver2CNF(ckt_sat_invF, F_nid);
@@ -42,16 +47,6 @@ int Circuit_t::euqal_ck(int F_nid, int P_nid)
 	if (ckt_sat_invF.okay() == false) {
 		return EQ_INV_UNSAT;
 	}
-	//TODO: check whether this is must.
-	Solver ckt_sat_invP;
-	CNF_fanin(ckt_sat_invP, F_nid);
-	CNF_fanin(ckt_sat_invP, P_nid);
-	int P_nid_inv = inver2CNF(ckt_sat_invP, P_nid);
-	miter2CNF(ckt_sat_invP, F_nid, P_nid_inv);
-	ckt_sat_invP.solve();
-	if (ckt_sat_invP.okay() == false) {
-		return EQ_INV_UNSAT;
-	}	
 	
 	return EQ_SAT;
 }
@@ -81,6 +76,7 @@ void Circuit_t::CNF_fanin(Solver& sat, int node_id)
 
 void gate2CNF(Solver& sat, int gate_out, Node_t gate)
 {
+	//cout << "0 gate2CNF , gate_out=" << gate_out << endl; 
 	if ((gate.in).size() == 0) {
 		return;
 	}
@@ -277,11 +273,12 @@ void miter2CNF(Solver& sat, int gate_in_1, int gate_in_2)
 		(~A V ~B V ~C) ^ (A V B V ~C) ^ \
 		(A V ~B V C) ^ (~A V B V C)
 	*/	
-	//cout << "gate_in_1 " << gate_in_1 << endl;
-	//cout << "gate_in_2 " << gate_in_2 << endl;	
+	//cout << "0 miter2CNF, gate_in_1 " << gate_in_1 << endl;
+	//cout << "1 miter2CNF, gate_in_2 " << gate_in_2 << endl;	
 	sat_new_var(sat, gate_in_1);
 	sat_new_var(sat, gate_in_2);	
 	int gate_out = sat.newVar();
+	//cout << "2 miter2CNF, gate_out " << gate_out << endl;
 	sat.addClause(~mkLit(gate_in_1), ~mkLit(gate_in_2), ~mkLit(gate_out));
 	sat.addClause( mkLit(gate_in_1),  mkLit(gate_in_2), ~mkLit(gate_out));
 	sat.addClause( mkLit(gate_in_1), ~mkLit(gate_in_2),  mkLit(gate_out));
@@ -298,6 +295,7 @@ int inver2CNF(Solver& sat, int node)
 	*/	
 	sat_new_var(sat, node);
 	int new_out = sat.newVar();
+	//cout << "0 inver2CNF, new_out " << new_out << endl;
 	sat.addClause(mkLit(node), mkLit(new_out));
 	sat.addClause(~mkLit(node), ~mkLit(new_out));
 	return new_out;
