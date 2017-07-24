@@ -33,6 +33,7 @@ bool Circuit_t::readpatch(char* fname)
 
     for (int i = 0; i < allnodevec.size(); i++) {
         allnodevec[i].patch_flag = false;
+        allnodevec[i].cost = INF;
     }
 
     ifstream file(fname);
@@ -125,6 +126,7 @@ bool Circuit_t::readpatch(char* fname)
                 allnodemap[tmpstr] = allnodevec.size();
                 allnodevec.push_back(*(new Node_t(tmpstr, tp)));        
                 allnodevec[outidx].patch_flag = true;
+                allnodevec[outidx].cost = INF;
             } else {
                 outidx = iter->second;
                 allnodevec[outidx].type = tp;
@@ -161,6 +163,7 @@ bool Circuit_t::readpatch(char* fname)
                         inidx = allnodemap[tmpstr] = allnodevec.size();
                         allnodevec.push_back(*(new Node_t(tmpstr, PORT)));
                         allnodevec[inidx].patch_flag = true;
+                        allnodevec[inidx].cost = INF;
                     } else {
                         inidx = iter->second;
                     }
@@ -385,7 +388,7 @@ void Circuit_t::sortcost(vector<int>& array, int left, int right)
 }
 
 
-void Circuit_t::findReplaceCost(vector<int>& ReplaceNode, vector<int>& ReplaceCost, vector<int>& allcandidate, vector<int>& allpatchnode)
+void Circuit_t::findReplaceCost(vector<int>& ReplaceNode, vector<int>& allcandidate, vector<int>& allpatchnode)
 {
     for (int p_wire = 0; p_wire < allpatchnode.size(); p_wire++) {
         int p_node = allpatchnode[p_wire];
@@ -396,7 +399,7 @@ void Circuit_t::findReplaceCost(vector<int>& ReplaceNode, vector<int>& ReplaceCo
             if (check_equal == EQ_UNSAT) {
                 find_replace = true;
                 ReplaceNode[p_wire] = allcandidate[can_wire];
-                ReplaceCost[p_wire] = allnodevec[can_node].cost;
+                allnodevec[p_node].cost = allnodevec[can_node].cost;
                 break;
             } else if (check_equal == EQ_INV_UNSAT) {
                 find_replace = true;
@@ -408,7 +411,7 @@ void Circuit_t::findReplaceCost(vector<int>& ReplaceNode, vector<int>& ReplaceCo
                 } else {
                     ReplaceNode[p_wire] = allcandidate[can_wire] * (-1);
                 }
-                ReplaceCost[p_wire] = allnodevec[can_node].cost * (-1);
+                allnodevec[p_node].cost = allnodevec[can_node].cost * (-1);
                 break;
             }
         }
