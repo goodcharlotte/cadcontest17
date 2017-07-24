@@ -136,8 +136,11 @@ bool Circuit_t::readpatch(char* fname)
 			end_in = false;
             while (file >> tmpstr) {
                 if (tmpstr == ",") continue;
-                if (tmpstr == ");") break;
-				if (tmpstr[tmpstr.size() - 1] == ';') end_in = true;
+				if ((tmpstr.size() > 2) && (tmpstr[tmpstr.size() - 1] == ';')) {
+                    end_in = true;
+                } else if (tmpstr[tmpstr.size() - 1] == ';') {
+                    break;
+                }
 				spilt_str(tmpstr);
                 if (tmpstr == "1'b0") {
                     inidx = 0;
@@ -177,6 +180,115 @@ bool Circuit_t::readpatch(char* fname)
 
 }
 
+bool Circuit_t::readfile2(char* fname)
+{
+    int originalsize;
+    originalsize = allnodevec.size();
+
+    ifstream file(fname);
+    if (!file) return false;
+    string tmpstr;
+    int outidx;
+	bool end_in;
+
+    while (1) {
+        file >> tmpstr;
+		spilt_str(tmpstr);
+        if (tmpstr == "module") {
+            while (file >> tmpstr) {
+                if (tmpstr[tmpstr.size() -1] == ';') break;
+            }
+
+        } else if (tmpstr == "wire") {
+            while (file >> tmpstr) {
+                if (tmpstr[tmpstr.size() - 1] == ';') break;
+            }
+
+        } else if (tmpstr == "endmodule") {
+            break;
+
+        } else {
+            GateType tp;
+            if (tmpstr == "buf") {
+                tp = BUF;
+            } else if (tmpstr == "not") {
+                tp = NOT;
+            } else if (tmpstr == "and") {
+                tp = AND;
+            } else if (tmpstr == "nand") {
+                tp = NAND;
+            } else if (tmpstr == "or") {
+                tp = OR;
+            } else if (tmpstr == "nor") {
+                tp = NOR;
+            } else if (tmpstr == "xor") {
+                tp = XOR;
+            } else if (tmpstr == "xnor") {
+                tp = NXOR;
+            } else {
+                continue;
+            }
+            // gate output
+            outidx = -1;
+            file >> tmpstr >> tmpstr;
+			spilt_str(tmpstr);
+            tmpstr = "g_" + tmpstr;
+            iter = allnodemap.find(tmpstr);
+
+            if (iter == allnodemap.end()) {
+                outidx = allnodevec.size();
+                allnodemap[tmpstr] = allnodevec.size();
+                allnodevec.push_back(*(new Node_t(tmpstr, tp)));        
+            } else {
+                outidx = iter->second;
+                allnodevec[outidx].type = tp;
+            }
+
+           // gate input
+            int inidx;
+			end_in = false;
+            while (file >> tmpstr) {
+                if (tmpstr == ",") continue;
+                if (tmpstr == ");") break;
+				if (tmpstr[tmpstr.size() - 1] == ';') end_in = true;
+				spilt_str(tmpstr);
+                if (tmpstr == "1'b0") {
+                    inidx = 0;
+                } else if (tmpstr == "1'b1") {
+                    inidx = 1;
+                } else {
+                    iter = allnodemap.find(tmpstr);
+                    if (iter == allnodemap.end()) {
+                        tmpstr = "g_" + tmpstr;
+                    } else {
+                        inidx = iter->second;
+                        if (allnodevec[inidx].type == PORT) {
+                        } else {
+                            tmpstr = "g_" + tmpstr;
+                        }
+                    }
+                    iter = allnodemap.find(tmpstr);
+                    if (iter == allnodemap.end()) {
+                        inidx = allnodemap[tmpstr] = allnodevec.size();
+                        allnodevec.push_back(*(new Node_t(tmpstr, PORT)));
+                    } else {
+                        inidx = iter->second;
+                    }
+                }
+                allnodevec[outidx].in.push_back(inidx);
+                allnodevec[inidx].out.push_back(outidx);
+				
+				if (end_in) break;
+            }
+        }
+    }
+    
+    file.close();
+	allnodevalue.resize(allnodevec.size());
+
+    return true;
+
+}
 
 vector<int> Circuit_t::findRelatedNode(vector<int> relatedPI)
 {
@@ -237,6 +349,7 @@ vector<int> Circuit_t::findRelatedNode(vector<int> relatedPI)
 
 void Circuit_t::sortcost(vector<int>& array, int left, int right)
 {
+    
     for (int i = 0; i < array.size() - 1; i++) {
         for (int j = i + 1; j < array.size(); j++) {
             if (allnodevec[array[i]].cost > allnodevec[array[j]].cost) {
@@ -244,6 +357,7 @@ void Circuit_t::sortcost(vector<int>& array, int left, int right)
             }
         }
     }
+    
     /*
     if (left < right) {
         // divide (partition)
@@ -266,7 +380,8 @@ void Circuit_t::sortcost(vector<int>& array, int left, int right)
         // then conquer
         quicksort(array, left, i - 1);
         quicksort(array, j + 1, right);
-    }*/
+    }
+    */
 }
 
 

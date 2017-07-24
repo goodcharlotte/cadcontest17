@@ -272,7 +272,7 @@ void Circuit_t::topology(int start_node_id)
     }
 }
 
-void Circuit_t::quicksort(vector<int>&array, int left, int right)
+void Circuit_t::quicksort(vector<int>& array, int left, int right)
 {
     if (left < right) {
         // divide (partition)
