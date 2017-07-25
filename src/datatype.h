@@ -8,6 +8,7 @@
 #include <map>
 #include <bitset>
 #include <math.h>
+#include <ctime>
 #include <queue>
 #include "core/minisat.h"
 
@@ -106,10 +107,10 @@ public:
 	void print_po();
     void print_topology();
     int removebuffer();
-    vector<int> removeredundant(vector<int> relatedPO);
+    void removeredundant(vector<int> relatedPO);
     vector<int> findRelatedPO();
     vector<int> findRelatedPI(vector<int> relatedPO);
-    vector<int> findRelatedNode(vector<int> relatedPI);
+    void findRelatedNode(vector<int> relatedPI, vector<int>& allpatchnode, vector<int>& allcandidate);
     void findReplaceCost(vector<int>& ReplaceNode, vector<int>& allcandidate, vector<int>& allpatchnode);
     void sortcost(vector<int>& array, int left, int right);
     void printstatus();

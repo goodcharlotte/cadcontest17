@@ -135,9 +135,8 @@ vector<int> Circuit_t::findRelatedPO()
     return relatedPO;
 }
 
-vector<int> Circuit_t::removeredundant(vector<int> relatedPO)
+void Circuit_t::removeredundant(vector<int> relatedPO)
 {
-    vector<int> allpatchnode;
     queue<int> nodeque;
     int node; 
         
@@ -163,11 +162,8 @@ vector<int> Circuit_t::removeredundant(vector<int> relatedPO)
             //cout << "remove " <<  allnodevec[i].name << endl;
             allnodevec[i].in.clear();
             allnodevec[i].out.clear();
-        } else if (allnodevec[i].patch_flag) {
-            allpatchnode.push_back(i);
         }
     }
-    return allpatchnode;
 }
 
 int Circuit_t::removebuffer()

@@ -3,15 +3,12 @@
 #include <bitset>
 #include <math.h>
 #include <string>
-//#include "core/minisat.h"
 
 using namespace std;
 
 
 int main(int argc, char * argv[])
 {
-	Solver S;  
-	
     if (argc != 6) {
         cout << "Usage: ./rpgen <F.v> <G.v> <weight.txt> <patch.v> <out.v> " << endl;
         return 0;
@@ -22,7 +19,7 @@ int main(int argc, char * argv[])
         cout << "Read file error" << endl;
         return 0; 
     }
-	
+
     //====================================
     //  Preprocessing
     //====================================
@@ -49,17 +46,17 @@ int main(int argc, char * argv[])
     patchckt.readfile(argv[1]);
     patchckt.readpatch("patch.v");
     patchckt.readcost(argv[3]);
-    allpatchnode = patchckt.removeredundant(relatedPO);
-    ReplaceNode.resize(allpatchnode.size());
+    patchckt.removeredundant(relatedPO);
     
     //====================================
     //  Find replaced wire
     //====================================
     vector<int> allcandidate;
-    allcandidate = patchckt.findRelatedNode(relatedPI);
+    patchckt.findRelatedNode(relatedPO, allpatchnode, allcandidate);
     patchckt.sortcost(allcandidate, 0, allcandidate.size() - 1);
     //ReplaceNode: (UNSAT & INV_UNSAT) id, (No replaced node) -1
     //ReplaceCost: (UNSAT) cost, (INV_UNSAT) cost * (-1), (No replaced node) INF
+    ReplaceNode.resize(allpatchnode.size());
     patchckt.findReplaceCost(ReplaceNode, allcandidate, allpatchnode);
     patchckt.minCut(allpatchnode);
 

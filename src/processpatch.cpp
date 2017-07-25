@@ -1,6 +1,7 @@
 #include "datatype.h"
 #include "string.h"
 
+
 void spilt_str(string& tmpstr)
 {
     int start_str;
@@ -202,7 +203,22 @@ bool Circuit_t::readfile2(char* fname)
                 if (tmpstr[tmpstr.size() -1] == ';') break;
             }
 
-        } else if (tmpstr == "wire") {
+        } else if (tmpstr == "input") {
+            while (file >> tmpstr) {
+                if (tmpstr[tmpstr.size() -1] == ';') break;
+            }
+
+        } else if (tmpstr == "output") {
+            while (file >> tmpstr) {
+                if (tmpstr == ",") continue;
+                if (tmpstr[tmpstr.size() - 1] == ';') break;
+                tmpstr = "g_" + tmpstr;
+                allnodemap[tmpstr] = allnodevec.size();
+                po.push_back(allnodevec.size());
+                allnodevec.push_back(*(new Node_t(tmpstr, PORT)));       
+            }
+
+        }else if (tmpstr == "wire") {
             while (file >> tmpstr) {
                 if (tmpstr[tmpstr.size() - 1] == ';') break;
             }
@@ -293,31 +309,13 @@ bool Circuit_t::readfile2(char* fname)
 
 }
 
-vector<int> Circuit_t::findRelatedNode(vector<int> relatedPI)
+void Circuit_t::findRelatedNode(vector<int> relatedPO, vector<int>& allpatchnode, vector<int>& allcandidate)
 {
     queue<int> nodeque;
     vector<bool> visit_flag(allnodevec.size(), false);
+    vector<bool> target_fanout(allnodevec.size(), false);
 
     int node; 
-    for (int i = 0; i < relatedPI.size(); i++) {
-        node = relatedPI[i];
-        nodeque.push(node);
-    }
-
-    vector<int> relatedNode;
-    
-    while (nodeque.size() != 0) {
-        node = nodeque.front();
-        for (int i = 0; i < allnodevec[node].out.size(); i++) {
-            if (visit_flag[allnodevec[node].out[i]] == false) {
-                nodeque.push(allnodevec[node].out[i]);
-            }
-        }
-        visit_flag[node] = true;
-        nodeque.pop();
-    }
-
-    
     for (int i = 0; i < target.size(); i++) {
         nodeque.push(target[i]);
     }
@@ -325,34 +323,94 @@ vector<int> Circuit_t::findRelatedNode(vector<int> relatedPI)
     while (nodeque.size() != 0) {
         node = nodeque.front();
         for (int i = 0; i < allnodevec[node].out.size(); i++) {
-            if (visit_flag[allnodevec[node].out[i]] == true) {
+            if (target_fanout[allnodevec[node].out[i]] == false) {
                 nodeque.push(allnodevec[node].out[i]);
             }
         }
-        visit_flag[node] = false;
+        target_fanout[node] = true;
         nodeque.pop();
     }
-
-    for (int i = 0; i < allnodevec.size(); i++) {
-        if (visit_flag[i] && !allnodevec[i].patch_flag) {
-            relatedNode.push_back(i);
-        }
+    
+    //////////////// BFS ///////////////
+    bool ready_bfs;
+    for (int i = 0; i < relatedPO.size(); i++) {
+        node = relatedPO[i];
+        nodeque.push(node);
     }
 
-    for (int i = 0; i < relatedPI.size(); i++) {
-        node = relatedPI[i];
-        if ((allnodevec[node].patch_flag) || (!visit_flag[node])){
-            relatedNode.push_back(node);
+    allcandidate.resize(0);
+    
+    while (nodeque.size() != 0) {
+        node = nodeque.front();
+        for (int i = 0; i < allnodevec[node].in.size(); i++) {
+            int indx = allnodevec[node].in[i];
+            if (visit_flag[indx] == false) {
+                nodeque.push(allnodevec[node].in[i]);
+            }
         }
+
+        ready_bfs = true;
+        for (int i = 0; i < allnodevec[node].out.size(); i++) {
+            int outdx = allnodevec[node].out[i];
+            if ((allnodevec[outdx].patch_flag == true) && (visit_flag[outdx] == false)) {
+                ready_bfs = false;
+                break;
+            }
+        }
+
+        if ((ready_bfs == true) && (visit_flag[node] == false)) {
+            visit_flag[node] = true;
+            if (!target_fanout[node]) {
+                if ((!allnodevec[node].patch_flag) || (allnodevec[node].type == PORT)) {
+                    allcandidate.push_back(node);
+                }
+            }
+            if (allnodevec[node].patch_flag) {
+                allpatchnode.push_back(node);
+            }
+        }
+        nodeque.pop();
+    }
+}
+
+/*
+vector<int> Circuit_t::findPatchNode(vector<int> relatedPO)
+{
+    //BFS
+    queue<int> nodeque;
+    vector<bool> visit_flag(allnodevec.size(), false);
+
+    int node; 
+    
+    for (int i = 0; i < relatedPO.size(); i++) {
+        node = relatedPO[i];
+        nodeque.push(node);
+    }
+
+    vector<int> relatedNode;
+    
+    while (nodeque.size() != 0) {
+        node = nodeque.front();
+        for (int i = 0; i < allnodevec[node].in.size(); i++) {
+            if (visit_flag[allnodevec[node].in[i]] == false) {
+                nodeque.push(allnodevec[node].in[i]);
+            }
+        }
+        visit_flag[node] = true;
+        if (!target_fanout[node]) {
+            if ((!allnodevec[node].patch_flag) || (allnodevec[node].type == PORT)) {
+                relatedNode.push_back(node);
+            }
+        }
+        nodeque.pop();
     }
 
     return relatedNode;
 }
-
+*/
 
 void Circuit_t::sortcost(vector<int>& array, int left, int right)
 {
-    
     for (int i = 0; i < array.size() - 1; i++) {
         for (int j = i + 1; j < array.size(); j++) {
             if (allnodevec[array[i]].cost > allnodevec[array[j]].cost) {
@@ -390,10 +448,19 @@ void Circuit_t::sortcost(vector<int>& array, int left, int right)
 
 void Circuit_t::findReplaceCost(vector<int>& ReplaceNode, vector<int>& allcandidate, vector<int>& allpatchnode)
 {
+    clock_t clk_start, clk_stop;
+    clk_start = clock();
+
     for (int p_wire = 0; p_wire < allpatchnode.size(); p_wire++) {
         int p_node = allpatchnode[p_wire];
         bool find_replace = false;
         for (int can_wire = 0; can_wire < allcandidate.size(); can_wire++) {
+            clk_stop = clock();
+            double time_sec = double(clk_stop - clk_start)/CLOCKS_PER_SEC;
+            //cout << "time: " << time_sec << endl;
+            if ( time_sec > 1500) {
+                break;
+            }
             int can_node = allcandidate[can_wire];
             int check_equal = euqal_ck(can_node, p_node);
             if (check_equal == EQ_UNSAT) {
