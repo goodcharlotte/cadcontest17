@@ -58,7 +58,7 @@ int main(int argc, char * argv[])
     vector<int> allcandidate;
     allcandidate = patchckt.findRelatedNode(relatedPI);
     patchckt.sortcost(allcandidate, 0, allcandidate.size() - 1);
-    //ReplaceNode: (UNSAT) id, (INV_UNSAT) id * (-1), (No replaced node) -1
+    //ReplaceNode: (UNSAT & INV_UNSAT) id, (No replaced node) -1
     //ReplaceCost: (UNSAT) cost, (INV_UNSAT) cost * (-1), (No replaced node) INF
     patchckt.findReplaceCost(ReplaceNode, allcandidate, allpatchnode);
 

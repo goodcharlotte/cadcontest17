@@ -403,14 +403,7 @@ void Circuit_t::findReplaceCost(vector<int>& ReplaceNode, vector<int>& allcandid
                 break;
             } else if (check_equal == EQ_INV_UNSAT) {
                 find_replace = true;
-                //constant 0 (id = 0), constant 1 (id = 1)
-                if (allcandidate[can_wire] == 0) {
-                    ReplaceNode[p_wire] = 1;
-                } else if (allcandidate[can_wire] == 1) {
-                    ReplaceNode[p_wire] = 0;
-                } else {
-                    ReplaceNode[p_wire] = allcandidate[can_wire] * (-1);
-                }
+                ReplaceNode[p_wire] = allcandidate[can_wire];
                 allnodevec[p_node].cost = allnodevec[can_node].cost * (-1);
                 break;
             }
