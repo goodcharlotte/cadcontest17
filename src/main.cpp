@@ -61,6 +61,7 @@ int main(int argc, char * argv[])
     //ReplaceNode: (UNSAT) id, (INV_UNSAT) id * (-1), (No replaced node) -1
     //ReplaceCost: (UNSAT) cost, (INV_UNSAT) cost * (-1), (No replaced node) INF
     patchckt.findReplaceCost(ReplaceNode, allcandidate, allpatchnode);
+    patchckt.minCut(allpatchnode);
 
     //====================================
     //  Derive signature
