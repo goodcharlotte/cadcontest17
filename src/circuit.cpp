@@ -2,10 +2,43 @@
 #include <fstream>
 #include <queue>
 #include "datatype.h"
+#include<climits>
+#include <LEDA/graph/graph.h>
+#include <LEDA/graph/min_cut.h>
+
 using namespace::std;
+using leda::graph;
+using leda::edge;
+using leda::node;
+using leda::edge_array;
+using leda::list;
+
 
 Circuit_t::Circuit_t()
 {
+}
+
+void Circuit_t::minCut(vector<int> pnode)
+{
+    graph G;
+    node n0 = G.new_node();
+    node n1 = G.new_node();
+    node n2 = G.new_node();
+    node n3 = G.new_node();
+
+    edge e0 = G.new_edge(n0, n1);
+    edge e1 = G.new_edge(n1, n3);
+    edge e2 = G.new_edge(n0, n2);
+    edge e3 = G.new_edge(n2, n3);
+
+    edge_array<int> weight(G);
+    weight[e0] = 1;
+    weight[e1] = 3;
+    weight[e2] = 2;
+    weight[e3] = 2;
+
+    list<node> cut;
+    int cut_value = MIN_CUT(G, weight, cut);
 }
 
 void Circuit_t::printstatus()
