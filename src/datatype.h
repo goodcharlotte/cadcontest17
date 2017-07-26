@@ -91,8 +91,8 @@ public:
 	void CNF_fanin(Solver& sat, int node_id);
 
     bool readfile(char* fname);
-    bool readpatch(char* fname);
-    bool readfile2(char* fname);
+    bool readpatch(string fname);
+    bool readfile2(string fname);
     bool write_verilog(string cktname);
     bool writefile(char* fname, vector<int> candidate);
     bool readcost(char* fname);

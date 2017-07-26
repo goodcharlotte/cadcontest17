@@ -27,7 +27,7 @@ void spilt_str(string& tmpstr)
 	tmpstr = tmpstr.substr(start_str, (end_str - start_str + 1));	
 }
 
-bool Circuit_t::readpatch(char* fname)
+bool Circuit_t::readpatch(string fname)
 {
     int originalsize;
     originalsize = allnodevec.size();
@@ -37,7 +37,7 @@ bool Circuit_t::readpatch(char* fname)
         allnodevec[i].cost = INF;
     }
 
-    ifstream file(fname);
+    ifstream file(fname.c_str());
     if (!file) return false;
     string tmpstr;
     int outidx;
@@ -184,12 +184,12 @@ bool Circuit_t::readpatch(char* fname)
 
 }
 
-bool Circuit_t::readfile2(char* fname)
+bool Circuit_t::readfile2(string fname)
 {
     int originalsize;
     originalsize = allnodevec.size();
 
-    ifstream file(fname);
+    ifstream file(fname.c_str());
     if (!file) return false;
     string tmpstr;
     int outidx;
