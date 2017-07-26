@@ -107,8 +107,8 @@ bool Circuit_t::readpatch(char* fname)
             }
             // gate output
             outidx = -1;
-            //file >> tmpstr >> tmpstr;
-            file >> tmpstr;
+            file >> tmpstr >> tmpstr;
+            //file >> tmpstr;
 			spilt_str(tmpstr);
             iter = allnodemap.find(tmpstr);
             if (iter == allnodemap.end()) {
@@ -446,7 +446,7 @@ void Circuit_t::sortcost(vector<int>& array, int left, int right)
 }
 
 
-void Circuit_t::findReplaceCost(vector<int>& ReplaceNode, vector<int>& allcandidate, vector<int>& allpatchnode)
+void Circuit_t::findReplaceCost(vector<int>& ReplaceNode, vector<int>& allcandidate, vector<int>& allpatchnode, vector<Node_t>& PatchNode)
 {
     clock_t clk_start, clk_stop;
     clk_start = clock();
@@ -479,4 +479,41 @@ void Circuit_t::findReplaceCost(vector<int>& ReplaceNode, vector<int>& allcandid
             ReplaceNode[p_wire] = -1;
         }
     }
+
+    int patch_node, replace_node;
+    for (int i = 0; i < allpatchnode.size(); i++) {
+        patch_node = allpatchnode[i];
+        replace_node = ReplaceNode[i];
+        PatchNode.push_back(*(new Node_t(allnodevec[patch_node].name, allnodevec[patch_node].type)));
+        if (replace_node == -1) {
+            PatchNode[i].cost = INF;
+            PatchNode[i].replacename = "NONE";
+        } else {
+            PatchNode[i].cost = allnodevec[replace_node].cost;
+            PatchNode[i].replacename = allnodevec[replace_node].name;
+        } 
+    }
+}
+
+void Circuit_t::findReplaceNode(vector<Node_t>& PatchNode)
+{
+    int node;
+    string tmpstr;
+    for (int i = 0; i < PatchNode.size(); i++) {
+        tmpstr = PatchNode[i].name;
+        if (PatchNode[i].type != PORT) {
+            if (PatchNode[i].name[0] == 'p') {
+                tmpstr = tmpstr.substr(2);
+            }
+        }
+        iter = allnodemap.find(tmpstr);
+        if (iter == allnodemap.end()) {
+            cout << "Error!" << tmpstr << " not in Patch(only)." << endl;
+        } else {
+            node = iter->second;
+            //cout << "find id" << node << " in Patch(only)." << endl; 
+            allnodevec[node].cost = PatchNode[i].cost;
+            allnodevec[node].replacename = PatchNode[i].name;
+        }   
+   }
 }
