@@ -40,7 +40,7 @@ using namespace::std;
 #define GRAY_NO_CHAGNE -2
 #define SIM_ALL -1
 
-#define INF 2147483647
+#define INF 9999999
 
 vector<int> gene_graycode(int n);
 void find_signature(vector< vector<string> > &sig, int target_size, int pi_size, int po_diff[]);

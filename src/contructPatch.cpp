@@ -180,6 +180,9 @@ void constructMiter(string &outputName)
     for (int i = 0; i < G_piName.size(); i++) {
         file << G_piName[i] << " , ";
     }
+    for (int i = 0; i < poName.size(); i++) {
+        file << "g_" << poName[i] << " , ";
+    }
     for (int i = 0; i < targetName.size(); i++) {
         file << targetName[i];
         if (i < (targetName.size() - 1)) {
@@ -191,6 +194,9 @@ void constructMiter(string &outputName)
     file << "input ";
     for (int i = 0; i < G_piName.size(); i++) {
         file << G_piName[i] << " , ";
+    }
+    for (int i = 0; i < poName.size(); i++) {
+        file << "g_" << poName[i] << " , ";
     }
     for (int i = 0; i < targetName.size(); i++) {
         file << targetName[i];
@@ -205,9 +211,6 @@ void constructMiter(string &outputName)
     file << "wire ";
     for (int i = 0; i < poName.size(); i++) {
         file << "f_" << poName[i] << " , ";
-    }
-    for (int i = 0; i < poName.size(); i++) {
-        file << "g_" << poName[i] << " , ";
     }
     for (int i = 0; i < poName.size(); i++) {
         file << "n" << i;
@@ -240,18 +243,6 @@ void constructMiter(string &outputName)
     for (int i = 0; i < targetName.size(); i++) {
         file << "." << targetName[i] << "(" << targetName[i] << ")";
         if (i < (targetName.size() - 1)) {
-            file << " , ";
-        }
-    }
-    file << " );\n";
-
-    file << "G g0( ";
-    for (int i = 0; i < poName.size(); i++) {
-        file << "." << poName[i] << "(g_" << poName[i] << "), ";
-    }
-    for (int i = 0; i < (G_piName.size()); i++) {
-        file << "." << G_piName[i] << "(" << G_piName[i] << ")";
-        if (i < (G_piName.size() - 1)) {
             file << " , ";
         }
     }
@@ -295,6 +286,9 @@ void constructTop(string &outputName)
     //[ n0 ~ n(2^n-2)]
     int totalWire = (pow(2, targetName.size()) - 1) + (targetName.size() * (pow(2, targetName.size()) - 2 ));
     file << "wire ";
+    for (int i = 0; i < poName.size(); i++) {
+        file << "g_" << poName[i] << " , ";
+    } 
     for (int i = 0; i < totalWire; i++) {
         file << "n" << i;
         if (i < (totalWire - 1)) {
@@ -302,7 +296,17 @@ void constructTop(string &outputName)
         }
     }
     file << " ;\n";
-
+    file << "G g0( ";
+    for (int i = 0; i < poName.size(); i++) {
+        file << "." << poName[i] << "(g_" << poName[i] << "), ";
+    }
+    for (int i = 0; i < (G_piName.size()); i++) {
+        file << "." << G_piName[i] << "(" << G_piName[i] << ")";
+        if (i < (G_piName.size() - 1)) {
+            file << " , ";
+        }
+    }
+    file << " );\n";
     //miter: w[0]~ w[(2^n-2)]
     for (int i = 0; i < (pow(2, targetName.size()) - 1); i++) {
         bitset<MAX_INT_SIZE> bit_str(i);
@@ -310,6 +314,9 @@ void constructTop(string &outputName)
         file << "miter p" << i << " ( .miterOutput(n" << i << "), ";
         for (int j = 0; j < (G_piName.size()); j++) {
             file << "." << G_piName[j] << "(" << G_piName[j] << "), ";
+        }
+        for (int i = 0; i < poName.size(); i++) {
+            file << "." << "g_" << poName[i] << "(g_" << poName[i] << ") , ";
         }
         for (int j = 0; j < targetName.size(); j++) {
             file << "." << targetName[j] << "(1'b" << targetValue[MAX_INT_SIZE - j - 1] << ")";
