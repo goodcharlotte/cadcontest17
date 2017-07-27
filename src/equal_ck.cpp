@@ -6,22 +6,67 @@
 
 using namespace std;
 
+
+
 #define sat_new_var(curr_sat, id) do { \
 	while(id >= curr_sat.nVars()) { \
 		curr_sat.newVar(); \
 	} \
 } while(0)
 
+	
+
 
 void gate2CNF(Solver& sat, int gate_out, Node_t gate);
-void miter2CNF(Solver& sat, int gate_in_1, int gate_in_2);
-int inver2CNF(Solver& sat, int node);
+void miter2CNF(Solver& sat, int gate_in_1, int gate_in_2, int assume_lit, int gate_out);
+int inver2CNF(Solver& sat, int node, int assume_lit);
 
 
 
 int Circuit_t::euqal_ck(int F_nid, int P_nid)
 {
 
+	Solver ckt_sat;	
+	sat_new_var(ckt_sat, F_nid);
+	sat_new_var(ckt_sat, P_nid);
+
+	CNF_fanin(ckt_sat, F_nid);
+	CNF_fanin(ckt_sat, P_nid);	
+	//This is a trick to simulate removing clause.
+	int assume_lit_no_inv = ckt_sat.newVar();
+	int assume_lit_has_inv = ckt_sat.newVar();
+	
+	int gate_out_no_inv = ckt_sat.newVar();
+	int gate_out_has_inv = ckt_sat.newVar();
+	
+	//miter with inverter
+	int F_nid_inv = inver2CNF(ckt_sat, F_nid, assume_lit_has_inv);
+	miter2CNF(ckt_sat, F_nid_inv, P_nid, assume_lit_has_inv, gate_out_has_inv);
+	//miter without inverter
+	miter2CNF(ckt_sat, F_nid, P_nid, assume_lit_no_inv, gate_out_no_inv);
+	
+	//let output = 1
+	ckt_sat.addClause(mkLit(gate_out_no_inv));
+	ckt_sat.addClause(mkLit(gate_out_has_inv));
+	
+	//TODO: check if any difference if using the below
+	//ckt_sat.addClause(mkLit(assume_lit_no_inv), mkLit(gate_out_no_inv));
+	//ckt_sat.addClause(mkLit(assume_lit_has_inv), mkLit(gate_out_has_inv));
+	
+	//cout << "\n no_inv solve " << ckt_sat.solve(~mkLit(assume_lit_no_inv), mkLit(assume_lit_has_inv)) << endl;
+	//cout << " ckt_sat.okay() " << ckt_sat.okay() << endl;
+	if (ckt_sat.solve(~mkLit(assume_lit_no_inv), mkLit(assume_lit_has_inv)) == false) {
+		return EQ_UNSAT;
+	}
+	//cout << " has_inv_inv solve " <<ckt_sat.solve(mkLit(assume_lit_no_inv), ~mkLit(assume_lit_has_inv)) << endl;
+	//cout << " ckt_sat.okay() " << ckt_sat.okay() << endl;
+	if (ckt_sat.solve(mkLit(assume_lit_no_inv), ~mkLit(assume_lit_has_inv)) == false) {
+		return EQ_INV_UNSAT;
+	}
+	return EQ_SAT;	
+	
+
+	/*
 	Solver ckt_sat;	
 	sat_new_var(ckt_sat, F_nid);
 	sat_new_var(ckt_sat, P_nid);
@@ -32,7 +77,6 @@ int Circuit_t::euqal_ck(int F_nid, int P_nid)
 	
 	if (ckt_sat.okay() == false) {
 		return EQ_UNSAT;
-	}
 	
 	// add inverter to check again
 	//TODO: try another way, bad to find fanin again
@@ -49,6 +93,7 @@ int Circuit_t::euqal_ck(int F_nid, int P_nid)
 	}
 	
 	return EQ_SAT;
+	*/
 }
 
 void Circuit_t::CNF_fanin(Solver& sat, int node_id)
@@ -265,7 +310,7 @@ void gate2CNF(Solver& sat, int gate_out, Node_t gate)
 	}
 }
 
-void miter2CNF(Solver& sat, int gate_in_1, int gate_in_2)
+void miter2CNF(Solver& sat, int gate_in_1, int gate_in_2, int assume_lit, int gate_out)
 {
 	/*
 		XOR
@@ -273,21 +318,43 @@ void miter2CNF(Solver& sat, int gate_in_1, int gate_in_2)
 		(~A V ~B V ~C) ^ (A V B V ~C) ^ \
 		(A V ~B V C) ^ (~A V B V C)
 	*/	
-	//cout << "0 miter2CNF, gate_in_1 " << gate_in_1 << endl;
-	//cout << "1 miter2CNF, gate_in_2 " << gate_in_2 << endl;	
+	//cout << " miter2CNF, gate_in_1 " << gate_in_1 << endl;
+	//cout << " miter2CNF, gate_in_2 " << gate_in_2 << endl;
 	sat_new_var(sat, gate_in_1);
 	sat_new_var(sat, gate_in_2);	
-	int gate_out = sat.newVar();
-	//cout << "2 miter2CNF, gate_out " << gate_out << endl;
-	sat.addClause(~mkLit(gate_in_1), ~mkLit(gate_in_2), ~mkLit(gate_out));
-	sat.addClause( mkLit(gate_in_1),  mkLit(gate_in_2), ~mkLit(gate_out));
-	sat.addClause( mkLit(gate_in_1), ~mkLit(gate_in_2),  mkLit(gate_out));
-	sat.addClause(~mkLit(gate_in_1),  mkLit(gate_in_2),  mkLit(gate_out));	
-	//let output = 1
-	sat.addClause(mkLit(gate_out));		
+
+	vec<Lit> vec_lit;
+	vec_lit.push(~mkLit(gate_in_1));
+	vec_lit.push(~mkLit(gate_in_2));
+	vec_lit.push(~mkLit(gate_out));
+	vec_lit.push( mkLit(assume_lit));
+	sat.addClause(vec_lit);
+	vec_lit.clear();
+	
+	vec_lit.push( mkLit(gate_in_1));
+	vec_lit.push( mkLit(gate_in_2));
+	vec_lit.push(~mkLit(gate_out));
+	vec_lit.push( mkLit(assume_lit));
+	sat.addClause(vec_lit);
+	vec_lit.clear();
+
+	vec_lit.push( mkLit(gate_in_1));
+	vec_lit.push(~mkLit(gate_in_2));
+	vec_lit.push( mkLit(gate_out));
+	vec_lit.push( mkLit(assume_lit));
+	sat.addClause(vec_lit);
+	vec_lit.clear();
+
+	vec_lit.push(~mkLit(gate_in_1));
+	vec_lit.push( mkLit(gate_in_2));
+	vec_lit.push( mkLit(gate_out));
+	vec_lit.push( mkLit(assume_lit));
+	sat.addClause(vec_lit);
+	vec_lit.clear();		
+		
 }
 
-int inver2CNF(Solver& sat, int node)
+int inver2CNF(Solver& sat, int node, int assume_lit)
 {
 	/*
 		C = not A
@@ -295,8 +362,7 @@ int inver2CNF(Solver& sat, int node)
 	*/	
 	sat_new_var(sat, node);
 	int new_out = sat.newVar();
-	//cout << "0 inver2CNF, new_out " << new_out << endl;
-	sat.addClause(mkLit(node), mkLit(new_out));
-	sat.addClause(~mkLit(node), ~mkLit(new_out));
+	sat.addClause(mkLit(node), mkLit(new_out), mkLit(assume_lit));
+	sat.addClause(~mkLit(node), ~mkLit(new_out), mkLit(assume_lit));
 	return new_out;
 }
