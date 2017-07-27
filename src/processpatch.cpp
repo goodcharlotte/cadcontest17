@@ -446,7 +446,7 @@ void Circuit_t::sortcost(vector<int>& array, int left, int right)
 }
 
 
-void Circuit_t::findReplaceCost(vector<int>& ReplaceNode, vector<int>& allcandidate, vector<int>& allpatchnode, vector<Node_t>& PatchNode)
+void Circuit_t::findReplaceCost(vector<int>& allcandidate, vector<int>& allpatchnode, vector<Node_t>& PatchNode)
 {
     clock_t clk_start, clk_stop;
     clk_start = clock();
@@ -465,33 +465,29 @@ void Circuit_t::findReplaceCost(vector<int>& ReplaceNode, vector<int>& allcandid
             int check_equal = euqal_ck(can_node, p_node);
             if (check_equal == EQ_UNSAT) {
                 find_replace = true;
-                ReplaceNode[p_wire] = allcandidate[can_wire];
                 allnodevec[p_node].cost = allnodevec[can_node].cost;
+                allnodevec[p_node].replacename = allnodevec[can_node].name;
                 break;
             } else if (check_equal == EQ_INV_UNSAT) {
                 find_replace = true;
-                ReplaceNode[p_wire] = allcandidate[can_wire];
                 allnodevec[p_node].cost = allnodevec[can_node].cost * (-1);
+                allnodevec[p_node].replacename = allnodevec[can_node].name;
                 break;
             }
         }
+        
         if (!find_replace) {
-            ReplaceNode[p_wire] = -1;
+            allnodevec[p_node].replacename = "NONE";
         }
     }
 
-    int patch_node, replace_node;
+    int patch_node;
+    string tmpstr;
     for (int i = 0; i < allpatchnode.size(); i++) {
         patch_node = allpatchnode[i];
-        replace_node = ReplaceNode[i];
         PatchNode.push_back(*(new Node_t(allnodevec[patch_node].name, allnodevec[patch_node].type)));
-        if (replace_node == -1) {
-            PatchNode[i].cost = INF;
-            PatchNode[i].replacename = "NONE";
-        } else {
-            PatchNode[i].cost = allnodevec[replace_node].cost;
-            PatchNode[i].replacename = allnodevec[replace_node].name;
-        } 
+        PatchNode[i].cost = allnodevec[patch_node].cost;
+        PatchNode[i].replacename = allnodevec[patch_node].replacename;
     }
 }
 
@@ -511,9 +507,8 @@ void Circuit_t::findReplaceNode(vector<Node_t>& PatchNode)
             cout << "Error!" << tmpstr << " not in Patch(only)." << endl;
         } else {
             node = iter->second;
-            //cout << "find id" << node << " in Patch(only)." << endl; 
             allnodevec[node].cost = PatchNode[i].cost;
-            allnodevec[node].replacename = PatchNode[i].name;
+            allnodevec[node].replacename = PatchNode[i].replacename;
         }   
    }
 }

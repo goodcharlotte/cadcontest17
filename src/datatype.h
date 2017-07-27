@@ -112,7 +112,7 @@ public:
     vector<int> findRelatedPO();
     vector<int> findRelatedPI(vector<int> relatedPO);
     void findRelatedNode(vector<int> relatedPI, vector<int>& allpatchnode, vector<int>& allcandidate);
-    void findReplaceCost(vector<int>& ReplaceNode, vector<int>& allcandidate, vector<int>& allpatchnode, vector<Node_t>& PatchNode);
+    void findReplaceCost(vector<int>& allcandidate, vector<int>& allpatchnode, vector<Node_t>& PatchNode);
     void findReplaceNode(vector<Node_t>& PatchNode);
     void sortcost(vector<int>& array, int left, int right);
     void printstatus();
