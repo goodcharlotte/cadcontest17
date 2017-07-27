@@ -6,7 +6,7 @@
 
 using namespace std;
 
-
+#define DEBUG_EQ 0
 
 #define sat_new_var(curr_sat, id) do { \
 	while(id >= curr_sat.nVars()) { \
@@ -29,13 +29,11 @@ int Circuit_t::euqal_ck(int F_nid, int P_nid)
 	Solver ckt_sat;	
 	sat_new_var(ckt_sat, F_nid);
 	sat_new_var(ckt_sat, P_nid);
-
 	CNF_fanin(ckt_sat, F_nid);
 	CNF_fanin(ckt_sat, P_nid);	
 	//This is a trick to simulate removing clause.
 	int assume_lit_no_inv = ckt_sat.newVar();
 	int assume_lit_has_inv = ckt_sat.newVar();
-	
 	int gate_out_no_inv = ckt_sat.newVar();
 	int gate_out_has_inv = ckt_sat.newVar();
 	
@@ -96,32 +94,58 @@ int Circuit_t::euqal_ck(int F_nid, int P_nid)
 	*/
 }
 
+template <class T>
+void print_queue(queue<T> q)
+{
+  while (!q.empty())
+  {
+	cout << q.front() << " ";
+    q.pop();
+  }
+  cout << endl;
+}
+
 void Circuit_t::CNF_fanin(Solver& sat, int node_id)
 {
     vector<bool> visit_flag(allnodevec.size(), false);	
 	queue<int> nodeque;
 	nodeque.push(node_id);
-
+	#if DEBUG_EQ
+	cout << "now queue is ";
+	print_queue(nodeque);
+	#endif
 	int node;
 	//this part is form circuit.cpp - findRelatedPI()
 	while (nodeque.size() != 0) {
 		node = nodeque.front();
+		//append clause to sat
+		gate2CNF(sat, node, allnodevec[node]);	
 		for (int i = 0; i < allnodevec[node].in.size(); i++) {
 			if (visit_flag[allnodevec[node].in[i]] == false) {
 				nodeque.push(allnodevec[node].in[i]);
-				//append clause to sat
-				gate2CNF(sat, node, allnodevec[node]);
+				#if DEBUG_EQ
+				cout << "push  " << allnodevec[node].in[i] << endl;
+				cout << "now queue is ";
+				print_queue(nodeque);
+				#endif
 			}
-				
+			
 		}
 		visit_flag[node] = true;
 		nodeque.pop();
+		#if DEBUG_EQ
+		cout << "pop  " << endl;
+		cout << "now queue is ";
+		print_queue(nodeque);
+		#endif
 	}
 }
 
 void gate2CNF(Solver& sat, int gate_out, Node_t gate)
 {
-	//cout << "0 gate2CNF , gate_out=" << gate_out << endl; 
+	#if DEBUG_EQ
+	cout << "0 gate2CNF , gate_out=" << gate_out << endl; 
+	#endif
 	if ((gate.in).size() == 0) {
 		return;
 	}
@@ -129,6 +153,9 @@ void gate2CNF(Solver& sat, int gate_out, Node_t gate)
 	vec<Lit> vec_lit;
 	sat_new_var(sat, gate_out);
 	for (int i = 0; i < (gate.in).size(); i++) {
+		#if DEBUG_EQ
+		cout << "1 gate2CNF in " << gate.in[i] << endl;
+		#endif
 		sat_new_var(sat, gate.in[i]);
 		
 	}	
