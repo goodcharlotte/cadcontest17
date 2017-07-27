@@ -36,7 +36,13 @@ void constructPatch(string cktF_name, string cktG_name)
     ofstream w_file;
     w_file.open("resynPatch.script",ios::out);
     w_file << "read_verilog " << tempName  << endl;
-    w_file << "resyn2" << endl;
+    //w_file << "resyn2" << endl;
+    //w_file << "resyn2rs" << endl;
+    //w_file << "compress2rs" << endl;
+    //w_file << "resyn2rs" << endl;
+    //w_file << "compress2rs" << endl;
+    w_file << "resyn2rs" << endl;
+    w_file << "compress2rs" << endl;
     w_file << "read_library mcnc.genlib" << endl;
     w_file << "map" << endl;
     w_file << "write_verilog " << patchName << endl;
