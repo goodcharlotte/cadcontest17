@@ -34,7 +34,7 @@ int main(int argc, char * argv[])
     cktg.write_verilog("G");
     cktf.init_simp("F");
     cktg.init_simp("G");
-     
+    
     //====================================
     //  Construct patch
     //====================================
@@ -66,8 +66,7 @@ int main(int argc, char * argv[])
     //====================================
     //  Find min-cut 
     //====================================
-    cktp.minCut(allpatchnode);
-
+    cktp.minCut();
     //====================================
     //  Write final result 
     //====================================

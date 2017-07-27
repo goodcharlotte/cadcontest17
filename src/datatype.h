@@ -117,7 +117,7 @@ public:
     void sortcost(vector<int>& array, int left, int right);
     void printstatus();
     void init_simp(string cktname);
-    void minCut(vector<int> pnode);
+    void minCut();
 	///////////////////////CCW/////////////////////////////////
 	vector<int> newpi;
 	int NewPI(Circuit_t &c2);

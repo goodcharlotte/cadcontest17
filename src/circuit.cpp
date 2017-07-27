@@ -4,7 +4,9 @@
 #include "datatype.h"
 #include<climits>
 #include <LEDA/graph/graph.h>
-#include <LEDA/graph/min_cut.h>
+#include <LEDA/graph/graph_alg.h> 
+#include <LEDA/graph/templates/max_flow.h>
+#include <LEDA/graph/max_flow.h>
 
 using namespace::std;
 using leda::graph;
@@ -18,27 +20,99 @@ Circuit_t::Circuit_t()
 {
 }
 
-void Circuit_t::minCut(vector<int> pnode)
+void Circuit_t::minCut()
 {
     graph G;
-    node n0 = G.new_node();
-    node n1 = G.new_node();
-    node n2 = G.new_node();
-    node n3 = G.new_node();
+    vector<node> ledanodevec;
+    vector<edge> ledaedgevec;
+    vector<int> costvec;
+    vector<int> targetIdx;
+    map<node, int> nodemap;
+    map<node, int>::iterator niter;
 
-    edge e0 = G.new_edge(n0, n1);
-    edge e1 = G.new_edge(n1, n3);
-    edge e2 = G.new_edge(n0, n2);
-    edge e3 = G.new_edge(n2, n3);
+    // The first and second element in allnodevec are const
+    for (int i = 2; i < allnodevec.size(); i++) {
+        ledanodevec.push_back(G.new_node());
+        if (allnodevec[i].name[0] == 't') targetIdx.push_back(i);
+        nodemap[ledanodevec[ledanodevec.size()-1]] = i;
+    }
+    //cout << "target " << targetIdx.size() << endl;
+    for (int i = 2; i < allnodevec.size(); i++) {
+        Node_t node = allnodevec[i];
+        
+        int ncost = node.cost > 0 ? node.cost : -node.cost;
+        //cout << node.name << " " << ncost << " " << node.out.size() << endl;
+        if (node.out.size() == 0) {
+        } else if (node.out.size() == 1) {
+            ledaedgevec.push_back(G.new_edge(ledanodevec[i-2], ledanodevec[node.out[0]-2]));
+            costvec.push_back(ncost);
+        } else {
+            ledanodevec.push_back(G.new_node());
+            int nodeidx = ledanodevec.size()-1;
+            ledaedgevec.push_back(G.new_edge(ledanodevec[i-2], ledanodevec[nodeidx]));
+            costvec.push_back(ncost);
+            for (int j = 0; j < node.out.size(); j++) {
+                ledaedgevec.push_back(G.new_edge(ledanodevec[nodeidx],ledanodevec[node.out[j]-2]));
+                costvec.push_back(INF);
+            }
+        }
+    }
 
+    ledanodevec.push_back(G.new_node());
+    int sidx = ledanodevec.size()-1;
+    for (int i = 0; i < pi.size(); i++) {
+        ledaedgevec.push_back(G.new_edge(ledanodevec[sidx], ledanodevec[i]));
+        costvec.push_back(INF);
+    }
+    int tidx;
+    if (targetIdx.size() == 1) {
+        tidx = targetIdx[0]-2;
+    } else {
+        ledanodevec.push_back(G.new_node());
+        tidx = ledanodevec.size()-1;
+        for (int i = 0; i < targetIdx.size(); i++) {
+            ledaedgevec.push_back(G.new_edge(ledanodevec[targetIdx[i]-2], ledanodevec[tidx]));
+            costvec.push_back(INF);
+        }
+    }
+    
     edge_array<int> weight(G);
-    weight[e0] = 1;
-    weight[e1] = 3;
-    weight[e2] = 2;
-    weight[e3] = 2;
-
+    for (int i = 0; i < ledaedgevec.size(); i++) {
+        weight[ledaedgevec[i]] = costvec[i];
+        //G.print_edge(ledaedgevec[i]);
+        //cout << " " << weight[ledaedgevec[i]] << endl;
+    }
+    
+    //cout << "-----------------------" << endl;
+    //G.print();
+    //cout << "-----------------------" << endl;
+    edge_array<int> earray;
     list<node> cut;
+    int cut_value = MAX_FLOW_T(G, ledanodevec[sidx], ledanodevec[tidx], weight, earray, cut);
+    cout << "min cut " << cut_value << endl;
+    //cout << "cut: "; node v; forall(v, cut) G.print_node(v);
+    //cout << endl;
+    node v;
+    forall(v, cut) {
+        niter = nodemap.find(v);
+        if (niter != nodemap.end()) {
+            //cout << niter->second << endl;
+            //cout << allnodevec[niter->second].name << endl;
+        } else {
+            // dummy node
+        }
+    }
+    //cout << "edge sz: " << earray.size() << endl;
+    edge eg;
+    for (int i=0; i<earray.size(); i++) {
+        //eg = earray[i];
+        //G.print_edge(earray);
+    }
+    /*
     int cut_value = MIN_CUT(G, weight, cut);
+    
+    */
+    
 }
 
 void Circuit_t::printstatus()
