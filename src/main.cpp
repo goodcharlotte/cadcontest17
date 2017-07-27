@@ -46,7 +46,6 @@ int main(int argc, char * argv[])
     //====================================
     Circuit_t patchckt;
     vector<int> allpatchnode;
-    vector<int> ReplaceNode;
     vector<Node_t> PatchNode;
     patchckt.readfile(argv[1]);
     patchckt.readpatch("patch.v");
@@ -57,8 +56,7 @@ int main(int argc, char * argv[])
     patchckt.sortcost(allcandidate, 0, allcandidate.size() - 1);
     //ReplaceNode: (UNSAT & INV_UNSAT) id, (No replaced node) -1
     //ReplaceCost: (UNSAT) cost, (INV_UNSAT) cost * (-1), (No replaced node) INF
-    ReplaceNode.resize(allpatchnode.size());
-    patchckt.findReplaceCost(ReplaceNode, allcandidate, allpatchnode, PatchNode);
+    patchckt.findReplaceCost(allcandidate, allpatchnode, PatchNode);
     //====================================
     //  Copy cost info. to cktp
     //====================================

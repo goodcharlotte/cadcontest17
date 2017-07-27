@@ -329,7 +329,13 @@ void Circuit_t::init_simp(string cktname)
     ofstream w_file;
     w_file.open("simp.script",ios::out);
     w_file << "read_verilog " << fname0  << endl;
-    w_file << "resyn2" << endl;
+    //w_file << "resyn2" << endl;
+    w_file << "resyn2rs" << endl;
+    w_file << "compress2rs" << endl;
+    //w_file << "resyn2rs" << endl;
+    //w_file << "compress2rs" << endl;
+    //w_file << "resyn2rs" << endl;
+    //w_file << "compress2rs" << endl;
     w_file << "write_verilog " << fname1 << endl;
     w_file.close();
 
