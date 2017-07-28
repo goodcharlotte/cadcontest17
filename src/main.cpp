@@ -66,13 +66,20 @@ int main(int argc, char * argv[])
     //====================================
     //  Find min-cut 
     //====================================
-    cktp.minCut();
+    vector<int> allcutnode;
+    vector<int> patchRelatedPI;
+    vector<string> replaceName;
+    vector<string> patchPIName;
+    cktp.minCut(allcutnode);
+    patchRelatedPI = cktp.ReplaceNode(allcutnode);
+    cktp.write_patch(patchRelatedPI);
+    cktp.updatePatchPI(patchRelatedPI, replaceName, patchPIName);
     //====================================
     //  Write final result 
     //====================================
     Circuit_t finalckt;
     finalckt.readfile(argv[1]);
-    finalckt.writefile(argv[5], relatedPI);
+    finalckt.writefile(argv[5], replaceName, patchPIName);
 
     return 0;
 }

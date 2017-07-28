@@ -20,7 +20,7 @@ Circuit_t::Circuit_t()
 {
 }
 
-void Circuit_t::minCut()
+int Circuit_t::minCut(vector<int>& allcutnode)
 {
     graph G;
     vector<node> ledanodevec;
@@ -98,6 +98,7 @@ void Circuit_t::minCut()
         if (niter != nodemap.end()) {
             //cout << niter->second << endl;
             //cout << allnodevec[niter->second].name << endl;
+            allcutnode.push_back(niter->second);
         } else {
             // dummy node
         }
@@ -111,8 +112,8 @@ void Circuit_t::minCut()
     /*
     int cut_value = MIN_CUT(G, weight, cut);
     
-    */
-    
+    */ 
+    return cut_value;
 }
 
 void Circuit_t::printstatus()
@@ -515,7 +516,7 @@ bool Circuit_t::write_verilog(string cktname)
     return true;
 }
 
-bool Circuit_t::writefile(char* fname, vector<int> candidate)
+bool Circuit_t::writefile(char* fname, vector<string> candidate, vector<string> patchPI)
 {   
     ofstream file(fname);
     if (!file) return false;
@@ -592,9 +593,8 @@ bool Circuit_t::writefile(char* fname, vector<int> candidate)
             }
         }
         for (int i = 0; i < candidate.size(); i++) {
-            file << ", ." << allnodevec[candidate[i]].name << "(" 
-                 << allnodevec[candidate[i]].name 
-                 << ")";
+            file << ", ." << patchPI[i] << "(" 
+                 << candidate[i] << ")";
         }
         file << ");" << endl;
     }

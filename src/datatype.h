@@ -94,7 +94,7 @@ public:
     bool readpatch(string fname);
     bool readfile2(string fname);
     bool write_verilog(string cktname);
-    bool writefile(char* fname, vector<int> candidate);
+    bool writefile(char* fname, vector<string> candidate, vector<string> patchPI);
     bool readcost(char* fname);
     void print();
 	void topology(int start_node_id);
@@ -114,10 +114,13 @@ public:
     void findRelatedNode(vector<int> relatedPI, vector<int>& allpatchnode, vector<int>& allcandidate);
     void findReplaceCost(vector<int>& allcandidate, vector<int>& allpatchnode, vector<Node_t>& PatchNode);
     void findReplaceNode(vector<Node_t>& PatchNode);
+    bool write_patch(vector<int>& relatedPI);
+    void updatePatchPI(vector<int>& relatedPI, vector<string>& replaceName, vector<string>& patchName);
+    vector<int> ReplaceNode(vector<int>& allcutnode);
     void sortcost(vector<int>& array, int left, int right);
     void printstatus();
     void init_simp(string cktname);
-    void minCut();
+    int minCut(vector<int>& allcutnode);
 	///////////////////////CCW/////////////////////////////////
 	vector<int> newpi;
 	int NewPI(Circuit_t &c2);

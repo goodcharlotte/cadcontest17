@@ -463,6 +463,7 @@ void Circuit_t::findReplaceCost(vector<int>& allcandidate, vector<int>& allpatch
             }
             int can_node = allcandidate[can_wire];
             int check_equal = euqal_ck(can_node, p_node);
+            //int check_equal = EQ_SAT;
             if (check_equal == EQ_UNSAT) {
                 find_replace = true;
                 allnodevec[p_node].cost = allnodevec[can_node].cost;
@@ -511,4 +512,212 @@ void Circuit_t::findReplaceNode(vector<Node_t>& PatchNode)
             allnodevec[node].replacename = PatchNode[i].replacename;
         }   
    }
+}
+
+vector<int> Circuit_t::ReplaceNode(vector<int>& allcutnode)
+{
+    vector<bool> cut_flag(allnodevec.size(), false);
+	vector<bool> remove_flag(allnodevec.size(), false);
+    vector<int> relatedPI;
+	queue<int> nodeque;
+    int node;
+    bool remove;
+	
+    // mark all cut nodes
+    for (int i = 0; i < allcutnode.size(); i++) {
+        node = allcutnode[i];
+        cut_flag[node] = true;
+    }
+
+    for (int i = 0; i < allnodevec.size(); i++) {
+        if (cut_flag[i] == true) {
+            remove = true;
+            for (int fanout = 0; fanout < allnodevec[i].out.size(); fanout++) {
+                node = allnodevec[i].out[fanout];
+                if (cut_flag[node] == false) {
+                    remove = false;
+                    break;
+                }
+            }
+
+            if (remove == true) {
+                allnodevec[i].in.clear();
+                allnodevec[i].out.clear();
+            } else {
+                relatedPI.push_back(i);
+            }
+        }
+    }
+    
+	// find all fanout nodes of relatedPI
+	for (int i = 0; i < relatedPI.size(); i++) {
+		nodeque.push(relatedPI[i]);
+	}
+	
+	while (nodeque.size() != 0 ) {
+		node = nodeque.front();
+		for (int fanin = 0; fanin < allnodevec[node].in.size(); fanin++) {
+			nodeque.push(allnodevec[node].in[fanin]);
+		}
+		remove_flag[node] = true;
+		nodeque.pop();
+	}
+	
+	for (int i = 0; i < relatedPI.size(); i++) {
+		remove_flag[relatedPI[i]] = false;
+	}
+	
+	for (int i = 0; i < allnodevec.size(); i++) {
+		if (remove_flag[i] == true) {
+			allnodevec[i].in.clear();
+			allnodevec[i].out.clear();
+		}
+	}
+	
+    return relatedPI;
+}
+
+bool Circuit_t::write_patch(vector<int>& relatedPI)
+{
+    string fname = "patch.v";
+    ofstream file(fname.c_str());
+    bool first = true;
+    bool skip = true;
+    if (!file) return false;
+    file << "module " << " patch (" ;
+    vector<int> allinput;
+    vector<int> alloutput;
+    vector<int> addINV;
+	
+	for (int i = 0; i < allnodevec.size(); i++) {
+		allnodevec[i].patch_flag = true;
+	}
+	
+    for (int i = 0; i < relatedPI.size(); i++) {
+        if (allnodevec[relatedPI[i]].out.size() > 0) {
+            if (allnodevec[relatedPI[i]].cost < 0) {
+                addINV.push_back(relatedPI[i]);
+            }
+			allinput.push_back(relatedPI[i]);        
+			allnodevec[relatedPI[i]].in.clear();
+			allnodevec[relatedPI[i]].type = PORT;
+            
+			if (first) {
+                file << allnodevec[relatedPI[i]].name;
+                first = false;
+            } else {
+                file << " , " << allnodevec[relatedPI[i]].name;
+            }
+        }
+    }
+
+    for (int i = 0; i < po.size(); i++) {
+        if (allnodevec[po[i]].in.size() > 0) {
+            file << " , " << allnodevec[po[i]].name;
+            alloutput.push_back(po[i]);
+        }
+    }
+	
+    file  << " );" << endl;
+
+    file << "input ";
+    for (int i = 0; i<allinput.size(); i++) {
+        if (i != allinput.size() - 1)
+            file <<  allnodevec[allinput[i]].name << " , ";
+        else
+            file <<  allnodevec[allinput[i]].name << " ;" << endl;
+    }
+
+    file << "output ";
+    for (int i = 0; i<alloutput.size(); i++) {
+        if (i != alloutput.size() - 1)
+            file <<  allnodevec[alloutput[i]].name << " , ";
+        else
+            file <<  allnodevec[alloutput[i]].name << " ;" << endl;
+    }
+
+    file << "wire ";
+    first = true;
+    for (int i = 0; i < allnodevec.size(); i++) {
+        Node_t node = allnodevec[i];
+        if (node.in.size() == 0) continue; // PORT, useless node
+		if (node.name[0] == 't') continue; // t_0, t_1, ...
+        if (first) {
+            file << node.name;
+            first = false;
+        } else {
+            file << " , " << node.name;
+        }
+    }
+    for (int i = 0; i < addINV.size(); i++) {
+        int add_idx = allnodevec.size();
+        string tmpstr = "INV_" + allnodevec[addINV[i]].name;
+		file << " , " << tmpstr;
+		
+        allnodevec.push_back(*(new Node_t(tmpstr, NOT)));
+		allnodevec[add_idx].in.push_back(addINV[i]);
+		
+		// replace fanout
+		for (int fanout = 0; fanout < allnodevec[addINV[i]].out.size(); fanout++) {
+			int fanout_node = allnodevec[addINV[i]].out[fanout];
+			for (int fanin = 0; fanin < allnodevec[fanout_node].in.size(); fanin++) {
+				int fanin_node = allnodevec[fanout_node].in[fanin];
+				if (fanin_node == addINV[i]) {
+					allnodevec[fanout_node].in[fanin] = add_idx;
+					allnodevec[add_idx].out.push_back(fanout_node);
+				}
+			}
+		}
+		allnodevec[addINV[i]].out.clear();
+        allnodevec[addINV[i]].out.push_back(add_idx);
+    }
+
+    file <<  " ;" << endl;
+
+    for (int i = pi.size()+2; i < allnodevec.size(); i++) {
+        Node_t node = allnodevec[i];
+        if (node.in.size() == 0) continue; // t_0, t_1, ...
+        if (node.type == BUF) {
+            file << "buf ( " << node.name; 
+        } else if (node.type == NOT) {
+            file << "not ( " << node.name; 
+        } else if (node.type == AND) {
+            file << "and ( " << node.name; 
+        } else if (node.type == NAND) {
+            file << "nand ( " << node.name; 
+        } else if (node.type == OR) {
+            file << "or ( " << node.name; 
+        } else if (node.type == NOR) {
+            file << "nor ( " << node.name; 
+        } else if (node.type == XOR) {
+            file << "xor ( " << node.name; 
+        } else if (node.type == NXOR) {
+            file << "xnor ( " << node.name; 
+        }
+        for (int j=0; j<node.in.size(); j++) {
+            file << " , " << allnodevec[node.in[j]].name;
+        }
+        file << " );" << endl;
+
+    }
+    file << "endmodule" << endl;
+    file.close();
+    return true;
+}
+
+void Circuit_t::updatePatchPI(vector<int>& relatedPI, vector<string>& replaceName, vector<string>& patchName)
+{
+    pi.clear();
+    pi.resize(relatedPI.size());
+    replaceName.resize(relatedPI.size());
+    patchName.resize(relatedPI.size());
+    for (int i = 0; i < relatedPI.size(); i++) {
+        pi[i] = relatedPI[i];
+        if (allnodevec[relatedPI[i]].replacename == "NONE") {
+            replaceName[i] = allnodevec[relatedPI[i]].name;
+        } else {
+            replaceName[i] = allnodevec[relatedPI[i]].replacename;
+        }
+        patchName[i] = allnodevec[relatedPI[i]].name;
+    }
 }
