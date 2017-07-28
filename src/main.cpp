@@ -34,6 +34,22 @@ int main(int argc, char * argv[])
     cktg.write_verilog("G");
     cktf.init_simp("F");
     cktg.init_simp("G");
+	
+#ifdef DEBUG_MATCH
+	//====================================
+    // TEST
+    //====================================
+	
+	Circuit_t TEST;
+	
+	
+	TEST.readfile("tmp2_F.v");
+	TEST.readfile2("tmp2_F.v");
+	TEST.Test();
+	TEST.write_verilog("WHY");
+	
+#endif
+	
     
     //====================================
     //  Construct patch

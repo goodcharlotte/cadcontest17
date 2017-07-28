@@ -424,3 +424,122 @@ void Circuit_t::CompareNode(int node1, int node2, Circuit_t &c2)
 void Circuit_t::updateNewPI()
 {
 }
+
+
+#ifdef DEBUG_MATCH
+	
+void Circuit_t::Test(){
+	int po1, po2;
+	po1 = po[0];
+	po2 = po[1];
+	cout<<allnodevec[po1].name<<" "<<allnodevec[po2].name<<endl;
+	if (euqal_ck(po1, po2) == EQ_UNSAT)
+		cout<<"UNSAT"<<endl;
+	else
+		cout<<"BUG"<<endl;
+
+}
+
+#endif
+
+vector< pair<int, int> > Circuit_t::PseudoPO(){
+		
+	vector< pair<int, int> > PseudoPO;
+	pair<int, int> tPair;
+	
+	
+	for (int i = 0; i < (po.size())/2; i++) {
+		
+		#ifdef Debug_PO
+			cout<<"Fname: "<<allnodevec[po[i]].name<<" Gname: "<<allnodevec[po[i+((po.size())/2)]].name<<endl;
+		#endif
+		tPair = POMatching(pair<int, int> (po[i], po[i+((po.size())/2)]), po[i], po[i+((po.size())/2)]);
+		#ifdef Debug_PO
+			cout<<"FtPoint: "<<allnodevec[tPair.first].name<<" GtPoint: "<<allnodevec[tPair.second].name<<endl;
+		#endif
+		PseudoPO.push_back(tPair);
+	}
+	
+	return PseudoPO; 
+}
+
+
+
+pair<int, int> Circuit_t::POMatching(pair<int, int> TerminationPair, int Fid, int Gid){
+	
+	#ifdef Debug_PO_2
+		cout<<endl;
+	   	cout<<"Fnode: "<<allnodevec[Fid].name<<" type: "<<allnodevec[Fid].type<<" faninNum: "<<allnodevec[Fid].in.size()<<endl;
+		cout<<"Gnode: "<<allnodevec[Gid].name<<" type: "<<allnodevec[Gid].type<<" faninNum: "<<allnodevec[Gid].in.size()<<endl;
+	#endif
+	
+	int FtCandidate, GtCandidate;
+	vector<int> Ffanin, Gfanin; // 0 = not matched yet, 1 = match, 2 = Candidate;
+	
+	if (allnodevec[Fid].type != allnodevec[Gid].type) {
+		#ifdef Debug_PO_2
+			cout<<"Different type"<<endl;
+		#endif
+		return TerminationPair;
+	}
+	
+	if (allnodevec[Fid].type == BUF || allnodevec[Fid].type == NOT) {
+		#ifdef Debug_PO_2
+			cout<<endl<<"BUF or NOT"<<endl;
+			cout<<"F fanin: "<<allnodevec[allnodevec[Fid].in[0]].name<<endl;
+			cout<<"G fanin: "<<allnodevec[allnodevec[Gid].in[0]].name<<endl;
+		#endif
+		return POMatching(pair<int, int> (allnodevec[Fid].in[0], allnodevec[Gid].in[0]), allnodevec[Fid].in[0], allnodevec[Gid].in[0]);
+	}
+	else if (allnodevec[Fid].in.size() != allnodevec[Gid].in.size()) {
+		#ifdef Debug_PO_2
+			cout<<endl<<"Different fainin num"<<endl;
+		#endif
+		return TerminationPair;
+	}
+	else {
+		
+		FtCandidate = -1;
+		GtCandidate = -1;
+		
+		Ffanin.assign(allnodevec[Fid].in.size(), 0);
+		Gfanin.assign(allnodevec[Gid].in.size(), 0);
+		
+		for (int i = 0 ; i < allnodevec[Fid].in.size() ; i++) {
+			
+			for (int j = 0 ; j < allnodevec[Gid].in.size() ; j++) {
+				if (Gfanin[j] != 0) {
+					continue ;
+				}
+				else {
+					if (euqal_ck(allnodevec[Fid].in[i], allnodevec[Gid].in[j]) == EQ_UNSAT) {
+						Ffanin[i] = 1;
+						Gfanin[j] = 1;
+						break ;
+					}
+					else {
+						continue ;
+					}
+				}
+			}
+			
+			if (Ffanin[i] == 0 && FtCandidate == -1) {
+				Ffanin[i] == 2;
+				FtCandidate = allnodevec[Fid].in[i];
+			}
+			else if (Ffanin[i] == 0 && FtCandidate != -1) {
+				#ifdef Debug_PO_2
+					cout<<endl<<"There are two fanin cannot mapped to any G wire in F: "<<allnodevec[allnodevec[Fid].in[i]].name<<" and "<<allnodevec[FtCandidate].name<<endl;
+				#endif
+				return TerminationPair;
+			}
+		}
+		
+	}
+	
+	
+	
+	
+}
+
+

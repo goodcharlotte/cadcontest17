@@ -1,0 +1,4 @@
+read_verilog tmp0_G.v
+resyn2rs
+compress2rs
+write_verilog tmp1_G.v

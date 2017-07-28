@@ -506,7 +506,7 @@ bool Circuit_t::write_verilog(string cktname)
             file << "xnor ( " << node.name; 
         }
         for (int j=0; j<node.in.size(); j++) {
-            file << " ," << allnodevec[node.in[j]].name;
+            file << " , " << allnodevec[node.in[j]].name;
         }
         file << " );" << endl;
 

@@ -1,0 +1,6 @@
+read_verilog tmp_patch.v
+resyn2rs
+compress2rs
+read_library mcnc.genlib
+map
+write_verilog patch.v

@@ -41,6 +41,7 @@ using namespace::std;
 #define SIM_ALL -1
 
 #define INF 9999999
+//#define DEBUG_MATCH
 
 vector<int> gene_graycode(int n);
 void find_signature(vector< vector<string> > &sig, int target_size, int pi_size, int po_diff[]);
@@ -122,6 +123,11 @@ public:
     void init_simp(string cktname);
     int minCut(vector<int>& allcutnode);
 	///////////////////////CCW/////////////////////////////////
+	#ifdef DEBUG_MATCH
+		void Test();
+	#endif
+	vector< pair<int, int> > PseudoPO();
+	pair<int, int> POMatching(pair<int, int> TerminationPair, int Fid, int Gid);
 	vector<int> newpi;
 	int NewPI(Circuit_t &c2);
 	void CompareNode(int node1, int node2, Circuit_t &c2);
