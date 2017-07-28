@@ -354,16 +354,18 @@ void Circuit_t::findRelatedNode(vector<int> relatedPO, vector<int>& allpatchnode
     while (nodeque.size() != 0) {
         node = nodeque.front();
         if (visit_flag[node] == false) {
-            for (int fanin = 0; fanin < allnodevec[node].in.size(); fanin++) {
-                int fanin_node = allnodevec[node].in[fanin];
-                nodeque.push(fanin_node);
-            }
-            if ((target_fanout[node] == false) && (allnodevec[node].patch_flag == false)) {
-                allcandidate.push_back(node);
-            }
-            if (allnodevec[node].patch_flag == true)
-            {
-                allpatchnode.push_back(node);
+            if ((allnodevec[node].in.size() != 0) || (allnodevec[node].out.size() != 0)) {
+                for (int fanin = 0; fanin < allnodevec[node].in.size(); fanin++) {
+                    int fanin_node = allnodevec[node].in[fanin];
+                    nodeque.push(fanin_node);
+                }
+                if (((target_fanout[node] == false) && (allnodevec[node].patch_flag == false)) || (allnodevec[node].type == PORT)) {
+                    allcandidate.push_back(node);
+                }
+                if (allnodevec[node].patch_flag == true)
+                {
+                    allpatchnode.push_back(node);
+                }
             }
         }
         visit_flag[node] = true;
@@ -404,41 +406,6 @@ void Circuit_t::findRelatedNode(vector<int> relatedPO, vector<int>& allpatchnode
     }*/
 }
 
-/*
-vector<int> Circuit_t::findPatchNode(vector<int> relatedPO)
-{
-    //BFS
-    queue<int> nodeque;
-    vector<bool> visit_flag(allnodevec.size(), false);
-
-    int node; 
-    
-    for (int i = 0; i < relatedPO.size(); i++) {
-        node = relatedPO[i];
-        nodeque.push(node);
-    }
-
-    vector<int> relatedNode;
-    
-    while (nodeque.size() != 0) {
-        node = nodeque.front();
-        for (int i = 0; i < allnodevec[node].in.size(); i++) {
-            if (visit_flag[allnodevec[node].in[i]] == false) {
-                nodeque.push(allnodevec[node].in[i]);
-            }
-        }
-        visit_flag[node] = true;
-        if (!target_fanout[node]) {
-            if ((!allnodevec[node].patch_flag) || (allnodevec[node].type == PORT)) {
-                relatedNode.push_back(node);
-            }
-        }
-        nodeque.pop();
-    }
-
-    return relatedNode;
-}
-*/
 
 void Circuit_t::sortcost(vector<int>& array, int left, int right)
 {
@@ -479,22 +446,22 @@ void Circuit_t::sortcost(vector<int>& array, int left, int right)
 
 void Circuit_t::findReplaceCost(vector<int>& allcandidate, vector<int>& allpatchnode, vector<Node_t>& PatchNode)
 {
-    clock_t clk_start, clk_stop;
-    clk_start = clock();
+    clock_t clk_stop;
 
     for (int p_wire = 0; p_wire < allpatchnode.size(); p_wire++) {
         int p_node = allpatchnode[p_wire];
         bool find_replace = false;
+        clk_stop = clock();
+        double time_sec = double(clk_stop)/CLOCKS_PER_SEC;
+        if ( time_sec > 1500) {
+            break;
+        }
+ 
         for (int can_wire = 0; can_wire < allcandidate.size(); can_wire++) {
-            clk_stop = clock();
-            double time_sec = double(clk_stop - clk_start)/CLOCKS_PER_SEC;
             //cout << "time: " << time_sec << endl;
-            if ( time_sec > 1500) {
-                break;
-            }
             int can_node = allcandidate[can_wire];
-            //int check_equal = euqal_ck(can_node, p_node);
-            int check_equal = EQ_SAT;
+            int check_equal = euqal_ck(can_node, p_node);
+            //int check_equal = EQ_SAT;
             if (check_equal == EQ_UNSAT) {
                 find_replace = true;
                 allnodevec[p_node].cost = allnodevec[can_node].cost;
