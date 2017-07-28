@@ -548,6 +548,7 @@ vector<int> Circuit_t::ReplaceNode(vector<int>& allcutnode)
     }
     
 	// find all fanout nodes of relatedPI
+    /*
 	for (int i = 0; i < relatedPI.size(); i++) {
 		nodeque.push(relatedPI[i]);
 	}
@@ -571,7 +572,7 @@ vector<int> Circuit_t::ReplaceNode(vector<int>& allcutnode)
 			allnodevec[i].out.clear();
 		}
 	}
-	
+	*/
     return relatedPI;
 }
 
