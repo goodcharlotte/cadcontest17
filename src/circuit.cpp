@@ -411,8 +411,8 @@ void Circuit_t::init_simp(string cktname)
     //w_file << "compress2rs" << endl;
     //w_file << "resyn2rs" << endl;
     //w_file << "compress2rs" << endl;
-    w_file << "read_library mcnc_2input.genlib" << endl;
-    w_file << "map" << endl;
+    //w_file << "read_library mcnc_2input.genlib" << endl;
+    //w_file << "map" << endl;
     w_file << "write_verilog " << fname1 << endl;
     w_file.close();
 
