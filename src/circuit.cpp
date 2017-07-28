@@ -428,7 +428,7 @@ bool Circuit_t::write_verilog(string cktname)
     ofstream file(fname.c_str());
     bool first = true;
     if (!file) return false;
-    file << "module " <<  cktname << " (" ;
+    file << "module " <<  cktname << " ( " ;
     vector<int> allinput;
     vector<int> alloutput;
     for (int i = 0; i < pi.size(); i++) {
@@ -437,39 +437,39 @@ bool Circuit_t::write_verilog(string cktname)
                 file <<  allnodevec[pi[i]].name;
                 first = false;
             } else {
-                file << ", " << allnodevec[pi[i]].name;
+                file << " , " << allnodevec[pi[i]].name;
             }
             allinput.push_back(pi[i]);
         }
     }
     if (cktname == "F") {
         for (int i = 0; i < target.size(); i++) {
-            file << ", " << allnodevec[target[i]].name;
+            file << " , " << allnodevec[target[i]].name;
             allinput.push_back(target[i]);
         }
     }
     for (int i = 0; i < po.size(); i++) {
         if (allnodevec[po[i]].in.size() > 0) {
-                file << ", " << allnodevec[po[i]].name;
+                file << " , " << allnodevec[po[i]].name;
                 alloutput.push_back(po[i]);
         }
     }
-    file  << ");" << endl;
+    file  << " );" << endl;
 
     file << "input ";
     for (int i = 0; i<allinput.size(); i++) {
         if (i != allinput.size() - 1)
-            file <<  allnodevec[allinput[i]].name << ", ";
+            file <<  allnodevec[allinput[i]].name << " , ";
         else
-            file <<  allnodevec[allinput[i]].name << ";" << endl;
+            file <<  allnodevec[allinput[i]].name << " ;" << endl;
     }
 
     file << "output ";
     for (int i = 0; i<alloutput.size(); i++) {
         if (i != alloutput.size() - 1)
-            file <<  allnodevec[alloutput[i]].name << ", ";
+            file <<  allnodevec[alloutput[i]].name << " , ";
         else
-            file <<  allnodevec[alloutput[i]].name << ";" << endl;
+            file <<  allnodevec[alloutput[i]].name << " ;" << endl;
     }
     file << "wire ";
     first = true;
@@ -480,10 +480,10 @@ bool Circuit_t::write_verilog(string cktname)
             file << node.name;
             first = false;
         } else {
-            file << ", " << node.name;
+            file << " , " << node.name;
         }
     }
-    file <<  ";" << endl;
+    file <<  " ;" << endl;
 
     for (int i = pi.size()+2; i < allnodevec.size(); i++) {
         Node_t node = allnodevec[i];

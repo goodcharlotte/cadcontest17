@@ -40,11 +40,14 @@ int main(int argc, char * argv[])
     // TEST
     //====================================
 	
-	Circuit_t TEST;
+	Circuit_t TEST, TEST2;
 	
 	
 	TEST.readfile("tmp2_F.v");
-	TEST.readfile2("tmp2_F.v");
+	TEST2.readfile("tmp2_G.v");
+	cout<<"F input num: "<<TEST.pi.size()<<" G input num: "<<TEST2.pi.size()<<endl;
+	TEST.readfile2("tmp2_G.v");
+	cout<<"F input num: "<<TEST.pi.size()<<endl;
 	TEST.Test();
 	TEST.write_verilog("WHY");
 	
@@ -93,6 +96,7 @@ int main(int argc, char * argv[])
     //====================================
     //  Write final result 
     //====================================
+	
     Circuit_t finalckt;
     finalckt.readfile(argv[1]);
     finalckt.writefile(argv[5], replaceName, patchPIName);

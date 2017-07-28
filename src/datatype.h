@@ -42,6 +42,7 @@ using namespace::std;
 
 #define INF 9999999
 //#define DEBUG_MATCH
+//#define DEBUG_READFILE2
 
 vector<int> gene_graycode(int n);
 void find_signature(vector< vector<string> > &sig, int target_size, int pi_size, int po_diff[]);

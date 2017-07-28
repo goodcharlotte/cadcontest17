@@ -205,7 +205,19 @@ bool Circuit_t::readfile2(string fname)
 
         } else if (tmpstr == "input") {
             while (file >> tmpstr) {
-                if (tmpstr[tmpstr.size() -1] == ';') break;
+                if (tmpstr == ",") continue;
+                if (tmpstr == ";") break;
+				iter = allnodemap.find(tmpstr);
+				if (iter == allnodemap.end()) {
+					#ifdef DEBUG_READFILE2
+						cout<<"PI : " <<tmpstr<<" not in F"<<endl;
+					#endif
+					allnodemap[tmpstr] = allnodevec.size();
+					pi.push_back(allnodevec.size());
+					allnodevec.push_back(*(new Node_t(tmpstr, PORT)));
+				} else {
+					
+				}
             }
 
         } else if (tmpstr == "output") {
