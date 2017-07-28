@@ -516,11 +516,37 @@ bool Circuit_t::write_verilog(string cktname)
     return true;
 }
 
-bool Circuit_t::writefile(char* fname, vector<string> candidate, vector<string> patchPI)
+bool Circuit_t::writefile(char*iname, char* fname, vector<string> candidate, vector<string> patchPI)
 {   
+    ifstream ifile(iname);
     ofstream file(fname);
-    if (!file) return false;
+    if (!file || !ifile) return false;
     
+    string str;
+    while (getline(ifile, str)) {
+        if (str == "endmodule") {
+            if (candidate.size() != 0) {
+                file << "patch p0 (";
+                for (int i = 0; i < target.size(); i++) {
+                    if (i == 0) {
+                        file << "." << allnodevec[target[i]].name << "(" 
+                        << allnodevec[target[i]].name << ")";
+                    } else {
+                        file << ", ." << allnodevec[target[i]].name << "("
+                        << allnodevec[target[i]].name << ")";
+                    }
+                }
+                for (int i = 0; i < candidate.size(); i++) {
+                    file << ", ." << patchPI[i] << "(" 
+                         << candidate[i] << ")";
+                }
+                file << ");" << endl;
+            }
+        
+        }
+        file << str << endl;
+    }
+    /*
     file << "module top(" ;
     for (int i = 0; i < pi.size(); i++) {
         file <<  allnodevec[pi[i]].name << ", ";
@@ -580,26 +606,10 @@ bool Circuit_t::writefile(char* fname, vector<string> candidate, vector<string> 
         file << " );" << endl;
 
     }
-    
-    if (candidate.size() != 0) {
-        file << "patch p0 (";
-        for (int i = 0; i < target.size(); i++) {
-            if (i == 0) {
-                file << "." << allnodevec[target[i]].name << "(" 
-                << allnodevec[target[i]].name << ")";
-            } else {
-                file << ", ." << allnodevec[target[i]].name << "("
-                << allnodevec[target[i]].name << ")";
-            }
-        }
-        for (int i = 0; i < candidate.size(); i++) {
-            file << ", ." << patchPI[i] << "(" 
-                 << candidate[i] << ")";
-        }
-        file << ");" << endl;
-    }
+    */
 	
-    file << "endmodule" << endl;
+    //file << "endmodule" << endl;
+    ifile.close();
     file.close();
     return true;
 }

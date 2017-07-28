@@ -96,10 +96,9 @@ int main(int argc, char * argv[])
     //====================================
     //  Write final result 
     //====================================
-	
     Circuit_t finalckt;
     finalckt.readfile(argv[1]);
-    finalckt.writefile(argv[5], replaceName, patchPIName);
+    finalckt.writefile(argv[1], argv[5], replaceName, patchPIName);
 
     return 0;
 }

@@ -96,7 +96,7 @@ public:
     bool readpatch(string fname);
     bool readfile2(string fname);
     bool write_verilog(string cktname);
-    bool writefile(char* fname, vector<string> candidate, vector<string> patchPI);
+    bool writefile(char* iname, char* fname, vector<string> candidate, vector<string> patchPI);
     bool readcost(char* fname);
     void print();
 	void topology(int start_node_id);
