@@ -451,14 +451,13 @@ void Circuit_t::findReplaceCost(vector<int>& allcandidate, vector<int>& allpatch
     for (int p_wire = 0; p_wire < allpatchnode.size(); p_wire++) {
         int p_node = allpatchnode[p_wire];
         bool find_replace = false;
-        clk_stop = clock();
-        double time_sec = double(clk_stop)/CLOCKS_PER_SEC;
-        if ( time_sec > 1500) {
-            break;
-        }
- 
         for (int can_wire = 0; can_wire < allcandidate.size(); can_wire++) {
             //cout << "time: " << time_sec << endl;
+            clk_stop = clock();
+            double time_sec = double(clk_stop)/CLOCKS_PER_SEC;
+            if ( time_sec > 1500) {
+                break;
+            }
             int can_node = allcandidate[can_wire];
             int check_equal = euqal_ck(can_node, p_node);
             //int check_equal = EQ_SAT;
