@@ -44,6 +44,9 @@ using namespace::std;
 //#define DEBUG_MATCH
 //#define DEBUG_READFILE2
 
+extern clock_t start_clk;
+extern clock_t stop_clk;
+
 vector<int> gene_graycode(int n);
 void find_signature(vector< vector<string> > &sig, int target_size, int pi_size, int po_diff[]);
 void print_signature(const vector< vector<string> > &sig);

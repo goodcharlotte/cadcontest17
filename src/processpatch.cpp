@@ -1,6 +1,7 @@
 #include "datatype.h"
 #include "string.h"
 
+clock_t stop_clk;
 
 void spilt_str(string& tmpstr)
 {
@@ -446,15 +447,13 @@ void Circuit_t::sortcost(vector<int>& array, int left, int right)
 
 void Circuit_t::findReplaceCost(vector<int>& allcandidate, vector<int>& allpatchnode, vector<Node_t>& PatchNode)
 {
-    clock_t clk_stop;
-
     for (int p_wire = 0; p_wire < allpatchnode.size(); p_wire++) {
         int p_node = allpatchnode[p_wire];
         bool find_replace = false;
         for (int can_wire = 0; can_wire < allcandidate.size(); can_wire++) {
             //cout << "time: " << time_sec << endl;
-            clk_stop = clock();
-            double time_sec = double(clk_stop)/CLOCKS_PER_SEC;
+            stop_clk = clock();
+            double time_sec = double(stop_clk - start_clk)/CLOCKS_PER_SEC;
             if ( time_sec > 1500) {
                 break;
             }

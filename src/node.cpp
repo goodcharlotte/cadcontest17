@@ -4,7 +4,7 @@
 #include "datatype.h"
 using namespace::std;
 
-Node_t::Node_t(string n, GateType t) : name(n), type(t) 
+Node_t::Node_t(string n, GateType t) : name(n), type(t), cost(INF), replacename("NONE")
 { 
 }
 

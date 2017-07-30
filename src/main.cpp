@@ -5,10 +5,12 @@
 #include <string>
 
 using namespace std;
-
+clock_t start_clk;
 
 int main(int argc, char * argv[])
-{
+{    
+	start_clk = clock();
+ 
     if (argc != 6) {
         cout << "Usage: ./rpgen <F.v> <G.v> <weight.txt> <patch.v> <out.v> " << endl;
         return 0;
