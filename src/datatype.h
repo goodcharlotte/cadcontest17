@@ -41,8 +41,11 @@ using namespace::std;
 #define SIM_ALL -1
 
 #define INF 9999999
-//#define DEBUG_MATCH
-//#define DEBUG_READFILE2
+#define DEBUG_MATCH
+#define DEBUG_READFILE2
+#define Debug_PO
+#define Debug_PO_2
+#define DEBUG_ChangeNewPO
 
 extern clock_t start_clk;
 extern clock_t stop_clk;
@@ -129,10 +132,12 @@ public:
 	///////////////////////CCW/////////////////////////////////
 	#ifdef DEBUG_MATCH
 		void Test();
+		void CheckNode(int startNode);
 	#endif
 	vector< pair<int, int> > PseudoPO();
 	pair<int, int> POMatching(pair<int, int> TerminationPair, int Fid, int Gid);
 	vector<int> newpi;
+	void ChangeNewPO(vector< pair<int, int> > CorresPO, Circuit_t &FpG, Circuit_t &G);
 	int NewPI(Circuit_t &c2);
 	void CompareNode(int node1, int node2, Circuit_t &c2);
 	bool IsPiReplace(int node1, vector <int> &New, vector <int> &relateNode, vector <int> &NodetoCheck, vector <int> &visit, vector <int> &ready);

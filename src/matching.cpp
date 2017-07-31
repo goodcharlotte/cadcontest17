@@ -440,7 +440,83 @@ void Circuit_t::Test(){
 
 }
 
+void Circuit_t::CheckNode(int startNode){
+	
+	vector<int> collectNode, queue;
+	vector<int> Visit;
+	vector<int>::iterator eraseit;
+	int temp;
+	Visit.assign(allnodevec.size(), 0);
+	queue.push_back(startNode);
+	
+	while(!queue.empty()) {
+		temp = queue.back();
+		queue.pop_back();
+		
+		if (Visit[temp] != 0) continue;
+		
+		collectNode.push_back(temp);
+		Visit[temp] = 1;
+		
+		for (int i = 0; i < allnodevec[temp].in.size(); i++) {
+			if(Visit[allnodevec[temp].in[i]] != 0) ;
+			else {
+				queue.push_back(allnodevec[temp].in[i]);
+			}
+		}
+	}
+	
+	sort (collectNode.begin(), collectNode.end());
+	eraseit = unique(collectNode.begin(), collectNode.end());
+	collectNode.erase(eraseit, collectNode.end());
+	
+	for(int i = 0; i < collectNode.size(); i++)
+		cout<<allnodevec[collectNode[i]].name<<endl;
+	
+	return ;
+	
+	
+}
+
 #endif
+
+void Circuit_t::ChangeNewPO(vector< pair<int, int> > CorresPO, Circuit_t &FpG, Circuit_t &G){
+	
+	#ifdef DEBUG_ChangeNewPO
+		cout<<endl<<"Start ChangeNewPO"<<endl;
+	#endif
+	
+	po.clear();
+	G.po.clear();
+	
+	string Ftmpstr, Gtmpstr;
+	
+	for(int i = 0; i < CorresPO.size(); i++) {
+		
+		
+		Ftmpstr = FpG.allnodevec[CorresPO[i].first].name;
+		Gtmpstr = FpG.allnodevec[CorresPO[i].second].name;
+		Gtmpstr.erase(Gtmpstr.begin(), Gtmpstr.begin()+2);
+		
+		#ifdef DEBUG_ChangeNewPO
+			cout<<"F str: "<<Ftmpstr<<" G str: "<<Gtmpstr<<endl;
+		#endif
+				
+		iter = allnodemap.find(Ftmpstr);
+		G.iter = G.allnodemap.find(Gtmpstr);
+		po.push_back(iter->second);
+		G.po.push_back(G.iter->second);
+		
+		#ifdef DEBUG_ChangeNewPO
+			cout<<"F PO str: "<<allnodevec[po.back()].name<<" G PO str: "<<G.allnodevec[G.po.back()].name<<endl;
+		#endif
+		
+		
+	}
+	
+	
+	
+}
 
 vector< pair<int, int> > Circuit_t::PseudoPO(){
 		
@@ -515,6 +591,10 @@ pair<int, int> Circuit_t::POMatching(pair<int, int> TerminationPair, int Fid, in
 					if (euqal_ck(allnodevec[Fid].in[i], allnodevec[Gid].in[j]) == EQ_UNSAT) {
 						Ffanin[i] = 1;
 						Gfanin[j] = 1;
+						#ifdef Debug_PO_2
+							cout<<endl<<"F node : "<<allnodevec[allnodevec[Fid].in[i]].name<<" id: "<<allnodevec[Fid].in[i]<<" is matched with ";
+							cout<<"Gnode: "<<allnodevec[allnodevec[Gid].in[j]].name<<" id: "<<allnodevec[Gid].in[j]<<endl;
+						#endif
 						break ;
 					}
 					else {
@@ -535,6 +615,32 @@ pair<int, int> Circuit_t::POMatching(pair<int, int> TerminationPair, int Fid, in
 			}
 		}
 		
+		int check_flag = 0;
+		
+		for (int i = 0; i < allnodevec[Gid].in.size(); i++) {
+			if (Gfanin[i] == 0) {
+				#ifdef Debug_PO_2
+					cout<<"G not matched node : "<<allnodevec[allnodevec[Gid].in[i]].name<<endl;
+				#endif
+				Gfanin[i] == 2;
+				check_flag++;
+				GtCandidate = allnodevec[Gid].in[i];
+			}
+		}
+		
+		
+		if (check_flag != 1){
+			#ifdef Debug_PO_2
+				cout<<endl<<"BUG G has two not matched node"<<endl;
+			#endif
+			return TerminationPair;
+		}
+		
+		#ifdef Debug_PO_2
+			cout<<endl<<"F node : "<<allnodevec[FtCandidate].name<<" id : "<<FtCandidate<<" and ";
+			cout<<"Gnode : "<<allnodevec[GtCandidate].name<<" id : "<<GtCandidate<<" going to next round"<<endl;
+		#endif
+		return POMatching(pair<int, int> (FtCandidate, GtCandidate), FtCandidate, GtCandidate);
 	}
 	
 	

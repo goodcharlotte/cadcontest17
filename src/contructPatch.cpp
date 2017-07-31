@@ -5,8 +5,9 @@
 
 vector<string> targetName;
 vector<string> F_piName;
-vector<string> poName;
+vector<string> F_poName;
 vector<string> G_piName;
+vector<string> G_poName;
 
 void parse(string &cktF_name, string &cktG_name);
 void constructMux(string &outputName);
@@ -56,7 +57,8 @@ void parse(string &cktF_name, string &cktG_name)
     targetName.clear();
     F_piName.clear();
     G_piName.clear();
-    poName.clear();
+    F_poName.clear();
+	G_poName.clear();
 
     ifstream file(cktF_name.c_str(), ios::in);
     string tmpstr;
@@ -92,7 +94,7 @@ void parse(string &cktF_name, string &cktG_name)
                     fin = true;
                     break;
                 }
-                poName.push_back(tmpstr);
+                F_poName.push_back(tmpstr);
             }
         }
     }
@@ -107,10 +109,21 @@ void parse(string &cktF_name, string &cktG_name)
                     continue;
                 }
                 if (tmpstr == ";") {
-                    fin = true;
+                
                     break;
                 }
                 G_piName.push_back(tmpstr);
+            }
+        } else if (tmpstr == "output") {
+            while (file >> tmpstr) {
+                if (tmpstr == ",") {
+                    continue;
+                }
+                if (tmpstr == ";") {
+                    fin = true;
+                    break;
+                }
+                G_poName.push_back(tmpstr);
             }
         }
     }
@@ -186,8 +199,8 @@ void constructMiter(string &outputName)
     for (int i = 0; i < G_piName.size(); i++) {
         file << G_piName[i] << " , ";
     }
-    for (int i = 0; i < poName.size(); i++) {
-        file << "g_" << poName[i] << " , ";
+    for (int i = 0; i < G_poName.size(); i++) {
+        file << "g_" << G_poName[i] << " , ";
     }
     for (int i = 0; i < targetName.size(); i++) {
         file << targetName[i];
@@ -201,8 +214,10 @@ void constructMiter(string &outputName)
     for (int i = 0; i < G_piName.size(); i++) {
         file << G_piName[i] << " , ";
     }
-    for (int i = 0; i < poName.size(); i++) {
-        file << "g_" << poName[i] << " , ";
+
+    for (int i = 0; i < G_poName.size(); i++) {
+        file << "g_" << G_poName[i] << " , ";
+		cout << G_poName[i] << endl;
     }
     for (int i = 0; i < targetName.size(); i++) {
         file << targetName[i];
@@ -215,33 +230,33 @@ void constructMiter(string &outputName)
     file << "output miterOutput;\n";
 
     file << "wire ";
-    for (int i = 0; i < poName.size(); i++) {
-        file << "f_" << poName[i] << " , ";
+    for (int i = 0; i < F_poName.size(); i++) {
+        file << "f_" << F_poName[i] << " , ";
     }
-    for (int i = 0; i < poName.size(); i++) {
+    for (int i = 0; i < F_poName.size(); i++) {
         file << "n" << i;
-        if (i < (poName.size() - 1)) {
+        if (i < (F_poName.size() - 1)) {
             file << " , ";
         }
     }
     file << " ;\n";
 
-    for (int i = 0; i < poName.size(); i++) {
-        file << "xor ( n" << i << " , f_" << poName[i] << " , g_" << poName[i] << " );\n";
+    for (int i = 0; i < G_poName.size(); i++) {
+        file << "xor ( n" << i << " , f_" << F_poName[i] << " , g_" << G_poName[i] << " );\n";
     }
 
     file << "or ( miterOutput , ";
-    for (int i = 0; i < poName.size(); i++) {
+    for (int i = 0; i < F_poName.size(); i++) {
         file << "n" << i;
-        if (i < (poName.size() - 1)) {
+        if (i < (F_poName.size() - 1)) {
             file << " , ";
         }
     }
     file << " );\n";
 
     file << "F f0( ";
-    for (int i = 0; i < poName.size(); i++) {
-        file << "." << poName[i] << "(f_" << poName[i] << "), ";
+    for (int i = 0; i < F_poName.size(); i++) {
+        file << "." << F_poName[i] << "(f_" << F_poName[i] << "), ";
     }
      for (int i = 0; i < F_piName.size(); i++) {
         file << "." << F_piName[i] << "(" << F_piName[i] << "), ";
@@ -292,8 +307,8 @@ void constructTop(string &outputName)
     //[ n0 ~ n(2^n-2)]
     int totalWire = (pow(2, targetName.size()) - 1) + (targetName.size() * (pow(2, targetName.size()) - 2 ));
     file << "wire ";
-    for (int i = 0; i < poName.size(); i++) {
-        file << "g_" << poName[i] << " , ";
+    for (int i = 0; i < G_poName.size(); i++) {
+        file << "g_" << G_poName[i] << " , ";
     } 
     for (int i = 0; i < totalWire; i++) {
         file << "n" << i;
@@ -303,8 +318,8 @@ void constructTop(string &outputName)
     }
     file << " ;\n";
     file << "G g0( ";
-    for (int i = 0; i < poName.size(); i++) {
-        file << "." << poName[i] << "(g_" << poName[i] << "), ";
+    for (int i = 0; i < G_poName.size(); i++) {
+        file << "." << G_poName[i] << "(g_" << G_poName[i] << "), ";
     }
     for (int i = 0; i < (G_piName.size()); i++) {
         file << "." << G_piName[i] << "(" << G_piName[i] << ")";
@@ -321,8 +336,8 @@ void constructTop(string &outputName)
         for (int j = 0; j < (G_piName.size()); j++) {
             file << "." << G_piName[j] << "(" << G_piName[j] << "), ";
         }
-        for (int i = 0; i < poName.size(); i++) {
-            file << "." << "g_" << poName[i] << "(g_" << poName[i] << ") , ";
+        for (int i = 0; i < G_poName.size(); i++) {
+            file << "." << "g_" << G_poName[i] << "(g_" << G_poName[i] << ") , ";
         }
         for (int j = 0; j < targetName.size(); j++) {
             file << "." << targetName[j] << "(1'b" << targetValue[MAX_INT_SIZE - j - 1] << ")";
