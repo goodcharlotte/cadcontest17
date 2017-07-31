@@ -73,7 +73,8 @@ int main(int argc, char * argv[])
     patchckt.readcost(argv[3]);
     patchckt.removeredundant(relatedPO);
     vector<int> allcandidate;
-    patchckt.findRelatedNode(relatedPO, allpatchnode, allcandidate);
+    patchckt.findRelatedNode(relatedPI, allpatchnode, allcandidate);
+    //patchckt.findRelatedNode(relatedPO, allpatchnode, allcandidate);
     patchckt.sortcost(allcandidate, 0, allcandidate.size() - 1);
     //ReplaceNode: (UNSAT & INV_UNSAT) id, (No replaced node) -1
     //ReplaceCost: (UNSAT) cost, (INV_UNSAT) cost * (-1), (No replaced node) INF
