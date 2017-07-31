@@ -481,7 +481,7 @@ void Circuit_t::findReplaceCost(vector<int>& allcandidate, vector<int>& allpatch
             //cout << "time: " << time_sec << endl;
             stop_clk = clock();
             double time_sec = double(stop_clk - start_clk)/CLOCKS_PER_SEC;
-            if ( time_sec > 500) {
+            if ( time_sec > 1500) {
                 break;
             }
             int can_node = allcandidate[can_wire];
