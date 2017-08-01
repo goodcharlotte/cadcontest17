@@ -770,12 +770,19 @@ lbool Solver::solve_()
 
     // Search:
     int curr_restarts = 0;
+    bool exitflag = false;
     while (status == l_Undef){
         double rest_base = luby_restart ? luby(restart_inc, curr_restarts) : pow(restart_inc, curr_restarts);
         status = search(rest_base * restart_first);
-        if (!withinBudget() || curr_restarts > 10) break;
+        if (!withinBudget()) break;
+        if (curr_restarts > 10) {
+            exitflag = true;
+            break;
+        }
         curr_restarts++;
     }
+
+    if (exitflag) return l_True;
 
     if (verbosity >= 1)
         printf("===============================================================================\n");
