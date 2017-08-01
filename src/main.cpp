@@ -83,7 +83,10 @@ int main(int argc, char * argv[])
     //  Copy cost info. to cktp
     //====================================
     Circuit_t cktp;
-    cktp.readfile("patch.v");
+    string patchStr = "patch.v";
+    char patchName[1024];
+    strcpy(patchName, patchStr.c_str());
+    cktp.readfile(patchName);
     cktp.findReplaceNode(PatchNode);
     //====================================
     //  Find min-cut 
@@ -103,5 +106,9 @@ int main(int argc, char * argv[])
     finalckt.readfile(argv[1]);
     finalckt.writefile(argv[1], argv[5], replaceName, patchPIName);
 
+    //====================================
+    //  Remove temporary files 
+    //====================================
+    system("rm -f tmp*v resynPatch.script simp.script");
     return 0;
 }

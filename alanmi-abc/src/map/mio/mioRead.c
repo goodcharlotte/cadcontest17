@@ -643,8 +643,8 @@ void Mio_LibraryDetectSpecialGates( Mio_Library_t * pLib )
         pLib->pGateBuf = Mio_GateCompare( pLib->pGateBuf, pGate, uFuncBuf );
     if ( pLib->pGateBuf == NULL )
     {
-        printf( "Warnings: genlib library reader cannot detect the buffer gate.\n" );
-        printf( "Some parts of the supergate-based technology mapper may not work correctly.\n" );
+        //printf( "Warnings: genlib library reader cannot detect the buffer gate.\n" );
+        //printf( "Some parts of the supergate-based technology mapper may not work correctly.\n" );
     }
  
     // get smallest-area inverter

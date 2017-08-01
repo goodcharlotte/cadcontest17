@@ -218,8 +218,8 @@ Abc_Ntk_t * Abc_NtkFlattenLogicHierarchy2( Abc_Ntk_t * pNtk )
     // recursively flatten hierarchy, create internal logic, add new PI/PO names if there are black boxes
     Counter = -1;
     Abc_NtkFlattenLogicHierarchy2_rec( pNtkNew, pNtk, &Counter );
-    printf( "Hierarchy reader flattened %d instances of logic boxes and left %d black boxes.\n", 
-        Counter, Abc_NtkBlackboxNum(pNtkNew) );
+    //printf( "Hierarchy reader flattened %d instances of logic boxes and left %d black boxes.\n", 
+    //    Counter, Abc_NtkBlackboxNum(pNtkNew) );
 
     if ( pNtk->pDesign )
     {
@@ -551,9 +551,9 @@ Abc_Ntk_t * Abc_NtkFlattenLogicHierarchy( Abc_Ntk_t * pNtk )
     vPref = Vec_StrAlloc( 1000 );
     Vec_StrPrintStr( vPref, Abc_NtkName(pNtk) );
     Abc_NtkFlattenLogicHierarchy_rec( pNtkNew, pNtk, &Counter, vPref );
-    printf( "Hierarchy reader flattened %d instances of logic boxes and left %d black boxes.\n", 
-        Counter, Abc_NtkBlackboxNum(pNtkNew) );
-    Vec_StrFree( vPref );
+    //printf( "Hierarchy reader flattened %d instances of logic boxes and left %d black boxes.\n", 
+    //    Counter, Abc_NtkBlackboxNum(pNtkNew) );
+    //Vec_StrFree( vPref );
 
     if ( pNtk->pDesign )
     {

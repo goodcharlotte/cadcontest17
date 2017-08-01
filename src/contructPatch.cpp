@@ -217,7 +217,6 @@ void constructMiter(string &outputName)
 
     for (int i = 0; i < G_poName.size(); i++) {
         file << "g_" << G_poName[i] << " , ";
-		cout << G_poName[i] << endl;
     }
     for (int i = 0; i < targetName.size(); i++) {
         file << targetName[i];
