@@ -41,11 +41,11 @@ using namespace::std;
 #define SIM_ALL -1
 
 #define INF 9999999
-#define DEBUG_MATCH
-#define DEBUG_READFILE2
-#define Debug_PO
-#define Debug_PO_2
-#define DEBUG_ChangeNewPO
+//#define DEBUG_MATCH
+//#define DEBUG_READFILE2
+//#define Debug_PO
+//#define Debug_PO_2
+//#define DEBUG_ChangeNewPO
 
 extern clock_t start_clk;
 extern clock_t stop_clk;
