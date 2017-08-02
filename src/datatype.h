@@ -134,6 +134,9 @@ public:
 		void Test();
 		void CheckNode(int startNode);
 	#endif
+	bool write_verilog_after_sm(string cktname);
+	void init_simp_after_sm(string cktname);
+	void Translate(char* fName);
 	vector< pair<int, int> > PseudoPO();
 	pair<int, int> POMatching(pair<int, int> TerminationPair, int Fid, int Gid);
 	vector<int> newpi;

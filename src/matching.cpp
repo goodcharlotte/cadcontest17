@@ -11,6 +11,69 @@ vector<int> compareNumC1, compareNumC2;    // C1 : compareNumC1[0] = 3  C2 : com
 vector<int> compareC1, compareC2;
 vector<int> visitNodC1, visitNodC2;
 
+
+void Circuit_t::Translate(char* fName)
+{
+	ifstream file1(fName);
+	ofstream file2("temp.v");
+	int found_z, found_o;
+	string tmpstr, tmpstr2;
+	
+	while(1) {
+		getline(file1, tmpstr, '\n');
+		found_z = tmpstr.find("zero");
+		found_o = tmpstr.find("one");
+		
+		tmpstr2.clear();
+		
+		if(found_o == -1 && found_z == -1){
+			file2<<tmpstr<<endl;
+		}
+		else if (found_o != -1 && found_z == -1){
+			for (int i = found_o+3; i < tmpstr.size(); i++) {
+				if(tmpstr[i] != ' ' && tmpstr[i] != '(' && tmpstr[i] != ')' && tmpstr[i] != ';') {
+					tmpstr2.push_back(tmpstr[i]);
+				}
+			}
+			
+			file2<<"  buf  ( "<<tmpstr2<<" , 1'b1 );"<<endl;
+		}
+		else if (found_o == -1 && found_z != -1){
+			for (int i = found_z+4; i < tmpstr.size(); i++) {
+				if(tmpstr[i] != ' ' && tmpstr[i] != '(' && tmpstr[i] != ')' && tmpstr[i] != ';') {
+					tmpstr2.push_back(tmpstr[i]);
+				}
+			}
+			file2<<"  buf  ( "<<tmpstr2<<" , 1'b0 );"<<endl;
+		}
+		
+		
+		if (tmpstr == "endmodule"){
+			break;
+		}
+	}
+	file1.close();
+	file2.close();
+	
+	ifstream file3("temp.v");
+	ofstream tfile(fName);
+	
+	while(1) {
+		getline(file3, tmpstr, '\n');
+		tfile<<tmpstr<<endl;
+		if (tmpstr == "endmodule"){
+			break;
+		}
+	}
+	
+	file3.close();
+	tfile.close();
+	
+	
+    return ;
+}
+
+
 int Circuit_t::NewPI(Circuit_t &c2)        //c2 == cktg
 {
 	vector<int>::iterator eraseit;
