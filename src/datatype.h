@@ -72,6 +72,7 @@ public:
     bool patch_flag;
     vector<int> in;
     vector<int> out;
+    vector<int> allpi;
     Node_t(string n, GateType t);
     
     void print(vector<Node_t> allnode);
@@ -124,6 +125,7 @@ public:
     void findReplaceNode(vector<Node_t>& PatchNode);
     bool write_patch(vector<int>& relatedPI);
     void updatePatchPI(vector<int>& relatedPI, vector<string>& replaceName, vector<string>& patchName);
+    void update_allpi();
     vector<int> ReplaceNode(vector<int>& allcutnode);
     void sortcost(vector<int>& array, int left, int right);
     void printstatus();

@@ -71,6 +71,7 @@ int main(int argc, char * argv[])
     patchckt.readfile(argv[1]);
     patchckt.readpatch("patch.v");
     patchckt.readcost(argv[3]);
+    patchckt.update_allpi();
     vector<int> allcandidate;
     patchckt.findRelatedNode(relatedPI, allpatchnode, allcandidate);
     //patchckt.findRelatedNode(relatedPO, allpatchnode, allcandidate);
