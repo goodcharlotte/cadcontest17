@@ -763,6 +763,10 @@ bool Circuit_t::compareRelatedPI(vector<int>& relatedPI, int& node)
                     find_flag = true;
                     break;
                 }
+                if (allnodevec[node].allpi[allpi_i] < relatedPI[repi_i]) {
+                    find_flag = false;
+                    break;
+                }
             }
             if (find_flag == false) {
                 compare_flag = false;

@@ -10,6 +10,7 @@
 #include <math.h>
 #include <ctime>
 #include <queue>
+#include <algorithm>
 #include "core/minisat.h"
 
 using namespace::std;

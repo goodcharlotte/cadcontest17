@@ -23,14 +23,16 @@ void Circuit_t::update_allpi()
             nodeque.pop();
         }
     }
-    /*
+    
+    /* 
     for (int i = 0; i < allnodevec.size(); i++) {
-        cout << "========== Debug allpi: " << allnodevec[i].name << " ========\n";
+        cout << "========== Debug allpi: " << i << " " << allnodevec[i].name << " ========\n";
         for (int allpi_i = 0; allpi_i < allnodevec[i].allpi.size(); allpi_i++) {
             int node = allnodevec[i].allpi[allpi_i];
-            cout << allnodevec[node].name << endl;
+            cout << "id:" << node << " " << allnodevec[node].name << endl;
         }
         cout << endl;
     }
     */
+    
 }
