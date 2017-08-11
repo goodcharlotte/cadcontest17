@@ -126,6 +126,7 @@ public:
     bool write_patch(vector<int>& relatedPI);
     void updatePatchPI(vector<int>& relatedPI, vector<string>& replaceName, vector<string>& patchName);
     void update_allpi();
+    bool compareRelatedPI(vector<int>& relatedPI, int& node);
     vector<int> ReplaceNode(vector<int>& allcutnode);
     void sortcost(vector<int>& array, int left, int right);
     void printstatus();

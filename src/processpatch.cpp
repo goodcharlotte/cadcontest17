@@ -409,17 +409,20 @@ void Circuit_t::findRelatedNode(vector<int> relatedPI, vector<int>& allpatchnode
     while (nodeque.size() != 0) {
         node = nodeque.front();
         if (visit_flag[node] == false) {
-            if ((allnodevec[node].in.size() != 0) || (allnodevec[node].out.size() != 0)) {
-                for (int fanout = 0; fanout < allnodevec[node].out.size(); fanout++) {
-                    int fanout_node = allnodevec[node].out[fanout];
-                    nodeque.push(fanout_node);
-                }
-                if (((target_fanout[node] == false) && (allnodevec[node].patch_flag == false)) || (allnodevec[node].type == PORT)) {
-                    allcandidate.push_back(node);
-                }
-                if (allnodevec[node].patch_flag == true)
-                {
-                    allpatchnode.push_back(node);
+            ready_bfs = compareRelatedPI(relatedPI, node);
+            //ready_bfs = true;
+            if (ready_bfs == true) {
+                if ((allnodevec[node].in.size() != 0) || (allnodevec[node].out.size() != 0)) {
+                    for (int fanout = 0; fanout < allnodevec[node].out.size(); fanout++) {
+                        int fanout_node = allnodevec[node].out[fanout];
+                        nodeque.push(fanout_node);
+                    }
+                    if (((target_fanout[node] == false) && (allnodevec[node].patch_flag == false)) || (allnodevec[node].type == PORT)) {
+                        allcandidate.push_back(node);
+                    }
+                    if (allnodevec[node].patch_flag == true) {
+                        allpatchnode.push_back(node);
+                    }
                 }
             }
         }
@@ -744,4 +747,29 @@ void Circuit_t::updatePatchPI(vector<int>& relatedPI, vector<string>& replaceNam
         }
         patchName[i] = allnodevec[relatedPI[i]].name;
     }
+}
+
+bool Circuit_t::compareRelatedPI(vector<int>& relatedPI, int& node)
+{
+    bool compare_flag = true;
+
+    if (allnodevec[node].allpi.size() > relatedPI.size()) {
+        compare_flag = false;
+    } else {
+        for (int allpi_i = 0; allpi_i < allnodevec[node].allpi.size(); allpi_i++) {
+            bool find_flag = false;
+            for (int repi_i = 0; repi_i < relatedPI.size(); repi_i++) {
+                if (allnodevec[node].allpi[allpi_i] == relatedPI[repi_i]) {
+                    find_flag = true;
+                    break;
+                }
+            }
+            if (find_flag == false) {
+                compare_flag = false;
+                break;
+            }
+        }
+    }
+
+    return compare_flag;
 }
