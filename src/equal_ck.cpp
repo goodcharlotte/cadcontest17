@@ -21,10 +21,36 @@ void gate2CNF(Solver& sat, int gate_out, Node_t gate);
 void miter2CNF(Solver& sat, int gate_in_1, int gate_in_2, int assume_lit, int gate_out);
 int inver2CNF(Solver& sat, int node, int assume_lit);
 
+template <class T>
+void print_queue(queue<T> q)
+{
+  while (!q.empty()) {
+	cout << q.front() << " ";
+    q.pop();
+  }
+  cout << endl;
+}
+
+template <class T>
+void print_vector(vector<T> v)
+{
+	for(int i = 0; i < v.size(); i++) {
+		cout << v[i] << " ";
+	}
+	cout << endl;
+}
 
 
 int Circuit_t::euqal_ck(int F_nid, int P_nid)
 {
+	//check if PI number is the same and equal
+	/*
+	print_vector(allnodevec[F_nid].allpi);
+	print_vector(allnodevec[P_nid].allpi);
+	*/
+	if (allnodevec[F_nid].allpi != allnodevec[P_nid].allpi) {
+		return EQ_SAT;
+	}
 
 	Solver ckt_sat;	
 	sat_new_var(ckt_sat, F_nid);
@@ -94,16 +120,7 @@ int Circuit_t::euqal_ck(int F_nid, int P_nid)
 	*/
 }
 
-template <class T>
-void print_queue(queue<T> q)
-{
-  while (!q.empty())
-  {
-	cout << q.front() << " ";
-    q.pop();
-  }
-  cout << endl;
-}
+
 
 void Circuit_t::CNF_fanin(Solver& sat, int node_id)
 {
