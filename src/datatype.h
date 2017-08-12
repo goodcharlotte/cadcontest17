@@ -133,6 +133,13 @@ public:
     void printstatus();
     void init_simp(string cktname);
     int minCut(vector<int>& allcutnode);
+	//Random simulation
+	void random_sim_gene_input(vector<int> &relatedPI);
+	void random_sim_patch(vector<int> &topology_order, int patch_wire);
+	void random_sim_candidate(vector<int> &topology_order);
+	vector<int> random_sim_compare(vector<int> &relatedPI, vector<int> &topo_order_cand, vector<int> &topo_order_patch, int patch_wire);
+	
+	
 	///////////////////////CCW/////////////////////////////////
 	#ifdef DEBUG_MATCH
 		void Test();

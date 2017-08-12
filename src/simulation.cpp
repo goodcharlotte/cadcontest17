@@ -492,3 +492,67 @@ void Circuit_t::print_topology()
     }
     cout << endl;
 }
+
+
+
+
+
+void Circuit_t::random_sim_gene_input(vector<int> &relatedPI)
+{
+	srand (time(NULL));
+	for (int i = 0; i < relatedPI.size(); i++) {
+		allnodevalue[relatedPI[i]] = rand();		
+	}
+}
+
+void Circuit_t::random_sim_patch(vector<int> &topology_order, int patch_wire)
+{
+	GateType type;
+	for (int i = 0; i < topology_order.size(); i++) {
+		type = allnodevec[topology_order[i]].type;
+		if (type != PORT) {
+			//not PI, t_x, constant 0, constant 
+			allnodevalue[topology_order[i]] = calculate_gate_out(type, allnodevec[topology_order[i]].in);
+		}
+		if (topology_order[i] == patch_wire) {
+			//return allnodevalue[topology_order[i]];
+			return;
+		}
+	}
+}
+
+
+void Circuit_t::random_sim_candidate(vector<int> &topology_order)
+{
+	GateType type;
+	for (int i = 0; i < topology_order.size(); i++) {
+		type = allnodevec[topology_order[i]].type;
+		if (type != PORT) {
+			//not PI, t_x, constant 0, constant 
+			allnodevalue[topology_order[i]] = calculate_gate_out(type, allnodevec[topology_order[i]].in);
+		}
+	}
+	
+}
+
+
+vector<int> Circuit_t::random_sim_compare(vector<int> &relatedPI, vector<int> &topo_order_cand, vector<int> &topo_order_patch, int patch_wire)
+{
+	int result_p_wire;
+	vector<int> possible_candidate;
+	random_sim_gene_input(relatedPI);
+	random_sim_patch(topo_order_patch, patch_wire);
+	random_sim_candidate(topo_order_cand);
+	result_p_wire = allnodevalue[topology_order[patch_wire]];
+	
+	for ( int i = 0; i < topo_order_cand.size(); i ++)
+	{
+		if (allnodevalue[topo_order_cand[i]] == result_p_wire) {
+			possible_candidate.push_back(topo_order_cand[i]);
+			//TODO:　check if  need sort again
+		}
+	}
+	return possible_candidate;
+	
+	
+}

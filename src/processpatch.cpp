@@ -477,9 +477,20 @@ void Circuit_t::sortcost(vector<int>& array, int left, int right)
 
 void Circuit_t::findReplaceCost(vector<int>& allcandidate, vector<int>& allpatchnode, vector<Node_t>& PatchNode)
 {
-    for (int p_wire = 0; p_wire < allpatchnode.size(); p_wire++) {
+    //TODO: do topology
+	//vector<int> topo_order_cand = 
+	//vector<int> topo_order_patch =
+	
+	//vector<int> possible_candidate;
+	for (int p_wire = 0; p_wire < allpatchnode.size(); p_wire++) {
         int p_node = allpatchnode[p_wire];
         bool find_replace = false;
+
+		//TODO : need parameter relatedPI
+		//possible_candidate = random_sim_compare(relatedPI, topo_order_cand, topo_order_patch, p_wire);
+		
+		//TODO : replace allcandidate with possible_candidate
+		
         for (int can_wire = 0; can_wire < allcandidate.size(); can_wire++) {
             //cout << "time: " << time_sec << endl;
             stop_clk = clock();
