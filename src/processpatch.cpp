@@ -474,12 +474,67 @@ void Circuit_t::sortcost(vector<int>& array, int left, int right)
     */
 }
 
+vector<int> Circuit_t::getsort_topology(vector<int>& nodevec)
+{
+    vector<int> topology_vec;
+    vector<bool> visit_flag(allnodevec.size(), false);
+    queue<int> nodeque;
+    bool ready_sort;
 
-void Circuit_t::findReplaceCost(vector<int>& allcandidate, vector<int>& allpatchnode, vector<Node_t>& PatchNode)
+    int node;
+    for (int i = 0; i < nodevec.size(); i++) {
+        node = nodevec[i];
+        nodeque.push(node);
+    }
+
+    while (nodeque.size() != 0) {
+        node = nodeque.front();
+        if (visit_flag[node] == false) {
+            ready_sort = true;
+            for (int fanin = 0; fanin < allnodevec[node].in.size(); fanin++) {
+                int fanin_node = allnodevec[node].in[fanin];
+                if (visit_flag[fanin_node] == false) {
+                    ready_sort = false;
+                    break;
+                }
+            }
+
+            if (ready_sort == true) {
+                topology_vec.push_back(node);
+                visit_flag[node] = true;
+            } else {
+                nodeque.push(node);
+            }
+        }
+        nodeque.pop();
+    }
+
+#if 0
+    cout << "===== Original vector: =====" << endl;
+    for (int i = 0; i < nodevec.size(); i++) {
+        node = nodevec[i];
+        cout << allnodevec[node].name << endl;
+    }
+    cout << "===============" << endl;
+    cout << "===== Topology-sort vector: =====" << endl;
+    for (int i = 0; i < topology_vec.size(); i++) {
+        node = topology_vec[i];
+        cout << allnodevec[node].name << endl;
+    }
+    cout << "===============" << endl;
+#endif
+
+    if (topology_vec.size() != nodevec.size()) {
+        cout << "ERROR! Topology vector is equal to node vector" << endl;
+    }
+    return topology_vec;
+}
+
+void Circuit_t::findReplaceCost(vector<int>& relatedPI, vector<int>& allcandidate, vector<int>& allpatchnode, vector<Node_t>& PatchNode)
 {
     //TODO: do topology
-	//vector<int> topo_order_cand = 
-	//vector<int> topo_order_patch =
+	vector<int> topo_order_cand = getsort_topology(allcandidate);
+	vector<int> topo_order_patch = getsort_topology(allpatchnode);
 	
 	//vector<int> possible_candidate;
 	for (int p_wire = 0; p_wire < allpatchnode.size(); p_wire++) {
@@ -490,7 +545,8 @@ void Circuit_t::findReplaceCost(vector<int>& allcandidate, vector<int>& allpatch
 		//possible_candidate = random_sim_compare(relatedPI, topo_order_cand, topo_order_patch, p_wire);
 		
 		//TODO : replace allcandidate with possible_candidate
-		
+        //sortcost(possible_candidate, 0, possible_candidate.size() - 1);
+
         for (int can_wire = 0; can_wire < allcandidate.size(); can_wire++) {
             //cout << "time: " << time_sec << endl;
             stop_clk = clock();

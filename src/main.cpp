@@ -75,10 +75,10 @@ int main(int argc, char * argv[])
     vector<int> allcandidate;
     patchckt.findRelatedNode(relatedPI, allpatchnode, allcandidate);
     //patchckt.findRelatedNode(relatedPO, allpatchnode, allcandidate);
-    patchckt.sortcost(allcandidate, 0, allcandidate.size() - 1);
+    //patchckt.sortcost(allcandidate, 0, allcandidate.size() - 1);
     //ReplaceNode: (UNSAT & INV_UNSAT) id, (No replaced node) -1
     //ReplaceCost: (UNSAT) cost, (INV_UNSAT) cost * (-1), (No replaced node) INF
-    patchckt.findReplaceCost(allcandidate, allpatchnode, PatchNode);
+    patchckt.findReplaceCost(relatedPI, allcandidate, allpatchnode, PatchNode);
     //====================================
     //  Copy cost info. to cktp
     //====================================

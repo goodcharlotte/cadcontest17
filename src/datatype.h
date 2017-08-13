@@ -108,6 +108,7 @@ public:
     bool readcost(char* fname);
     void print();
 	void topology(int start_node_id);
+    vector<int> getsort_topology(vector<int>& nodevec);
     void init_simulation();
     void find_pi_fanout();
     void quicksort(vector<int>& array, int low, int high);
@@ -122,7 +123,7 @@ public:
     vector<int> findRelatedPO();
     vector<int> findRelatedPI(vector<int> relatedPO);
     void findRelatedNode(vector<int> relatedPI, vector<int>& allpatchnode, vector<int>& allcandidate);
-    void findReplaceCost(vector<int>& allcandidate, vector<int>& allpatchnode, vector<Node_t>& PatchNode);
+    void findReplaceCost(vector<int>& relatedPI, vector<int>& allcandidate, vector<int>& allpatchnode, vector<Node_t>& PatchNode);
     void findReplaceNode(vector<Node_t>& PatchNode);
     bool write_patch(vector<int>& relatedPI);
     void updatePatchPI(vector<int>& relatedPI, vector<string>& replaceName, vector<string>& patchName);
