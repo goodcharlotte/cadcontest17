@@ -485,6 +485,8 @@ vector<int> Circuit_t::getsort_topology(vector<int>& nodevec)
 {
     vector<int> topology_vec;
     vector<bool> visit_flag(allnodevec.size(), false);
+	visit_flag[0] = true;
+    visit_flag[1] = true;
     queue<int> nodeque;
     bool ready_sort;
 
@@ -493,7 +495,6 @@ vector<int> Circuit_t::getsort_topology(vector<int>& nodevec)
         node = nodevec[i];
         nodeque.push(node);
     }
-
     while (nodeque.size() != 0) {
         node = nodeque.front();
         if (visit_flag[node] == false) {
@@ -515,7 +516,6 @@ vector<int> Circuit_t::getsort_topology(vector<int>& nodevec)
         }
         nodeque.pop();
     }
-
 #if 0
     cout << "===== Original vector: =====" << endl;
     for (int i = 0; i < nodevec.size(); i++) {
@@ -539,7 +539,8 @@ vector<int> Circuit_t::getsort_topology(vector<int>& nodevec)
 
 void Circuit_t::findReplaceCost(vector<int>& relatedPI, vector<int>& allcandidate, vector<int>& allpatchnode, vector<Node_t>& PatchNode)
 {
-    
+
+
 	vector<int> topo_order_cand = getsort_topology(allcandidate);
 	vector<int> topo_order_patch = getsort_topology(allpatchnode);
 	//cout << "topo_order_cand size " << topo_order_cand.size() << endl;
@@ -547,7 +548,6 @@ void Circuit_t::findReplaceCost(vector<int>& relatedPI, vector<int>& allcandidat
 	for (int p_wire = 0; p_wire < allpatchnode.size(); p_wire++) {
         int p_node = allpatchnode[p_wire];
         bool find_replace = false;
-	 
 		possible_candidate = random_sim_compare(relatedPI, topo_order_cand, topo_order_patch, p_node);
         sortcost(possible_candidate, 0, possible_candidate.size() - 1);
 
