@@ -505,7 +505,7 @@ void Circuit_t::random_sim_gene_input(vector<int> &relatedPI)
 	}
 }
 
-void Circuit_t::random_sim_patch(vector<int> &topology_order, int patch_wire)
+void Circuit_t::random_sim_patch(vector<int> &topology_order, int p_node)
 {
 	GateType type;
 	for (int i = 0; i < topology_order.size(); i++) {
@@ -514,8 +514,7 @@ void Circuit_t::random_sim_patch(vector<int> &topology_order, int patch_wire)
 			//not PI, t_x, constant 0, constant 
 			allnodevalue[topology_order[i]] = calculate_gate_out(type, allnodevec[topology_order[i]].in);
 		}
-		if (topology_order[i] == patch_wire) {
-			//return allnodevalue[topology_order[i]];
+		if (topology_order[i] == p_node) {
 			return;
 		}
 	}
@@ -535,23 +534,72 @@ void Circuit_t::random_sim_candidate(vector<int> &topology_order)
 	
 }
 
-
-vector<int> Circuit_t::random_sim_compare(vector<int> &relatedPI, vector<int> &topo_order_cand, vector<int> &topo_order_patch, int patch_wire)
+/*
+template <class T>
+void print_vector(vector<T> v)
 {
-	int result_p_wire;
-	vector<int> possible_candidate;
-	random_sim_gene_input(relatedPI);
-	random_sim_patch(topo_order_patch, patch_wire);
-	random_sim_candidate(topo_order_cand);
-	result_p_wire = allnodevalue[topology_order[patch_wire]];
-	
-	for ( int i = 0; i < topo_order_cand.size(); i ++)
-	{
-		if (allnodevalue[topo_order_cand[i]] == result_p_wire) {
-			possible_candidate.push_back(topo_order_cand[i]);
-			//TODO:　check if  need sort again
-		}
+	for(int i = 0; i < v.size(); i++) {
+		cout << v[i] << " ";
 	}
+	cout << endl;
+}
+*/
+
+bool timeout(double time_limit)
+{           
+	clock_t cuur_time = clock();
+	double time_spend = double(cuur_time - start_clk)/CLOCKS_PER_SEC;
+	if ( time_spend > time_limit) {
+		return true;
+	}
+	return false;
+}
+
+
+vector<int> Circuit_t::random_sim_compare(vector<int> &relatedPI, vector<int> &topo_order_cand, vector<int> &topo_order_patch, int p_node)
+{
+	#define END_RANDSIM_RATIO	0.5
+	#define END_RANDSIM_TIMES	30
+
+	int count_fail = 0;
+	int try_times = 0;
+	int result_p_wire;
+	int result_cand_wire;
+	int total_cand = topo_order_cand.size();
+	vector<int> possible_candidate;
+	vector<bool> equal_flag(total_cand, true);		
+	
+	while((count_fail < END_RANDSIM_RATIO * total_cand) && (try_times < END_RANDSIM_TIMES)) {
+		if (timeout(1500)) {
+			break;
+		}
+		random_sim_gene_input(relatedPI);
+		random_sim_patch(topo_order_patch, p_node);
+		random_sim_candidate(topo_order_cand);
+		result_p_wire = allnodevalue[p_node];
+		for (int i = 0; i < total_cand; i ++)
+		{
+			if (equal_flag[i] == true) {
+				result_cand_wire = allnodevalue[topo_order_cand[i]];
+				if ((result_cand_wire != result_p_wire) && (result_cand_wire != ~result_p_wire)) {
+					equal_flag[i] = false;
+					count_fail ++;					
+				}
+			} 			
+		}
+		try_times ++;
+		//cout << count_fail << " " << try_times << endl;
+	}
+	
+			
+	for ( int i = 0; i < total_cand; i ++) {
+		if (equal_flag[i] == true) {
+			possible_candidate.push_back(topo_order_cand[i]);			
+		}			
+	}
+	//cout << "possible_candidate size " << possible_candidate.size() << endl;
+	//cout << "possible_candidate : ";
+	//print_vector(possible_candidate);
 	return possible_candidate;
 	
 	

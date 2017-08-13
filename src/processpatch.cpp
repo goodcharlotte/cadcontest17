@@ -438,9 +438,16 @@ void Circuit_t::findRelatedNode(vector<int> relatedPI, vector<int>& allpatchnode
     */
 }
 
+
+
+
 void Circuit_t::sortcost(vector<int>& array, int left, int right)
 {
-    for (int i = 0; i < array.size() - 1; i++) {
+    if (array.size() == 0) {
+		return;
+	}
+	
+	for (int i = 0; i < array.size() - 1; i++) {
         for (int j = i + 1; j < array.size(); j++) {
             if (allnodevec[array[i]].cost > allnodevec[array[j]].cost) {
                 swap(array[i], array[j]);
@@ -532,22 +539,43 @@ vector<int> Circuit_t::getsort_topology(vector<int>& nodevec)
 
 void Circuit_t::findReplaceCost(vector<int>& relatedPI, vector<int>& allcandidate, vector<int>& allpatchnode, vector<Node_t>& PatchNode)
 {
-    //TODO: do topology
+    
 	vector<int> topo_order_cand = getsort_topology(allcandidate);
 	vector<int> topo_order_patch = getsort_topology(allpatchnode);
-	
-	//vector<int> possible_candidate;
+	//cout << "topo_order_cand size " << topo_order_cand.size() << endl;
+	vector<int> possible_candidate;
 	for (int p_wire = 0; p_wire < allpatchnode.size(); p_wire++) {
         int p_node = allpatchnode[p_wire];
         bool find_replace = false;
+	 
+		possible_candidate = random_sim_compare(relatedPI, topo_order_cand, topo_order_patch, p_node);
+        sortcost(possible_candidate, 0, possible_candidate.size() - 1);
 
-		//TODO : need parameter relatedPI
-		//possible_candidate = random_sim_compare(relatedPI, topo_order_cand, topo_order_patch, p_wire);
+		for (int can_wire = 0; can_wire < possible_candidate.size(); can_wire++) {
+            //cout << "time: " << time_sec << endl;
+            stop_clk = clock();
+            double time_sec = double(stop_clk - start_clk)/CLOCKS_PER_SEC;
+            if ( time_sec > 1500) {
+                break;
+            }
+            int can_node = possible_candidate[can_wire];
+            int check_equal = euqal_ck(can_node, p_node);
+            //int check_equal = EQ_SAT;
+            if (check_equal == EQ_UNSAT) {
+                find_replace = true;
+                allnodevec[p_node].cost = allnodevec[can_node].cost;
+                allnodevec[p_node].replacename = allnodevec[can_node].name;
+                break;
+            } else if (check_equal == EQ_INV_UNSAT) {
+                find_replace = true;
+                allnodevec[p_node].cost = allnodevec[can_node].cost * (-1);
+                allnodevec[p_node].replacename = allnodevec[can_node].name;
+                break;
+            }
+        }		
 		
-		//TODO : replace allcandidate with possible_candidate
-        //sortcost(possible_candidate, 0, possible_candidate.size() - 1);
-
-        for (int can_wire = 0; can_wire < allcandidate.size(); can_wire++) {
+		#if 0
+		for (int can_wire = 0; can_wire < allcandidate.size(); can_wire++) {
             //cout << "time: " << time_sec << endl;
             stop_clk = clock();
             double time_sec = double(stop_clk - start_clk)/CLOCKS_PER_SEC;
@@ -569,7 +597,9 @@ void Circuit_t::findReplaceCost(vector<int>& relatedPI, vector<int>& allcandidat
                 break;
             }
         }
-        
+        #endif 
+		
+		
         if (!find_replace) {
             allnodevec[p_node].replacename = "NONE";
         }
