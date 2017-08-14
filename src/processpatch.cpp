@@ -550,7 +550,10 @@ void Circuit_t::findReplaceCost(vector<int>& relatedPI, vector<int>& allcandidat
         bool find_replace = false;
 		possible_candidate = random_sim_compare(relatedPI, topo_order_cand, topo_order_patch, p_node);
         sortcost(possible_candidate, 0, possible_candidate.size() - 1);
-
+		//cout << "===current p wire " << allnodevec[allpatchnode[p_wire]].name << endl;
+		//for(int i = 0; i < possible_candidate.size(); i++) {
+			//cout << allnodevec[possible_candidate[i]].name << " " << allnodevec[possible_candidate[i]].cost << endl;
+		//}
 		for (int can_wire = 0; can_wire < possible_candidate.size(); can_wire++) {
             //cout << "time: " << time_sec << endl;
             stop_clk = clock();
@@ -559,22 +562,31 @@ void Circuit_t::findReplaceCost(vector<int>& relatedPI, vector<int>& allcandidat
                 break;
             }
             int can_node = possible_candidate[can_wire];
+			//cout << "allnodevec[can_node].name " << allnodevec[can_node].name << endl;
             int check_equal = euqal_ck(can_node, p_node);
             //int check_equal = EQ_SAT;
             if (check_equal == EQ_UNSAT) {
                 find_replace = true;
                 allnodevec[p_node].cost = allnodevec[can_node].cost;
                 allnodevec[p_node].replacename = allnodevec[can_node].name;
-                break;
+                //cout << "check_equal == EQ_UNSAT " << allnodevec[can_node].name << " " <<allnodevec[can_node].cost << endl;
+				break;
             } else if (check_equal == EQ_INV_UNSAT) {
                 find_replace = true;
                 allnodevec[p_node].cost = allnodevec[can_node].cost * (-1);
                 allnodevec[p_node].replacename = allnodevec[can_node].name;
-                break;
+               // cout << "check_equal == EQ_INV_UNSAT " << allnodevec[can_node].name <<" " << allnodevec[can_node].cost << endl;
+				break;
             }
+			/*
+			else {
+				cout << "check_equal == EQ_SAT " << allnodevec[can_node].name <<" " << allnodevec[can_node].cost << endl;
+			}
+			*/
         }		
 		
-		#if 0
+		/*
+		directly use all F's node as candidates, no do random simulation
 		for (int can_wire = 0; can_wire < allcandidate.size(); can_wire++) {
             //cout << "time: " << time_sec << endl;
             stop_clk = clock();
@@ -597,8 +609,7 @@ void Circuit_t::findReplaceCost(vector<int>& relatedPI, vector<int>& allcandidat
                 break;
             }
         }
-        #endif 
-		
+		*/
 		
         if (!find_replace) {
             allnodevec[p_node].replacename = "NONE";
