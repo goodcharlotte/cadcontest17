@@ -48,10 +48,15 @@ int Circuit_t::euqal_ck(int F_nid, int P_nid)
 	print_vector(allnodevec[F_nid].allpi);
 	print_vector(allnodevec[P_nid].allpi);
 	*/
+	/*
+	Even though PI not equal, they also can be solved as UNSAT
+	so comment out.
 	if (allnodevec[F_nid].allpi != allnodevec[P_nid].allpi) {
+		print_vector(allnodevec[F_nid].allpi);
+		print_vector(allnodevec[P_nid].allpi);
 		return EQ_SAT;
 	}
-
+	*/
 	Solver ckt_sat;	
 	sat_new_var(ckt_sat, F_nid);
 	sat_new_var(ckt_sat, P_nid);
