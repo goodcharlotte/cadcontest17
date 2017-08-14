@@ -563,25 +563,27 @@ vector<int> Circuit_t::random_sim_compare(vector<int> &relatedPI, vector<int> &t
 
 	int count_fail = 0;
 	int try_times = 0;
-	int result_p_wire;
+	int result_p_node;
 	int result_cand_wire;
 	int total_cand = topo_order_cand.size();
 	vector<int> possible_candidate;
 	vector<bool> equal_flag(total_cand, true);		
 	
+
+	
 	while((count_fail < END_RANDSIM_RATIO * total_cand) && (try_times < END_RANDSIM_TIMES)) {
-		if (timeout(1500)) {
-			break;
-		}
+		//if (timeout(1500)) {
+		//	break;
+		//}
 		random_sim_gene_input(relatedPI);
 		random_sim_patch(topo_order_patch, p_node);
 		random_sim_candidate(topo_order_cand);
-		result_p_wire = allnodevalue[p_node];
+		result_p_node = allnodevalue[p_node];
 		for (int i = 0; i < total_cand; i ++)
 		{
 			if (equal_flag[i] == true) {
 				result_cand_wire = allnodevalue[topo_order_cand[i]];
-				if ((result_cand_wire != result_p_wire) && (result_cand_wire != ~result_p_wire)) {
+				if ((result_cand_wire != result_p_node) && (result_cand_wire != ~result_p_node)) {
 					equal_flag[i] = false;
 					count_fail ++;					
 				}
