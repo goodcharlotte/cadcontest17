@@ -5,6 +5,7 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <list>
 #include <map>
 #include <bitset>
 #include <math.h>
@@ -125,6 +126,9 @@ public:
     void findRelatedNode(vector<int> relatedPI, vector<int>& allpatchnode, vector<int>& allcandidate);
     void findReplaceCost(vector<int>& relatedPI, vector<int>& allcandidate, vector<int>& allpatchnode, vector<Node_t>& PatchNode);
     void findReplaceNode(vector<Node_t>& PatchNode);
+    int getMaxSum(vector<int>& allcandidate);
+    void getbaseset(vector<int>& allcandidate, vector<int>& allpatchnode);
+    list<int> check_include(list<int>& subset, int& checknode);
     bool write_patch(vector<int>& relatedPI);
     void updatePatchPI(vector<int>& relatedPI, vector<string>& replaceName, vector<string>& patchName);
     void update_allpi();
