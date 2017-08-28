@@ -81,6 +81,7 @@ int Circuit_t::getMaxSum(vector<int>& allcandidate)
 
 void Circuit_t::getbaseset(vector<int>& allpatchnode, vector<int>& allcandidate)
 {
+    clock_t temp_clk;
     sortcost(allcandidate, 0, (allcandidate.size()-1) );
 #if 0
     cout << "All base nodes:" << endl;
@@ -99,10 +100,11 @@ void Circuit_t::getbaseset(vector<int>& allpatchnode, vector<int>& allcandidate)
     int MAX_WEIGHT = allnodevec[allcandidate.back()].cost;
     int weight_sum = 0;
     int candidate_ptr, weight_ptr, set_ptr, choose_ptr;
+    bool finish_flag = false;
     bool find_flag = false;
     candidate_ptr = weight_ptr = set_ptr = choose_ptr = 0;
 
-    while (find_flag == false) {
+    while (finish_flag == false) {
         weight_sum++;
         //cout << "sum: " << weight_sum << endl;
         allbaseset.push_back(*(new vector< list<int> >));
@@ -126,9 +128,10 @@ void Circuit_t::getbaseset(vector<int>& allpatchnode, vector<int>& allcandidate)
         choose_ptr = 0;
         for (set_ptr = allbaseset.size()-1; set_ptr >= 0; set_ptr--) {
             weight_ptr = weight_sum - set_ptr;
+            if (finish_flag == true) break;
             if (weight_ptr > set_ptr) break;
             if (weight_ptr > MAX_WEIGHT) break;
-            while (1) {
+            while (finish_flag == false) {
                 if (choose_ptr >= allcandidate.size()) {
                     break;
                 }
@@ -144,12 +147,19 @@ void Circuit_t::getbaseset(vector<int>& allpatchnode, vector<int>& allcandidate)
                             //
                         }
                     }
+                    temp_clk = clock();
+                    double time_sec = double(temp_clk - start_clk)/CLOCKS_PER_SEC;
+                    if ( time_sec > 1500) {
+                        finish_flag = true;
+                        //cout << "time out:" << time_sec << endl;
+                        break;
+                    }
                 }
                 choose_ptr++;
             }
         }
         if (weight_sum == MAX_WEIGHT_SUM) {
-            break;
+            finish_flag = true;
         }
         //cout << "size: " << allbaseset.back().size() << endl;
     }

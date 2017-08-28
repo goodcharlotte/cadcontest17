@@ -2,6 +2,8 @@
 
 #define ALL_ONE -1
 #define MAX_INT_SIZE 32
+#define ONSET 1
+#define OFFSET 0
 
 vector<string> targetName;
 vector<string> F_piName;
@@ -12,12 +14,14 @@ vector<string> G_poName;
 void parse(string &cktF_name, string &cktG_name);
 void constructMux(string &outputName);
 void constructMiter(string &outputName);
-void constructTop(string &outputName);
+void constructTop(string &outputName, int mode);
 void constructPatch(string cktF_name, string cktG_name);
 
 
 void constructPatch(string cktF_name, string cktG_name)
 {
+    int mode = ONSET;
+    //Construct Patch_onset
     string patchName = "patch.v";
     string tempName = "tmp_" + patchName;
     string systemCmd;
@@ -31,7 +35,7 @@ void constructPatch(string cktF_name, string cktG_name)
     system(systemCmd.c_str());
 
     constructMiter(tempName);
-    constructTop(tempName);
+    constructTop(tempName, mode);
 
     //optimization
     ofstream w_file;
@@ -50,6 +54,38 @@ void constructPatch(string cktF_name, string cktG_name)
     w_file.close();
 
     system("./abc -f resynPatch.script");
+
+    //Construct Patch_offset
+    mode = OFFSET;
+    string patchName2 = "patch2.v";
+    string tempName2 = "tmp_" + patchName2;
+
+    constructMux(tempName2);
+    
+    //make sure modelNames are module F & module G
+    systemCmd = "cat " + cktF_name + " " + cktG_name + " >> " + tempName2;
+    system(systemCmd.c_str());
+
+    constructMiter(tempName2);
+    constructTop(tempName2, mode);
+
+    //optimization
+    ofstream w_file2;
+    w_file2.open("resynPatch2.script",ios::out);
+    w_file2 << "read_verilog " << tempName2  << endl;
+    //w_file2 << "resyn2" << endl;
+    //w_file2 << "resyn2rs" << endl;
+    //w_file2 << "compress2rs" << endl;
+    //w_file2 << "resyn2rs" << endl;
+    //w_file2 << "compress2rs" << endl;
+    w_file2 << "resyn2rs" << endl;
+    w_file2 << "compress2rs" << endl;
+    w_file2 << "read_library mcnc.genlib" << endl;
+    w_file2 << "map" << endl;
+    w_file2 << "write_verilog " << patchName2 << endl;
+    w_file2.close();
+
+    system("./abc -f resynPatch2.script");
 }
 
 void parse(string &cktF_name, string &cktG_name)
@@ -270,7 +306,7 @@ void constructMiter(string &outputName)
     file.close();
 }
 
-void constructTop(string &outputName)
+void constructTop(string &outputName, int mode)
 {
     ofstream file(outputName.c_str(), ios::app);
     file << "module patch ( ";
@@ -338,12 +374,21 @@ void constructTop(string &outputName)
         for (int i = 0; i < G_poName.size(); i++) {
             file << "." << "g_" << G_poName[i] << "(g_" << G_poName[i] << ") , ";
         }
-        for (int j = 0; j < targetName.size(); j++) {
-            file << "." << targetName[j] << "(1'b" << targetValue[MAX_INT_SIZE - j - 1] << ")";
-            if (j < (targetName.size() - 1)) {
-                file << " , ";
+        if (mode == ONSET) {
+            for (int j = 0; j < targetName.size(); j++) {
+                file << "." << targetName[j] << "(1'b" << targetValue[MAX_INT_SIZE - j - 1] << ")";
+                if (j < (targetName.size() - 1)) {
+                    file << " , ";
+                }
             }
-        }      
+        } else {
+            for (int j = 0; j < targetName.size(); j++) {
+                file << "." << targetName[j] << "(1'b" << (targetValue[MAX_INT_SIZE - j - 1] == '0'? '1': '0') << ")";
+                if (j < (targetName.size() - 1)) {
+                    file << " , ";
+                }
+            }
+        }
         file << " );\n";
     }
 
