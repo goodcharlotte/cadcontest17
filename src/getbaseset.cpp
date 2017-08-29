@@ -150,9 +150,11 @@ vector<int> Circuit_t::getbaseset(vector<int>& allcandidate, vector<int>& allpat
                             allbaseset.back().push_back(new_subset);
                             copy(allbaseset.back().back().begin(), allbaseset.back().back().end(), back_inserter(choosebase));
                             //TODO: check unsat
-                            //finish_flag = checkUNSAT(twopatchckt, choosebase, allpatchnode, patchckt_off, allpatchnode_off);
-                            if (finish_flag == false) {
+                            //find_flag = checkUNSAT(twopatchckt, choosebase, allpatchnode, patchckt_off, allpatchnode_off);
+                            if (find_flag == false) {
                                 choosebase.clear();
+                            } else {
+                                finish_flag = true;
                                 break;
                             }
                         }
