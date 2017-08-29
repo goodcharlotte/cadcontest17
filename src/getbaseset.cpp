@@ -79,7 +79,7 @@ int Circuit_t::getMaxSum(vector<int>& allcandidate)
     return costsum;
 }
 
-void Circuit_t::getbaseset(vector<int>& allpatchnode, vector<int>& allcandidate)
+vector<int> Circuit_t::getbaseset(vector<int>& allcandidate, vector<int>& allpatchnode, Circuit_t& patchckt_off, vector<int>& allpatchnode_off)
 {
     clock_t temp_clk;
     sortcost(allcandidate, 0, (allcandidate.size()-1) );
@@ -90,8 +90,7 @@ void Circuit_t::getbaseset(vector<int>& allpatchnode, vector<int>& allcandidate)
     }
     cout << endl;
 #endif
-
-
+    vector<int> choosebase;
     vector< vector< list<int> > > allbaseset;
     list<int>::iterator list_it;
     allbaseset.push_back(*(new vector< list<int> >));
@@ -103,6 +102,12 @@ void Circuit_t::getbaseset(vector<int>& allpatchnode, vector<int>& allcandidate)
     bool finish_flag = false;
     bool find_flag = false;
     candidate_ptr = weight_ptr = set_ptr = choose_ptr = 0;
+
+    //TODO: patch_onset + patch_offset
+    Circuit_t twopatchckt;
+    twopatchckt.readfile("patch.v");
+    twopatchckt.readfile2("patch2.v");
+
 
     while (finish_flag == false) {
         weight_sum++;
@@ -143,8 +148,13 @@ void Circuit_t::getbaseset(vector<int>& allpatchnode, vector<int>& allcandidate)
                     if (new_subset.size() > 0) {
                         if (check_redundantset(allbaseset.back(), new_subset) == false) {
                             allbaseset.back().push_back(new_subset);
-                            //TO DO: check unsat
-                            //
+                            copy(allbaseset.back().back().begin(), allbaseset.back().back().end(), back_inserter(choosebase));
+                            //TODO: check unsat
+                            //finish_flag = checkUNSAT(twopatchckt, choosebase, allpatchnode, patchckt_off, allpatchnode_off);
+                            if (finish_flag == false) {
+                                choosebase.clear();
+                                break;
+                            }
                         }
                     }
                     temp_clk = clock();
@@ -152,8 +162,8 @@ void Circuit_t::getbaseset(vector<int>& allpatchnode, vector<int>& allcandidate)
                     if ( time_sec > 1500) {
                         finish_flag = true;
                         //cout << "time out:" << time_sec << endl;
-                        break;
                     }
+
                 }
                 choose_ptr++;
             }
@@ -178,4 +188,6 @@ void Circuit_t::getbaseset(vector<int>& allpatchnode, vector<int>& allcandidate)
         cout << "===================" << endl;
     }
 #endif
+
+    return choosebase;
 }

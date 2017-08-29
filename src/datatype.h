@@ -12,6 +12,7 @@
 #include <ctime>
 #include <queue>
 #include <algorithm>
+#include <iterator>
 #include "core/minisat.h"
 
 using namespace::std;
@@ -48,6 +49,7 @@ using namespace::std;
 //#define Debug_PO
 //#define Debug_PO_2
 //#define DEBUG_ChangeNewPO
+#define DEBUG_GETBASE 1
 
 extern clock_t start_clk;
 extern clock_t stop_clk;
@@ -127,7 +129,8 @@ public:
     void findReplaceCost(vector<int>& relatedPI, vector<int>& allcandidate, vector<int>& allpatchnode, vector<Node_t>& PatchNode);
     void findReplaceNode(vector<Node_t>& PatchNode);
     int getMaxSum(vector<int>& allcandidate);
-    void getbaseset(vector<int>& allcandidate, vector<int>& allpatchnode);
+    bool checkUNSAT(Circuit_t& twopatchckt, vector<int>& choosebase, vector<int>& allpatchnode, Circuit_t& patchckt_off, vector<int>& allpatchnode_off);
+    vector<int> getbaseset(vector<int>& allcandidate, vector<int>& allpatchnode, Circuit_t& patchckt_off, vector<int>& allpatchnode_off);
     list<int> check_include(list<int>& subset, int& checknode);
     bool write_patch(vector<int>& relatedPI);
     void updatePatchPI(vector<int>& relatedPI, vector<string>& replaceName, vector<string>& patchName);

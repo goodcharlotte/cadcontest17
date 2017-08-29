@@ -78,6 +78,17 @@ int main(int argc, char * argv[])
     //patchckt.sortcost(allcandidate, 0, allcandidate.size() - 1);
     //ReplaceNode: (UNSAT & INV_UNSAT) id, (No replaced node) -1
     //ReplaceCost: (UNSAT) cost, (INV_UNSAT) cost * (-1), (No replaced node) INF
+#ifdef DEBUG_GETBASE
+    vector<int> choosebase;
+    Circuit_t patchckt_off; // F.v + patch2.v
+    vector<int> allpatchnode_off;
+    patchckt_off.readfile(argv[1]);
+    patchckt_off.readpatch("patch2.v");
+    patchckt_off.update_allpi();
+    vector<int> allcandidate_off;
+    patchckt_off.findRelatedNode(relatedPI, allpatchnode_off, allcandidate_off);
+    choosebase = patchckt.getbaseset(allcandidate, allpatchnode, patchckt_off, allpatchnode_off);
+#endif
     patchckt.findReplaceCost(relatedPI, allcandidate, allpatchnode, PatchNode);
     //====================================
     //  Copy cost info. to cktp
