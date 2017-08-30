@@ -44,12 +44,14 @@ using namespace::std;
 #define SIM_ALL -1
 
 #define INF 9999999
+#define TIME_LIMIT 15
 //#define DEBUG_MATCH
 //#define DEBUG_READFILE2
 //#define Debug_PO
 //#define Debug_PO_2
 //#define DEBUG_ChangeNewPO
 #define DEBUG_GETBASE 0
+#define DEBUG_GETSUMSET 0
 
 extern clock_t start_clk;
 extern clock_t stop_clk;
@@ -147,7 +149,11 @@ public:
 	void random_sim_patch(vector<int> &topology_order, int p_node);
 	void random_sim_candidate(vector<int> &topology_order);
 	vector<int> random_sim_compare(vector<int> &relatedPI, vector<int> &topo_order_cand, vector<int> &topo_order_patch, int patch_wire);
-	
+	//////// CEV ////////
+    int getMaxIndex(vector<int>& allcandidate, int costsum);
+    int getCostSum(vector<int>& allcandidate, int start_index);
+    vector< vector<int> > getSumSet(vector<int>& allcandidate, int costsum);
+    void recur_CEV(vector<int>& allcandidate, vector< vector<int> >& allsumset, vector<int> temp_set, int start_index, int costsum);
 	
 	///////////////////////CCW/////////////////////////////////
 	#ifdef DEBUG_MATCH

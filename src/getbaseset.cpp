@@ -74,9 +74,86 @@ int Circuit_t::getMaxSum(vector<int>& allcandidate)
     int costsum = 0;
     for (int i = 0; i < allcandidate.size(); i++) {
         node = allcandidate[i];
-        costsum += allnodevec[node].cost;
+        if (allnodevec[node].cost != INF) {
+            costsum += allnodevec[node].cost;
+        }
     }
     return costsum;
+}
+
+int Circuit_t::getMaxIndex(vector<int>& allcandidate, int costsum)
+{
+    int can_index = 0;
+    for (int i = 0; i < allcandidate.size(); i++) {
+        if (allnodevec[allcandidate[i]].cost <= costsum) {
+            can_index = i;
+        } else {
+            break;
+        }
+    }
+    return can_index;
+}
+
+vector< vector<int> > Circuit_t::getSumSet(vector<int>& allcandidate, int costsum)
+{
+    int start_index = getMaxIndex(allcandidate, costsum);
+    vector< vector<int> > allsumset;
+    vector<int> temp_set;
+    recur_CEV(allcandidate, allsumset, temp_set, start_index, costsum);
+    return allsumset;
+}
+
+int Circuit_t::getCostSum(vector<int>& allcandidate, int start_index)
+{
+    int costsum = 0;
+    int node = 0;
+    while (start_index >= 0) {
+        node = allcandidate[start_index];
+        costsum += allnodevec[node].cost;
+        start_index--;
+    }
+    return costsum;
+}
+
+void Circuit_t::recur_CEV(vector<int>& allcandidate, vector< vector<int> >& allsumset, vector<int> temp_set, int start_index, int costsum)
+{
+    clock_t temp_clk = clock();
+    double time_sec = double(temp_clk - start_clk)/CLOCKS_PER_SEC;
+    if ( time_sec > TIME_LIMIT) {
+        cout << "time out:" << time_sec << endl;
+        return;
+    }
+
+
+    int node = 0;
+    if (costsum == 0) {
+        allsumset.push_back(temp_set);
+        return;
+    } else if (costsum < 0) {
+        return;
+    }
+
+    if (start_index < 0) {
+        return;
+    } else {
+        node = allcandidate[start_index];
+    }
+
+    if (getCostSum(allcandidate, start_index) < costsum) {
+        return;
+    }
+
+    vector<int> index_on;
+    vector<int> index_off;
+
+    for (int i = 0; i < temp_set.size(); i++) {
+        index_on.push_back(temp_set[i]);
+        index_off.push_back(temp_set[i]);
+    }
+    index_on.push_back(node);
+
+    recur_CEV(allcandidate, allsumset, index_on, start_index-1, costsum-allnodevec[node].cost);
+    recur_CEV(allcandidate, allsumset, index_off, start_index-1, costsum);
 }
 
 vector<int> Circuit_t::getbaseset(vector<int>& allcandidate, vector<int>& allpatchnode, Circuit_t& patchckt_off, vector<int>& allpatchnode_off)

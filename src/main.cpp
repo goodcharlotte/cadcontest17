@@ -89,6 +89,30 @@ int main(int argc, char * argv[])
     patchckt_off.findRelatedNode(relatedPI, allpatchnode_off, allcandidate_off);
     choosebase = patchckt.getbaseset(allcandidate, allpatchnode, patchckt_off, allpatchnode_off);
 #endif
+
+#if DEBUG_GETSUMSET
+    patchckt.sortcost(allcandidate, 0, (allcandidate.size()-1) );
+    cout << "All candidate (ignore INF):" << endl;
+    for (int i = 0; i < allcandidate.size(); i++) {
+        if (patchckt.allnodevec[allcandidate[i]].cost == INF) {
+            continue;
+        }
+        cout << patchckt.allnodevec[allcandidate[i]].name 
+            << " (" << patchckt.allnodevec[allcandidate[i]].cost << ")" << endl;
+    }
+    int MAX_SUM = patchckt.getMaxSum(allcandidate);
+    vector< vector<int> > allsumset;
+    for (int i = 0; i < MAX_SUM; i++) {
+        allsumset = patchckt.getSumSet(allcandidate, i);
+        cout << "SUM " << i << ": set " << allsumset.size() << endl;
+        clock_t temp_clk = clock();
+        double time_sec = double(temp_clk - start_clk)/CLOCKS_PER_SEC;
+        if ( time_sec > TIME_LIMIT) {
+            cout << "time out:" << time_sec << endl;
+            break;
+        }
+    }
+#endif
     patchckt.findReplaceCost(relatedPI, allcandidate, allpatchnode, PatchNode);
     //====================================
     //  Copy cost info. to cktp
