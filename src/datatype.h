@@ -49,7 +49,7 @@ using namespace::std;
 //#define Debug_PO
 //#define Debug_PO_2
 //#define DEBUG_ChangeNewPO
-#define DEBUG_GETBASE 1
+#define DEBUG_GETBASE 0
 
 extern clock_t start_clk;
 extern clock_t stop_clk;
@@ -123,6 +123,7 @@ public:
     void print_topology();
     int removebuffer();
     void removeredundant(vector<int> relatedPO);
+    void removecostINF(vector<int>& allcandidate);
     vector<int> findRelatedPO();
     vector<int> findRelatedPI(vector<int> relatedPO);
     void findRelatedNode(vector<int> relatedPI, vector<int>& allpatchnode, vector<int>& allcandidate);

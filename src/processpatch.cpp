@@ -481,6 +481,17 @@ void Circuit_t::sortcost(vector<int>& array, int left, int right)
     */
 }
 
+void Circuit_t::removecostINF(vector<int>& allcandidate)
+{
+    //cout << "WARNING! If remove, can not topology!" << endl;
+    while (allnodevec[allcandidate.back()].cost == INF) {
+        allcandidate.pop_back();
+        if (allcandidate.size() == 0) {
+            break;
+        }
+    }
+}
+
 vector<int> Circuit_t::getsort_topology(vector<int>& nodevec)
 {
     vector<int> topology_vec;
@@ -539,8 +550,6 @@ vector<int> Circuit_t::getsort_topology(vector<int>& nodevec)
 
 void Circuit_t::findReplaceCost(vector<int>& relatedPI, vector<int>& allcandidate, vector<int>& allpatchnode, vector<Node_t>& PatchNode)
 {
-
-
 	vector<int> topo_order_cand = getsort_topology(allcandidate);
 	vector<int> topo_order_patch = getsort_topology(allpatchnode);
 	//cout << "topo_order_cand size " << topo_order_cand.size() << endl;
@@ -562,6 +571,9 @@ void Circuit_t::findReplaceCost(vector<int>& relatedPI, vector<int>& allcandidat
                 break;
             }
             int can_node = possible_candidate[can_wire];
+            if (allnodevec[can_node].cost == INF) {
+                break;
+            }
 			//cout << "allnodevec[can_node].name " << allnodevec[can_node].name << endl;
             int check_equal = euqal_ck(can_node, p_node);
             //int check_equal = EQ_SAT;
