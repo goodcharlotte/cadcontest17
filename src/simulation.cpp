@@ -606,3 +606,15 @@ vector<int> Circuit_t::random_sim_compare(vector<int> &relatedPI, vector<int> &t
 	
 	
 }
+
+#if 0
+bool Circuit_t::random_sim_before_DLN(vector<int> base_node)
+{
+
+	//remember find useful input pattern for random sim before Dependency Logic Network
+
+
+
+}
+#endif
+

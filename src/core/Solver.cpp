@@ -860,6 +860,7 @@ void Solver::toDimacs(FILE* f, const vec<Lit>& assumps)
         }
 
     // Assumptions are added as unit clauses:
+	assumps.copyTo(assumptions);
     cnt += assumptions.size();
 
     fprintf(f, "p cnf %d %d\n", max, cnt);

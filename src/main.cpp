@@ -80,14 +80,16 @@ int main(int argc, char * argv[])
     //ReplaceCost: (UNSAT) cost, (INV_UNSAT) cost * (-1), (No replaced node) INF
 #if DEBUG_GETBASE
     vector<int> choosebase;
-    Circuit_t patchckt_off; // F.v + patch2.v
-    vector<int> allpatchnode_off;
-    patchckt_off.readfile(argv[1]);
-    patchckt_off.readpatch("patch2.v");
-    patchckt_off.update_allpi();
+	Circuit_t F_v_ckt;// F.v
+	F_v_ckt.readfile(argv[1]);
+    //Circuit_t patchckt_off; // F.v + patch2.v
+    //vector<int> allpatchnode_off;
+   // patchckt_off.readfile(argv[1]);
+    //patchckt_off.readpatch("patch2.v");
+    //patchckt_off.update_allpi();
     vector<int> allcandidate_off;
-    patchckt_off.findRelatedNode(relatedPI, allpatchnode_off, allcandidate_off);
-    choosebase = patchckt.getbaseset(allcandidate, allpatchnode, patchckt_off, allpatchnode_off);
+    //patchckt_off.findRelatedNode(relatedPI, allpatchnode_off, allcandidate_off);
+    choosebase = patchckt.getbaseset(allcandidate, F_v_ckt/* allpatchnode, patchckt_off, allpatchnode_off*/);
 #endif
 
 #if DEBUG_GETSUMSET

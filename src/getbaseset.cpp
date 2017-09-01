@@ -1,4 +1,7 @@
 #include "datatype.h"
+extern map<int, int> constructDLN(Solver &sat, Circuit_t &F_v_ckt, Circuit_t &patchckt1_only , Circuit_t &patchckt2_only, vector<int> &allcandidate);
+extern bool is_basenode_all_cover(Solver &sat, map<int, int> &id_map, const vector<int> choosebase);
+
 
 bool check_redundantset(vector< list<int> >& tempset, list<int>& checkset)
 {
@@ -115,6 +118,7 @@ int Circuit_t::getCostSum(vector<int>& allcandidate, int start_index)
     return costsum;
 }
 
+
 void Circuit_t::recur_CEV(vector<int>& allcandidate, vector< vector<int> >& allsumset, vector<int> temp_set, int start_index, int costsum)
 {
     clock_t temp_clk = clock();
@@ -156,7 +160,9 @@ void Circuit_t::recur_CEV(vector<int>& allcandidate, vector< vector<int> >& alls
     recur_CEV(allcandidate, allsumset, index_off, start_index-1, costsum);
 }
 
-vector<int> Circuit_t::getbaseset(vector<int>& allcandidate, vector<int>& allpatchnode, Circuit_t& patchckt_off, vector<int>& allpatchnode_off)
+
+
+vector<int> Circuit_t::getbaseset(vector<int>& allcandidate, Circuit_t& F_v_ckt/*vector<int>& allpatchnode, Circuit_t& patchckt_off, vector<int>& allpatchnode_off*/)
 {
     clock_t temp_clk;
     sortcost(allcandidate, 0, (allcandidate.size()-1) );
@@ -181,11 +187,26 @@ vector<int> Circuit_t::getbaseset(vector<int>& allcandidate, vector<int>& allpat
     candidate_ptr = weight_ptr = set_ptr = choose_ptr = 0;
 
     //TODO: patch_onset + patch_offset
-    Circuit_t twopatchckt;
-    twopatchckt.readfile("patch.v");
-    twopatchckt.readfile2("patch2.v");
-
-
+    //Circuit_t twopatchckt;
+   // twopatchckt.readfile("patch.v");
+    //twopatchckt.readfile2("patch2.v");
+	//cout<<"------twopatchckt"<<endl;
+	//twopatchckt.print();
+	Circuit_t patchckt1_only;
+	patchckt1_only.readfile("patch.v");
+	Circuit_t patchckt2_only;
+	patchckt2_only.readfile("patch2.v");
+	//cout<<"------patchckt1_only"<<endl;
+	//patchckt1_only.print();
+	//cout<<"------patchckt2_only"<<endl;
+	//patchckt2_only.print();
+	//cout<<"------F_v_ckt"<<endl;
+	//F_v_ckt.print();
+ 
+	Solver DNF_network;
+	map<int, int> id_map_assume = constructDLN(DNF_network, F_v_ckt, patchckt1_only, patchckt2_only, allcandidate);	
+	
+	
     while (finish_flag == false) {
         weight_sum++;
         //cout << "sum: " << weight_sum << endl;
@@ -226,8 +247,13 @@ vector<int> Circuit_t::getbaseset(vector<int>& allcandidate, vector<int>& allpat
                         if (check_redundantset(allbaseset.back(), new_subset) == false) {
                             allbaseset.back().push_back(new_subset);
                             copy(allbaseset.back().back().begin(), allbaseset.back().back().end(), back_inserter(choosebase));
-                            //TODO: check unsat
-                            //find_flag = checkUNSAT(twopatchckt, choosebase, allpatchnode, patchckt_off, allpatchnode_off);
+                            
+							//TODO: 
+							//if UNSAT, choosebase can cover, return true
+							
+							//find_flag = is_basenode_all_cover(DNF_network, id_map_assume, choosebase);
+							
+							//cout << "find_flag " << find_flag << endl;
                             if (find_flag == false) {
                                 choosebase.clear();
                             } else {

@@ -132,8 +132,7 @@ public:
     void findReplaceCost(vector<int>& relatedPI, vector<int>& allcandidate, vector<int>& allpatchnode, vector<Node_t>& PatchNode);
     void findReplaceNode(vector<Node_t>& PatchNode);
     int getMaxSum(vector<int>& allcandidate);
-    bool checkUNSAT(Circuit_t& twopatchckt, vector<int>& choosebase, vector<int>& allpatchnode, Circuit_t& patchckt_off, vector<int>& allpatchnode_off);
-    vector<int> getbaseset(vector<int>& allcandidate, vector<int>& allpatchnode, Circuit_t& patchckt_off, vector<int>& allpatchnode_off);
+    vector<int> getbaseset(vector<int>& allcandidate, Circuit_t& F_v_ckt/*vector<int>& allpatchnode, Circuit_t& patchckt_off, vector<int>& allpatchnode_off*/);
     list<int> check_include(list<int>& subset, int& checknode);
     bool write_patch(vector<int>& relatedPI);
     void updatePatchPI(vector<int>& relatedPI, vector<string>& replaceName, vector<string>& patchName);
@@ -175,5 +174,33 @@ public:
 
     vector<int> newpo;
 };
+
+
+
+template <class T>
+void print_queue(queue<T> q)
+{
+  while (!q.empty()) {
+	cout << q.front() << " ";
+    q.pop();
+  }
+  cout << endl;
+}
+
+template <class T>
+void print_vector(vector<T> v)
+{
+	for(int i = 0; i < v.size(); i++) {
+		cout << v[i] << " ";
+	}
+	cout << endl;
+}
+
+template<typename map_key, typename map_val>
+void print_map(const std::map<map_key, map_val>& _map) {
+	for (typename std::map<map_key, map_val>::const_iterator it = _map.begin(); it != _map.end(); ++it) {
+		cout << it->first << " => " << it->second << '\n';
+    }
+}
 
 #endif
