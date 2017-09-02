@@ -1,6 +1,6 @@
 #include "datatype.h"
 extern map<int, int> constructDLN(Solver &sat, Circuit_t &F_v_ckt, Circuit_t &patchckt1_only , Circuit_t &patchckt2_only, vector<int> &allcandidate);
-extern bool is_basenode_all_cover(Solver &sat, map<int, int> &id_map, const vector<int> choosebase);
+extern bool is_basenode_all_cover(Solver &sat, map<int, int> &id_map, const vector<int> &choosebase);
 
 
 bool check_redundantset(vector< list<int> >& tempset, list<int>& checkset)
@@ -251,7 +251,7 @@ vector<int> Circuit_t::getbaseset(vector<int>& allcandidate, Circuit_t& F_v_ckt/
 							//TODO: 
 							//if UNSAT, choosebase can cover, return true
 							
-							//find_flag = is_basenode_all_cover(DNF_network, id_map_assume, choosebase);
+							find_flag = is_basenode_all_cover(DNF_network, id_map_assume, choosebase);
 							
 							//cout << "find_flag " << find_flag << endl;
                             if (find_flag == false) {

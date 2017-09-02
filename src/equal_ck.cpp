@@ -423,6 +423,7 @@ void patchckt2CNF(Solver &sat, Circuit_t & ckt, map<string, int> &relative_pi, u
 {
 	unsigned int node_cout;
 	unsigned int out_cout;
+	unsigned int id_curr_out;
 	vector<int> visited(ckt.allnodevec.size(), 0);
 	//vector<int> pi_id;
 	//cout << "~~~patchckt2CNF PI " << endl;
@@ -430,9 +431,10 @@ void patchckt2CNF(Solver &sat, Circuit_t & ckt, map<string, int> &relative_pi, u
 	for (node_cout = 0; node_cout < ckt.allnodevec.size(); node_cout++) {
 		//cout << node_cout << ' ' << ckt.allnodevec[node_cout].out.size() << endl;
 		for (out_cout = 0; out_cout < ckt.allnodevec[node_cout].out.size(); out_cout++) {
-			if (visited[ckt.allnodevec[node_cout].out[out_cout]] == 0) {
-				gate2CNF(sat, ckt.allnodevec[node_cout].out[out_cout], ckt.allnodevec[node_cout], id_offset);
-				visited[ckt.allnodevec[node_cout].out[out_cout]] = 1;
+			id_curr_out = ckt.allnodevec[node_cout].out[out_cout];
+			if (visited[id_curr_out] == 0) {
+				gate2CNF(sat, id_curr_out, ckt.allnodevec[id_curr_out], id_offset);
+				visited[id_curr_out] = 1;
 			}
 		}
 		if (relative_pi.find(ckt.allnodevec[node_cout].name) != relative_pi.end()) {
@@ -453,17 +455,22 @@ map<string, int> fckt2CNF(Solver &sat, Circuit_t & ckt, vector<int> &allcandidat
 	map<string, int> relative_pi; //key: name , value: id used in CNF
 	unsigned int node_cout;
 	unsigned int out_cout;
+	unsigned int id_curr_out;
 	vector<int> pi_id;
 	vector<int> visited(ckt.allnodevec.size(), 0);
+	//cout <<" my allcandidate \n"; 
+	//print_vector(allcandidate);
 	//cout << "~~~fckt2CNF PI " << endl;
 	//cout << "--total" << ' ' << ckt.allnodevec.size() << endl;
+	
 	for (node_cout = 0; node_cout < ckt.allnodevec.size(); node_cout++) {
 		if (find(allcandidate.begin(), allcandidate.end(), node_cout) !=  allcandidate.end()) {
 			//cout << node_cout << ' ' << ckt.allnodevec[node_cout].out.size() << endl;
 			for (out_cout = 0; out_cout < ckt.allnodevec[node_cout].out.size(); out_cout++) {
-				if (visited[ckt.allnodevec[node_cout].out[out_cout]] == 0) {
-					gate2CNF(sat, ckt.allnodevec[node_cout].out[out_cout], ckt.allnodevec[node_cout], id_offset);
-					visited[ckt.allnodevec[node_cout].out[out_cout]] = 1;
+				id_curr_out = ckt.allnodevec[node_cout].out[out_cout];
+				if (visited[id_curr_out] == 0) {
+					gate2CNF(sat, id_curr_out, ckt.allnodevec[id_curr_out], id_offset);
+					visited[id_curr_out] = 1;
 				}
 			}
 			if ((ckt.allnodevec[node_cout].type == PORT) && (ckt.allnodevec[node_cout].name != "t_0")) { 
@@ -514,7 +521,6 @@ void bindpi2CNF(Solver &sat, map<string, int> &relative_pi_f, map<string, int> &
 			sat_ck_exist(sat, iter_patch->second, "bindpi2CNF ");
 			
 			#if 1
-			//Error: will make solver in contradictory state
 			/* do buffer
 				C = A
 				(A V -C) ^ (-A V C)
@@ -567,6 +573,8 @@ map<int, int> xor_SA1_2CNF(Solver &sat, Circuit_t &ckt, vector<int> &allcandidat
 	map<int, int> id_map_assume; //ori_id -> SA1 assume id
 	vec<Lit> vec_lit;
 	vector<int> allid_stuckatone;
+	//cout <<" my allcandidate \n"; 
+	//print_vector(allcandidate);
 	for (node_cout = 0; node_cout < ckt.allnodevec.size(); node_cout++) {
 		if (find(allcandidate.begin(), allcandidate.end(), node_cout) !=  allcandidate.end()) {
 
@@ -577,6 +585,9 @@ map<int, int> xor_SA1_2CNF(Solver &sat, Circuit_t &ckt, vector<int> &allcandidat
 			id_assume = sat.newVar();
 			allid_stuckatone.push_back(id_stuckatone);
 			id_map_assume[node_cout] = id_assume;
+			
+			//cout << "id_map_assume " << node_cout << "(" << ckt.allnodevec[node_cout].name << ")"
+			//" nxor " << OFFSET_CNFID(node_cout, id_offset) << " -> "<< id_assume << endl;
 			// id_xor_out = g1 nxor g2
 			in2_xnor2CNF(sat, node_cout, OFFSET_CNFID(node_cout, id_offset), id_xor_out);	
 			
@@ -680,15 +691,17 @@ map<int, int> constructDLN(Solver &sat, Circuit_t &F_v_ckt, Circuit_t &patchckt1
 	init_mapvalue(relative_pi_patch1);
 	init_mapvalue(relative_pi_patch2);
 	patchckt2CNF(sat, patchckt1_only, relative_pi_patch1, sat_var_record[1]);
+	sat_var_record[2] = sat.nVars();
 	//sat.toDimacs("test3.cnf");
 	if (!sat.okay()){ cout << "patchckt2CNF 1 solver is in contradictory state\n"; /*exit(1);*/}
-	sat_var_record[2] = sat.nVars();
 	patchckt2CNF(sat, patchckt2_only, relative_pi_patch2, sat_var_record[2]);
+	if (!sat.okay()){ cout << "patchckt2CNF 2 solver is in contradictory state\n"; /*exit(1);*/}
 	sat_var_record[3] = sat.nVars();
+	//sat.toDimacs("test4.cnf");
 	check_mapvalue(relative_pi_patch1);
 	check_mapvalue(relative_pi_patch2);
-	//sat.toDimacs("test4.cnf");
-	if (!sat.okay()){ cout << "patchckt2CNF 2 solver is in contradictory state\n"; /*exit(1);*/}
+	
+	
 	/*
 	cout << "@@@ relative_pi_f1" << endl;
 	print_map(relative_pi_f1);
@@ -713,7 +726,7 @@ map<int, int> constructDLN(Solver &sat, Circuit_t &F_v_ckt, Circuit_t &patchckt1
 	if (!sat.okay()){ cout << "xor_SA1_2CNF solver is in contradictory state\n"; /*exit(1);*/}
 	//cout << "len " << sat.nVars() << endl;
 	//cout << "cal " << sat.nClauses() << endl;
-	//sat.toDimacs("test7.cnf");
+	//sat.toDimacs("mytest_no_assume.cnf");
 	//print_map(id_map_assume);
 	return id_map_assume;
 
@@ -721,14 +734,13 @@ map<int, int> constructDLN(Solver &sat, Circuit_t &F_v_ckt, Circuit_t &patchckt1
 
 
 
-bool is_basenode_all_cover(Solver& sat, map<int, int> &id_map, const vector<int> choosebase)
+bool is_basenode_all_cover(Solver& sat, map<int, int> &id_map, const vector<int> &choosebase)
 {
 	unsigned int i;
 	vec<Lit> assume;
 	map<int, int>::const_iterator idmap_iter;
-	cout << "choosebase ";
+	//cout << "choosebase ";
 	//print_vector(choosebase);
-	
 	//check if choosebase in map key
 	// if not , doesn't make sense
 	for (i = 0; i < choosebase.size(); i++) {
@@ -745,20 +757,20 @@ bool is_basenode_all_cover(Solver& sat, map<int, int> &id_map, const vector<int>
 			//if     in choosebase==>assign assume 0
 			assume.push(~mkLit(idmap_iter->second));
 		} else {
-			
 			//cout << idmap_iter->first << " not cand\n";
 			//if not in choosebase==>assign assume 1
 			assume.push(mkLit(idmap_iter->second));
 		}
 		
     }
-	//sat.toDimacs("test_assume.cnf", assume);
+
+	sat.toDimacs("mytest_assume.cnf", assume);	
 	//if UNSAT, choosebase can cover, return true
 	if (sat.solve(assume) == false) {
-		cout << "UNSAT " << endl; 
+		//cout << "UNSAT " << endl; 
 		return true;
 	} 
-	cout << "SAT " << endl; 
+	//cout << "SAT " << endl; 
 	return false;
 }
 
