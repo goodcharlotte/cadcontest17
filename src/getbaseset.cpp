@@ -1,4 +1,7 @@
 #include "datatype.h"
+#include "sstream"
+
+
 extern map<int, int> constructDLN(Solver &sat, Circuit_t &F_v_ckt, Circuit_t &patchckt1_only , Circuit_t &patchckt2_only, vector<int> &allcandidate);
 extern bool is_basenode_all_cover(Solver &sat, map<int, int> &id_map, const vector<int> &choosebase);
 
@@ -160,7 +163,62 @@ void Circuit_t::recur_CEV(vector<int>& allcandidate, vector< vector<int> >& alls
     recur_CEV(allcandidate, allsumset, index_off, start_index-1, costsum);
 }
 
+void Circuit_t::writeLog(string cnfname_AB)
+{
+    int range = 0;
+    int deleteline = 0;
+    bool finish_flag = false;
+    string tmpstr;
+    ifstream file(cnfname_AB.c_str());
+    file >> tmpstr >> range;
+    //cout << "range: " << range << endl;
+    file.close();
 
+    
+    string cmd_str;
+    /*
+    cmd_str = "cp " + cnfname_A + " copyA.cnf";
+    system(cmd_str.c_str());
+    cmd_str = "cp " + cnfname_AB + " copyAB.cnf";
+    system(cmd_str.c_str());
+    */
+
+    cmd_str = "sed -i '1d' " + cnfname_AB;
+    system(cmd_str.c_str());
+    cmd_str = "./minisat " + cnfname_AB + " -c > proof.log";
+    system(cmd_str.c_str());
+    
+    cmd_str = "sed -i '/p cnf 0 0/d' " + cnfname_AB;
+    system(cmd_str.c_str());
+
+    ifstream file2(cnfname_AB.c_str());
+    while (1) {
+        file2 >> tmpstr;
+        //cout << tmpstr << endl;
+        if (tmpstr == "0") {
+            deleteline++;
+            if (finish_flag == true) {
+                //cout << "deleteline: " << deleteline << endl;
+                break;
+            }
+        } else {
+            if (atoi(tmpstr.c_str()) >= range) {
+                finish_flag = true;
+            }
+        }
+    }
+    file2.close();
+
+    stringstream ss;
+    ss << deleteline;
+
+    cmd_str = "sed -i '"+ ss.str() + "i B' " + cnfname_AB;
+    system(cmd_str.c_str());
+    cmd_str = "sed -i '1i A' " + cnfname_AB;
+    system(cmd_str.c_str());
+    cmd_str = "cat " + cnfname_AB + " > partition.log";
+    system(cmd_str.c_str());
+}
 
 vector<int> Circuit_t::getbaseset(vector<int>& allcandidate, Circuit_t& F_v_ckt/*vector<int>& allpatchnode, Circuit_t& patchckt_off, vector<int>& allpatchnode_off*/)
 {
@@ -257,6 +315,17 @@ vector<int> Circuit_t::getbaseset(vector<int>& allcandidate, Circuit_t& F_v_ckt/
                             if (find_flag == false) {
                                 choosebase.clear();
                             } else {
+                                writeLog("mytest_AB.cnf");
+                                system("sed -i '$ a\\PI:' partition.log");
+                                for (int base_i = 0; base_i < choosebase.size(); base_i++) {
+                                    stringstream ss;
+                                    ss << choosebase[base_i];
+                                    string cmdstr;
+                                    cmdstr = "sed -i '$ a\\";
+                                    cmdstr += ss.str();
+                                    cmdstr += "' partition.log";
+                                    system(cmdstr.c_str());
+                                }
                                 finish_flag = true;
                                 break;
                             }

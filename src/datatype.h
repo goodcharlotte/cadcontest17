@@ -13,6 +13,7 @@
 #include <queue>
 #include <algorithm>
 #include <iterator>
+#include <string>
 #include "core/minisat.h"
 
 using namespace::std;
@@ -153,7 +154,7 @@ public:
     int getCostSum(vector<int>& allcandidate, int start_index);
     vector< vector<int> > getSumSet(vector<int>& allcandidate, int costsum);
     void recur_CEV(vector<int>& allcandidate, vector< vector<int> >& allsumset, vector<int> temp_set, int start_index, int costsum);
-	
+    void writeLog(string cnfname_AB);
 	///////////////////////CCW/////////////////////////////////
 	#ifdef DEBUG_MATCH
 		void Test();
