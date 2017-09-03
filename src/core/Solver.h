@@ -73,7 +73,14 @@ public:
     void    toDimacs     (const char* file, Lit p);
     void    toDimacs     (const char* file, Lit p, Lit q);
     void    toDimacs     (const char* file, Lit p, Lit q, Lit r);
-    
+	
+	//write file without map id ,added by YC Chang
+	void	toDimacs_nomap	(const char* file);
+	void	toDimacs_nomap	(FILE* f, Clause& c, vec<Var>& map, Var& max);
+	void	toDimacs_nomap	(const char *file, const vec<Lit>& assumps);
+	void    toDimacs_nomap  (const char *file, const vec<Lit>& assumps, const int after);
+	void	toDimacs_nomap	(FILE* f, const vec<Lit>& assumps); 
+
     // Variable mode:
     // 
     void    setPolarity    (Var v, bool b); // Declare which polarity the decision heuristic should use for a variable. Requires mode 'polarity_user'.
@@ -362,6 +369,7 @@ inline void     Solver::toDimacs     (const char* file, Lit p){ vec<Lit> as; as.
 inline void     Solver::toDimacs     (const char* file, Lit p, Lit q){ vec<Lit> as; as.push(p); as.push(q); toDimacs(file, as); }
 inline void     Solver::toDimacs     (const char* file, Lit p, Lit q, Lit r){ vec<Lit> as; as.push(p); as.push(q); as.push(r); toDimacs(file, as); }
 
+inline void     Solver::toDimacs_nomap	(const char* file) { vec<Lit> as; toDimacs_nomap(file, as); };
 
 //=================================================================================================
 // Debug etc:

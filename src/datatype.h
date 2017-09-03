@@ -50,7 +50,7 @@ using namespace::std;
 //#define Debug_PO
 //#define Debug_PO_2
 //#define DEBUG_ChangeNewPO
-#define DEBUG_GETBASE 0
+#define DEBUG_GETBASE 1
 #define DEBUG_GETSUMSET 0
 
 extern clock_t start_clk;

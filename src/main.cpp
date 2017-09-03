@@ -147,5 +147,7 @@ int main(int argc, char * argv[])
     //  Remove temporary files 
     //====================================
     system("rm -f tmp*v resynPatch.script simp.script");
-    return 0;
+    
+	//system("sed -i '1d' mytest_AB.cnf")
+	return 0;
 }
