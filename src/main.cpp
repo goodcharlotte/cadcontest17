@@ -84,7 +84,7 @@ int main(int argc, char * argv[])
 	F_v_ckt.readfile(argv[1]);
     //Circuit_t patchckt_off; // F.v + patch2.v
     //vector<int> allpatchnode_off;
-   // patchckt_off.readfile(argv[1]);
+    //patchckt_off.readfile(argv[1]);
     //patchckt_off.readpatch("patch2.v");
     //patchckt_off.update_allpi();
     vector<int> allcandidate_off;
@@ -104,7 +104,7 @@ int main(int argc, char * argv[])
     }
     int MAX_SUM = patchckt.getMaxSum(allcandidate);
     vector< vector<int> > allsumset;
-    for (int i = 0; i < MAX_SUM; i++) {
+    for (int i = 0; i <= MAX_SUM; i++) {
         allsumset = patchckt.getSumSet(allcandidate, i);
         cout << "SUM " << i << ": set " << allsumset.size() << endl;
         clock_t temp_clk = clock();

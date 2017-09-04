@@ -5,6 +5,10 @@
 extern map<int, int> constructDLN(Solver &sat, Circuit_t &F_v_ckt, Circuit_t &patchckt1_only , Circuit_t &patchckt2_only, vector<int> &allcandidate);
 extern bool is_basenode_all_cover(Solver &sat, map<int, int> &id_map, const vector<int> &choosebase);
 
+#define INIT_SIZE 10000
+#define UNKNOW -1
+#define NO_ANS 0
+#define HAVE_ANS 1
 
 bool check_redundantset(vector< list<int> >& tempset, list<int>& checkset)
 {
@@ -100,6 +104,106 @@ int Circuit_t::getMaxIndex(vector<int>& allcandidate, int costsum)
     return can_index;
 }
 
+void Circuit_t::initCostSumFlag(vector<int>& allcandidate)
+{
+    int temp_size = 0;
+    int maxsize = getMaxSum(allcandidate);
+
+    if (maxsize > INIT_SIZE) {
+        temp_size = INIT_SIZE;
+    } else {
+        temp_size = maxsize;
+    }
+
+    costsum_flag.clear();
+    costsum_flag.resize(UNKNOW, temp_size + 1);
+    updateSingleCost(allcandidate);
+    //costsum_flag[0]
+    costsum_flag[0] = NO_ANS;
+    updateCostSumFlag(allcandidate, temp_size);
+}
+
+void Circuit_t::updateSingleCost(vector<int>& allcandidate)
+{
+    int node = 0;
+    int node_cost = 0;;
+    int maxcost = getMaxCost(allcandidate);
+ 
+    for (int i = 0; i < allcandidate.size(); i++) {
+        node = allcandidate[i];
+        node_cost = allnodevec[node].cost;
+        if (node_cost >= costsum_flag.size()) {
+            break;
+        }
+        if (costsum_flag[node_cost] == UNKNOW) {
+            costsum_flag[node_cost] = HAVE_ANS;
+        }
+        if (node_cost == maxcost) {
+            break;
+        }
+    }
+}
+
+int Circuit_t::getCostSumFlag(vector<int>& allcandidate, int costsum)
+{
+    int temp_flag = UNKNOW;
+    if (costsum_flag.size() < costsum) {
+        updateCostSumFlag(allcandidate, costsum);
+    }
+    temp_flag = costsum_flag[costsum];
+    return temp_flag;
+}
+
+int Circuit_t::getMaxCost(vector<int>& allcandidate)
+{
+    int maxcost = INF;
+    int index = allcandidate.size() - 1;
+    while (index >= 0)
+    {
+        if (allnodevec[allcandidate[index]].cost != INF) {
+            maxcost = allnodevec[allcandidate[index]].cost;
+            break;
+        } else {
+            index--;
+        }
+    }
+    return maxcost;
+}
+
+void Circuit_t::updateCostSumFlag(vector<int>& allcandidate, int costsum_index)
+{
+    int start_index = costsum_flag.size() - 1;
+    int temp_index1 = 0;
+    int temp_index2 = 0;
+    bool find_flag = false;
+    while (costsum_flag.size() <= costsum_index) {
+        costsum_flag.push_back(UNKNOW);
+    }
+
+    if (start_index < getMaxCost(allcandidate)) {
+        updateSingleCost(allcandidate);
+    }
+
+    for (int i = 0; i <= costsum_index; i++) {
+        if (costsum_flag[i] == UNKNOW) {
+            find_flag = false;
+            temp_index1 = i - 1;
+            while (temp_index1 >= 0) {
+                temp_index2 = i - temp_index1;
+                if (temp_index2 > temp_index1) {
+                    break;
+                }
+                if ((costsum_flag[temp_index1] == HAVE_ANS) && (costsum_flag[temp_index2] == HAVE_ANS)) {
+                    find_flag = true;
+                    break;
+                }
+                temp_index1--;
+            }
+            costsum_flag[i] = find_flag;
+        }
+    }
+}
+
 vector< vector<int> > Circuit_t::getSumSet(vector<int>& allcandidate, int costsum)
 {
     int start_index = getMaxIndex(allcandidate, costsum);
@@ -120,7 +224,6 @@ int Circuit_t::getCostSum(vector<int>& allcandidate, int start_index)
     }
     return costsum;
 }
-
 
 void Circuit_t::recur_CEV(vector<int>& allcandidate, vector< vector<int> >& allsumset, vector<int> temp_set, int start_index, int costsum)
 {
@@ -246,7 +349,7 @@ vector<int> Circuit_t::getbaseset(vector<int>& allcandidate, Circuit_t& F_v_ckt/
 
     //TODO: patch_onset + patch_offset
     //Circuit_t twopatchckt;
-   // twopatchckt.readfile("patch.v");
+    // twopatchckt.readfile("patch.v");
     //twopatchckt.readfile2("patch2.v");
 	//cout<<"------twopatchckt"<<endl;
 	//twopatchckt.print();

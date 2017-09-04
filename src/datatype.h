@@ -45,7 +45,7 @@ using namespace::std;
 #define SIM_ALL -1
 
 #define INF 9999999
-#define TIME_LIMIT 15
+#define TIME_LIMIT 1500
 //#define DEBUG_MATCH
 //#define DEBUG_READFILE2
 //#define Debug_PO
@@ -101,6 +101,7 @@ public:
 	vector<int> target;
 	vector<int> po_value;
 	vector<int> allnodevalue;
+    vector<int> costsum_flag;
 
     Circuit_t();
 	int euqal_ck(int F_nid, int P_nid);
@@ -150,6 +151,11 @@ public:
 	void random_sim_candidate(vector<int> &topology_order);
 	vector<int> random_sim_compare(vector<int> &relatedPI, vector<int> &topo_order_cand, vector<int> &topo_order_patch, int patch_wire);
 	//////// CEV ////////
+    void initCostSumFlag(vector<int>& allcandidate);
+    int getCostSumFlag(vector<int>& allcandidate, int costsum);
+    int getMaxCost(vector<int>& allcanddiate);
+    void updateSingleCost(vector<int>& allcandidate);
+    void updateCostSumFlag(vector<int>& allcandidate, int costsum_index);
     int getMaxIndex(vector<int>& allcandidate, int costsum);
     int getCostSum(vector<int>& allcandidate, int start_index);
     vector< vector<int> > getSumSet(vector<int>& allcandidate, int costsum);
