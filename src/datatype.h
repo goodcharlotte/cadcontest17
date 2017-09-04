@@ -45,7 +45,7 @@ using namespace::std;
 #define SIM_ALL -1
 
 #define INF 9999999
-#define TIME_LIMIT 15
+#define TIME_LIMIT 1500
 //#define DEBUG_MATCH
 //#define DEBUG_READFILE2
 //#define Debug_PO
@@ -116,6 +116,7 @@ public:
 	vector<int> target;
 	vector<int> po_value;
 	vector<int> allnodevalue;
+    vector<int> costsum_flag;
 
     Circuit_t();
 	int euqal_ck(int F_nid, int P_nid);
@@ -176,11 +177,16 @@ public:
 	Random_SIM_PBD_TB get_PBD_table(vector<int> &allcandidate, Circuit_t &patchckt1_only, Circuit_t &patchckt2_only);
 
 	//////// CEV ////////
+    void initCostSumFlag(vector<int>& allcandidate);
+    int getCostSumFlag(vector<int>& allcandidate, int costsum);
+    int getMaxCost(vector<int>& allcanddiate);
+    void updateSingleCost(vector<int>& allcandidate);
+    void updateCostSumFlag(vector<int>& allcandidate, int costsum_index);
     int getMaxIndex(vector<int>& allcandidate, int costsum);
     int getCostSum(vector<int>& allcandidate, int start_index);
     vector< vector<int> > getSumSet(vector<int>& allcandidate, int costsum);
     void recur_CEV(vector<int>& allcandidate, vector< vector<int> >& allsumset, vector<int> temp_set, int start_index, int costsum);
-    void writeLog(string cnfname_AB);
+    void writeLog(vector<int>& choosebase, string cnfname_AB);
 	///////////////////////CCW/////////////////////////////////
 	#ifdef DEBUG_MATCH
 		void Test();
