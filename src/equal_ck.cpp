@@ -777,17 +777,19 @@ bool is_basenode_all_cover(Solver& sat, map<int, int> &id_map, const vector<int>
 		}
 		
     }
-	
 	//if UNSAT, choosebase can cover, return true
 	if (sat.solve(assume) == false) {
 		cout << "choosebase ";
 		print_vector(choosebase);
-		cout << "UNSAT " << endl; 
+		cout << "==> UNSAT ^____^ " << endl; 
 		sat.toDimacs_nomap("mytest_AB.cnf", assume, sat_var_record[2]);	
+	
 		return true;
 	} 
 	//cout << "SAT " << endl; 
 	return false;
 }
+
+
 
 

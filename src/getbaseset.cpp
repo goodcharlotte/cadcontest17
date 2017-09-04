@@ -3,8 +3,7 @@
 
 
 extern map<int, int> constructDLN(Solver &sat, Circuit_t &F_v_ckt, Circuit_t &patchckt1_only , Circuit_t &patchckt2_only, vector<int> &allcandidate);
-extern bool is_basenode_all_cover(Solver &sat, map<int, int> &id_map, const vector<int> &choosebase);
-
+extern bool is_basenode_all_cover(Solver& sat, map<int, int> &id_map, const vector<int> &choosebase);
 
 bool check_redundantset(vector< list<int> >& tempset, list<int>& checkset)
 {
@@ -220,7 +219,7 @@ void Circuit_t::writeLog(string cnfname_AB)
     system(cmd_str.c_str());
 }
 
-vector<int> Circuit_t::getbaseset(vector<int>& allcandidate, Circuit_t& F_v_ckt/*vector<int>& allpatchnode, Circuit_t& patchckt_off, vector<int>& allpatchnode_off*/)
+vector<int> Circuit_t::getbaseset(vector<int>& relatedPI, vector<int>& allcandidate, Circuit_t& F_v_ckt/*vector<int>& allpatchnode, Circuit_t& patchckt_off, vector<int>& allpatchnode_off*/)
 {
     clock_t temp_clk;
     sortcost(allcandidate, 0, (allcandidate.size()-1) );
@@ -252,8 +251,10 @@ vector<int> Circuit_t::getbaseset(vector<int>& allcandidate, Circuit_t& F_v_ckt/
 	//twopatchckt.print();
 	Circuit_t patchckt1_only;
 	patchckt1_only.readfile("patch.v");
+	patchckt1_only.topology_oriPI(SIM_ALL);
 	Circuit_t patchckt2_only;
 	patchckt2_only.readfile("patch2.v");
+	patchckt2_only.topology_oriPI(SIM_ALL);
 	//cout<<"------patchckt1_only"<<endl;
 	//patchckt1_only.print();
 	//cout<<"------patchckt2_only"<<endl;
@@ -264,7 +265,10 @@ vector<int> Circuit_t::getbaseset(vector<int>& allcandidate, Circuit_t& F_v_ckt/
 	Solver DNF_network;
 	map<int, int> id_map_assume = constructDLN(DNF_network, F_v_ckt, patchckt1_only, patchckt2_only, allcandidate);	
 	
-	
+	vector<int> topo_order_cand = getsort_topology(allcandidate);
+	//vector<int> topo_order_patch = getsort_topology(allpatchnode);	
+	random_sim_before_DLN(relatedPI, topo_order_cand, allcandidate,patchckt1_only, patchckt2_only);
+	Random_SIM_PBD_TB rsim_pbd_tb = get_PBD_table(allcandidate, patchckt1_only, patchckt2_only);
     while (finish_flag == false) {
         weight_sum++;
         //cout << "sum: " << weight_sum << endl;

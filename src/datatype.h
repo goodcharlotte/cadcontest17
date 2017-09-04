@@ -67,7 +67,22 @@ void constructPatch(string cktF_name, string cktG_name);
 enum GateType {BUF, NOT, AND, NAND, OR, NOR, XOR, NXOR, PORT};
 
 
-	
+typedef struct{
+	int p1;
+	int p2;
+} PBD_Pair;
+
+typedef struct{
+	vector<PBD_Pair> PBD_needed;
+	map<int, vector<PBD_Pair> > base_PBD_can_cover;
+} Random_SIM_PBD_TB;
+
+
+inline bool compare_PBD_Pair(const PBD_Pair &pbd1, const PBD_Pair &pbd2);	
+inline PBD_Pair make_PBD_Pair(int p1, int p2);
+ostream& operator<<(ostream& out, const PBD_Pair& pbdpair);
+
+
 
 class Node_t
 {
@@ -114,6 +129,7 @@ public:
     bool readcost(char* fname);
     void print();
 	void topology(int start_node_id);
+	void topology_oriPI(int start_node_id);
     vector<int> getsort_topology(vector<int>& nodevec);
     void init_simulation();
     void find_pi_fanout();
@@ -133,7 +149,7 @@ public:
     void findReplaceCost(vector<int>& relatedPI, vector<int>& allcandidate, vector<int>& allpatchnode, vector<Node_t>& PatchNode);
     void findReplaceNode(vector<Node_t>& PatchNode);
     int getMaxSum(vector<int>& allcandidate);
-    vector<int> getbaseset(vector<int>& allcandidate, Circuit_t& F_v_ckt/*vector<int>& allpatchnode, Circuit_t& patchckt_off, vector<int>& allpatchnode_off*/);
+    vector<int> getbaseset(vector<int>& relatedPI, vector<int>& allcandidate, Circuit_t& F_v_ckt/*vector<int>& allpatchnode, Circuit_t& patchckt_off, vector<int>& allpatchnode_off*/);
     list<int> check_include(list<int>& subset, int& checknode);
     bool write_patch(vector<int>& relatedPI);
     void updatePatchPI(vector<int>& relatedPI, vector<string>& replaceName, vector<string>& patchName);
@@ -146,9 +162,19 @@ public:
     int minCut(vector<int>& allcutnode);
 	//Random simulation
 	void random_sim_gene_input(vector<int> &relatedPI);
-	void random_sim_patch(vector<int> &topology_order, int p_node);
-	void random_sim_candidate(vector<int> &topology_order);
+	void random_sim_gene_input(vector<int> &relatedPI, Circuit_t &ckt1, Circuit_t &ckt2);
+	void random_sim_stopnode(vector<int> &topology_order, int p_node);
+	void random_sim_stopnode_many(vector<int> &topology_order, vector<int> stop_node_vec);
+	void random_sim_all(bool do_topology = true);
+	void random_sim_all(vector<int> &topology_order);
 	vector<int> random_sim_compare(vector<int> &relatedPI, vector<int> &topo_order_cand, vector<int> &topo_order_patch, int patch_wire);
+	void random_sim_before_DLN(vector<int> &relatedPI, 
+										vector<int> &topo_order_cand,
+										vector<int> &allcandidate, 
+										Circuit_t &patchckt1_only, 
+										Circuit_t &patchckt2_only);
+	Random_SIM_PBD_TB get_PBD_table(vector<int> &allcandidate, Circuit_t &patchckt1_only, Circuit_t &patchckt2_only);
+
 	//////// CEV ////////
     int getMaxIndex(vector<int>& allcandidate, int costsum);
     int getCostSum(vector<int>& allcandidate, int start_index);
@@ -203,5 +229,4 @@ void print_map(const std::map<map_key, map_val>& _map) {
 		cout << it->first << " => " << it->second << '\n';
     }
 }
-
 #endif

@@ -89,7 +89,7 @@ int main(int argc, char * argv[])
     //patchckt_off.update_allpi();
     vector<int> allcandidate_off;
     //patchckt_off.findRelatedNode(relatedPI, allpatchnode_off, allcandidate_off);
-    choosebase = patchckt.getbaseset(allcandidate, F_v_ckt/* allpatchnode, patchckt_off, allpatchnode_off*/);
+    choosebase = patchckt.getbaseset(relatedPI, allcandidate, F_v_ckt/* allpatchnode, patchckt_off, allpatchnode_off*/);
 #endif
 
 #if DEBUG_GETSUMSET
