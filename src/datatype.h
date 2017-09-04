@@ -54,6 +54,9 @@ using namespace::std;
 #define DEBUG_GETBASE 1
 #define DEBUG_GETSUMSET 0
 
+#define DEBUG_WRITE_ID_NAME 0
+
+
 extern clock_t start_clk;
 extern clock_t stop_clk;
 
@@ -175,7 +178,7 @@ public:
 										Circuit_t &patchckt1_only, 
 										Circuit_t &patchckt2_only);
 	Random_SIM_PBD_TB get_PBD_table(vector<int> &allcandidate, Circuit_t &patchckt1_only, Circuit_t &patchckt2_only);
-
+	void write_ckt_id_name(const char *file, unsigned int id_offset = 0);
 	//////// CEV ////////
     void initCostSumFlag(vector<int>& allcandidate);
     int getCostSumFlag(vector<int>& allcandidate, int costsum);

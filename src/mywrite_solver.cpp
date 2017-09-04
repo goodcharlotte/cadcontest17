@@ -5,11 +5,26 @@
 #include "mtl/Alg.h"
 #include "utils/Options.h"
 #include "mtl/Sort.h"
-
+#include "datatype.h"
 using namespace Minisat;
 
 //Do not od map
 #define mapVar(var, map, max) ((var) - 1)
+
+void Circuit_t::write_ckt_id_name(const char *file, unsigned int id_offset)
+{
+    ofstream myfile;
+	myfile.open(file);
+
+    if (myfile == NULL)
+		cout<<"Fail to open file: "<< file <<endl; 
+	
+	for (unsigned int i = 0; i < allnodevec.size(); i++) {
+		myfile << i + id_offset << ' ' <<allnodevec[i].name << endl;
+	}
+	myfile.close();
+} 
+
 
 
 void Solver::toDimacs_nomap(const char *file, const vec<Lit>& assumps)

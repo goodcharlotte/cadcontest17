@@ -865,7 +865,7 @@ Random_SIM_PBD_TB Circuit_t::get_PBD_table(vector<int> &allcandidate, Circuit_t 
 	cout << "result_t0_p1 " << bitset<SHOW_BIT_SET>(result_t0_p1) << endl;
 	cout << "result_t0_p2 " << bitset<SHOW_BIT_SET>(result_t0_p2)  << endl;
 	cout << "dc_bit       " << bitset<SHOW_BIT_SET>(dc)  << endl;
-	
+	*/
 	//do not consider when bit(result_t0_p1) = bit(result_t0_p2) = 0 ==> or gate = 0
 	//check if and gate = 1, doesn't make sense
 	// result_t0_p1 bit=1==> onset

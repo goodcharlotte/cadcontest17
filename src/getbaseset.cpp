@@ -307,7 +307,7 @@ void Circuit_t::writeLog(vector<int>& choosebase, string cnfname_AB)
         }
     }
     file2.close();
-
+	deleteline--;
     stringstream ss;
     ss << deleteline;
 
