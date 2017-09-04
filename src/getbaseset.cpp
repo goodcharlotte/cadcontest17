@@ -266,8 +266,10 @@ void Circuit_t::recur_CEV(vector<int>& allcandidate, vector< vector<int> >& alls
     recur_CEV(allcandidate, allsumset, index_off, start_index-1, costsum);
 }
 
-void Circuit_t::writeLog(string cnfname_AB)
+void Circuit_t::writeLog(vector<int>& choosebase, string cnfname_AB)
 {
+    string partition_file = "partition.log";
+    string proof_file = "proof.log";
     int range = 0;
     int deleteline = 0;
     bool finish_flag = false;
@@ -279,16 +281,10 @@ void Circuit_t::writeLog(string cnfname_AB)
 
     
     string cmd_str;
-    /*
-    cmd_str = "cp " + cnfname_A + " copyA.cnf";
-    system(cmd_str.c_str());
-    cmd_str = "cp " + cnfname_AB + " copyAB.cnf";
-    system(cmd_str.c_str());
-    */
-
     cmd_str = "sed -i '1d' " + cnfname_AB;
     system(cmd_str.c_str());
-    cmd_str = "./minisat " + cnfname_AB + " -c > proof.log";
+
+    cmd_str = "./minisat " + cnfname_AB + " -c > " + proof_file;
     system(cmd_str.c_str());
     
     cmd_str = "sed -i '/p cnf 0 0/d' " + cnfname_AB;
@@ -319,8 +315,19 @@ void Circuit_t::writeLog(string cnfname_AB)
     system(cmd_str.c_str());
     cmd_str = "sed -i '1i A' " + cnfname_AB;
     system(cmd_str.c_str());
-    cmd_str = "cat " + cnfname_AB + " > partition.log";
+    cmd_str = "cat " + cnfname_AB + " > " + partition_file;
     system(cmd_str.c_str());
+    cmd_str = "sed -i '$ a\\PI:' " + partition_file; 
+    system(cmd_str.c_str());
+    for (int base_i = 0; base_i < choosebase.size(); base_i++) {
+        stringstream ss;
+        ss << choosebase[base_i];
+        cmd_str = "sed -i '$ a\\";
+        cmd_str += ss.str();
+        cmd_str += "' ";
+        cmd_str += partition_file;
+        system(cmd_str.c_str());
+    }
 }
 
 vector<int> Circuit_t::getbaseset(vector<int>& allcandidate, Circuit_t& F_v_ckt/*vector<int>& allpatchnode, Circuit_t& patchckt_off, vector<int>& allpatchnode_off*/)
@@ -418,17 +425,7 @@ vector<int> Circuit_t::getbaseset(vector<int>& allcandidate, Circuit_t& F_v_ckt/
                             if (find_flag == false) {
                                 choosebase.clear();
                             } else {
-                                writeLog("mytest_AB.cnf");
-                                system("sed -i '$ a\\PI:' partition.log");
-                                for (int base_i = 0; base_i < choosebase.size(); base_i++) {
-                                    stringstream ss;
-                                    ss << choosebase[base_i];
-                                    string cmdstr;
-                                    cmdstr = "sed -i '$ a\\";
-                                    cmdstr += ss.str();
-                                    cmdstr += "' partition.log";
-                                    system(cmdstr.c_str());
-                                }
+                                writeLog(choosebase, "mytest_AB.cnf"); 
                                 finish_flag = true;
                                 break;
                             }
