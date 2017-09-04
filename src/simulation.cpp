@@ -832,8 +832,8 @@ vector<PBD_Pair> get_PBD_needed(int value, int dc)
 {
 	vector<PBD_Pair> my_pbdpair;
 	int i, j;
-	for (i = 0; i < 32; i++) {
-		for (j = 0; j < 32; j++) {
+	for (i = 0; i < 31; i++) { //i= 0~30
+		for (j = i+1; j < 32; j++) { //j=i+1~31
 		//if not dc
 			if ((!GET_BIT(dc, i)) && (!GET_BIT(dc, j))) { 
 				// if different , add PBD needed
@@ -865,7 +865,7 @@ Random_SIM_PBD_TB Circuit_t::get_PBD_table(vector<int> &allcandidate, Circuit_t 
 	cout << "result_t0_p1 " << bitset<SHOW_BIT_SET>(result_t0_p1) << endl;
 	cout << "result_t0_p2 " << bitset<SHOW_BIT_SET>(result_t0_p2)  << endl;
 	cout << "dc_bit       " << bitset<SHOW_BIT_SET>(dc)  << endl;
-	*/
+	
 	//do not consider when bit(result_t0_p1) = bit(result_t0_p2) = 0 ==> or gate = 0
 	//check if and gate = 1, doesn't make sense
 	// result_t0_p1 bit=1==> onset
