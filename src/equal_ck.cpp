@@ -805,7 +805,7 @@ bool is_basenode_all_cover(Solver& sat, map<int, int> &id_map, const vector<int>
 		cout << "choosebase ";
 		print_vector(choosebase);
 		cout << "==> UNSAT ^____^ " << endl; 
-		sat.toDimacs_nomap("mytest_AB.cnf", assume, sat_var_record[1]);	
+		sat.toDimacs_nomap("mytest_AB.cnf", assume, sat_var_record[1]+1);
 	
 		return true;
 	} 

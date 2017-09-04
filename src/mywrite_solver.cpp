@@ -8,8 +8,8 @@
 #include "datatype.h"
 using namespace Minisat;
 
-//Do not od map
-#define mapVar(var, map, max) ((var) - 1)
+//Do not map
+#define mapVar(var, map, max) (var)
 
 void Circuit_t::write_ckt_id_name(const char *file, unsigned int id_offset)
 {
