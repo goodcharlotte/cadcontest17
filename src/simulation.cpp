@@ -17,7 +17,6 @@ string to_str(int num, int leng);
 vector<string> McCluskey(vector<string> &minterm);
 bool check_repeated(string const &ele, vector<string> const &vector_in);
 vector<int> gene_graycode_recur(int n);
-static map<int, vector<PBD_Pair> > get_PBD_table(vector<int> &allcandidate, Circuit_t &patchckt1_only, Circuit_t &patchckt2_only);
 
 void print_signature(const vector< vector<string> > &sig)
 {
