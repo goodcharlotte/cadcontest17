@@ -266,9 +266,6 @@ void Circuit_t::recur_CEV(vector<int>& allcandidate, vector< vector<int> >& alls
 
 void Circuit_t::writeLog(vector<int>& choosebase, string cnfname_AB)
 {
-	string cmd_str;
-	cmd_str = "cp " + cnfname_AB + " " +cnfname_AB + ".backup";
-    system(cmd_str.c_str());
 
     string partition_file = "partition.log";
     string proof_file = "proof.log";
@@ -278,21 +275,27 @@ void Circuit_t::writeLog(vector<int>& choosebase, string cnfname_AB)
     string tmpstr;
     ifstream file(cnfname_AB.c_str());
     file >> tmpstr >> range;
-    //cout << "range: " << range << endl;
+    cout << "range: " << range << endl;
     file.close();
 
+    string cmd_str;
+	cmd_str = "cp " + cnfname_AB + " " + partition_file;
+    system(cmd_str.c_str());
     
-    
-    cmd_str = "sed -i '1d' " + cnfname_AB;
+    //delete range number
+    cmd_str = "sed -i '1d' " + partition_file;
     system(cmd_str.c_str());
 
-    cmd_str = "./minisat " + cnfname_AB + " -c > " + proof_file;
+    //generate proof.log
+    cmd_str = "./minisat " + partition_file + " -c > " + proof_file;
     system(cmd_str.c_str());
     
-    cmd_str = "sed -i '/p cnf 0 0/d' " + cnfname_AB;
+    //delete p cnf in partition.log
+    cmd_str = "sed -i '/p cnf 0 0/d' " + partition_file;
     system(cmd_str.c_str());
 
-    ifstream file2(cnfname_AB.c_str());
+
+    ifstream file2(partition_file.c_str());
     while (1) {
         file2 >> tmpstr;
         //cout << tmpstr << endl;
@@ -303,26 +306,23 @@ void Circuit_t::writeLog(vector<int>& choosebase, string cnfname_AB)
                 break;
             }
         } else {
-            if (atoi(tmpstr.c_str()) >= range) {
+            if (abs(atoi(tmpstr.c_str())) >= range) {
                 finish_flag = true;
             }
         }
     }
     file2.close();
-	deleteline--;
+
     stringstream ss;
     ss << deleteline;
 
-    cmd_str = "sed -i '"+ ss.str() + "i B' " + cnfname_AB;
+    cmd_str = "sed -i '"+ ss.str() + "i B' " + partition_file;
     system(cmd_str.c_str());
-    cmd_str = "sed -i '1i A' " + cnfname_AB;
-    system(cmd_str.c_str());
-    cmd_str = "cat " + cnfname_AB + " > " + partition_file;
+    cmd_str = "sed -i '1i A' " + partition_file;
     system(cmd_str.c_str());
     cmd_str = "sed -i '$ a\\PI:' " + partition_file; 
     system(cmd_str.c_str());
     for (int base_i = 0; base_i < choosebase.size(); base_i++) {
-        stringstream ss;
         ss << choosebase[base_i] + 1;// let id map+1
         cmd_str = "sed -i '$ a\\";
         cmd_str += ss.str();
