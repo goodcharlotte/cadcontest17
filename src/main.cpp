@@ -10,6 +10,8 @@ clock_t start_clk;
 int main(int argc, char * argv[])
 {    
 	start_clk = clock();
+    bool INTER_FLAG = false;
+    bool MINCUT_FLAG = false;
 	vector<int> patchPI;
     if (argc != 6) {
         cout << "Usage: ./rpgen <F.v> <G.v> <weight.txt> <patch.v> <out.v> " << endl;
@@ -22,11 +24,23 @@ int main(int argc, char * argv[])
         return 0; 
     }
 
+    if (cktf.target.size() == 1) {
+        INTER_FLAG = true;
+        MINCUT_FLAG = false;
+    } else if (cktf.target.size() > 1) {
+        INTER_FLAG = false;
+        MINCUT_FLAG = true;
+    } else {
+        cout << "ERROR! NO TARGET IN CKTF!" << endl;
+    }
+
     //====================================
     //  Preprocessing
     //====================================
     vector<int> relatedPO;
     vector<int> relatedPI;
+    vector<string> cktfWireName;
+    vector<string> patchPIName;
     //cktf.printstatus();
     relatedPO = cktf.findRelatedPO();
     relatedPI = cktg.findRelatedPI(relatedPO);
@@ -54,8 +68,7 @@ int main(int argc, char * argv[])
 	TEST.write_verilog("WHY");
 	
 #endif
-	
-    
+
     //====================================
     //  Construct patch
     //====================================
@@ -78,6 +91,9 @@ int main(int argc, char * argv[])
     //patchckt.sortcost(allcandidate, 0, allcandidate.size() - 1);
     //ReplaceNode: (UNSAT & INV_UNSAT) id, (No replaced node) -1
     //ReplaceCost: (UNSAT) cost, (INV_UNSAT) cost * (-1), (No replaced node) INF
+
+    if (INTER_FLAG == true) {
+        cout << "*** INTERPOLATION ***" << endl;
 #if DEBUG_GETBASE
     vector<int> choosebase;
 	Circuit_t F_v_ckt;// F.v
@@ -90,19 +106,13 @@ int main(int argc, char * argv[])
     vector<int> allcandidate_off;
     //patchckt_off.findRelatedNode(relatedPI, allpatchnode_off, allcandidate_off);
     choosebase = patchckt.getbaseset(relatedPI, allcandidate, F_v_ckt/* allpatchnode, patchckt_off, allpatchnode_off*/);
-	patchPI = F_v_ckt.inteporlation();
+    patchPI = F_v_ckt.inteporlation();
+    patchckt.updateName(patchPI, cktfWireName);
+    patchckt.updateName(patchPI, patchPIName);
 #endif
 
 #if DEBUG_GETSUMSET
     patchckt.sortcost(allcandidate, 0, (allcandidate.size()-1) );
-    cout << "All candidate (ignore INF):" << endl;
-    for (int i = 0; i < allcandidate.size(); i++) {
-        if (patchckt.allnodevec[allcandidate[i]].cost == INF) {
-            continue;
-        }
-        cout << patchckt.allnodevec[allcandidate[i]].name 
-            << " (" << patchckt.allnodevec[allcandidate[i]].cost << ")" << endl;
-    }
     int MAX_SUM = patchckt.getMaxSum(allcandidate);
     vector< vector<int> > allsumset;
     for (int i = 0; i <= MAX_SUM; i++) {
@@ -116,6 +126,11 @@ int main(int argc, char * argv[])
         }
     }
 #endif
+    cout << "*** Interpolation cost sum : " << patchckt.getCostSum(patchPI, patchPI.size()-1) << " ***" << endl;
+    } //end interpolation
+
+    if (MINCUT_FLAG == true) {
+        cout << "*** MINCUT ***" << endl;
     patchckt.findReplaceCost(relatedPI, allcandidate, allpatchnode, PatchNode);
     //====================================
     //  Copy cost info. to cktp
@@ -131,19 +146,22 @@ int main(int argc, char * argv[])
     //====================================
     vector<int> allcutnode;
     vector<int> patchRelatedPI;
-    vector<string> replaceName;
-    vector<string> patchPIName;
+    //vector<string> replaceName;
+    //vector<string> patchPIName;
     cktp.minCut(allcutnode);
     patchRelatedPI = cktp.ReplaceNode(allcutnode);
     cktp.write_patch(patchRelatedPI);
-    cktp.updatePatchPI(patchRelatedPI, replaceName, patchPIName);
+    //cktp.updatePatchPI(patchRelatedPI, replaceName, patchPIName);
+    cktp.updatePatchPI(patchRelatedPI, cktfWireName, patchPIName);
+    }//end mincut
+
     //====================================
     //  Write final result 
     //====================================
     Circuit_t finalckt;
     finalckt.readfile(argv[1]);
-    finalckt.writefile(argv[1], argv[5], replaceName, patchPIName);
-
+    //finalckt.writefile(argv[1], argv[5], replaceName, patchPIName);
+    finalckt.writefile(argv[1], argv[5], cktfWireName, patchPIName);
     //====================================
     //  Remove temporary files 
     //====================================

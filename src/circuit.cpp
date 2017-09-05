@@ -754,6 +754,15 @@ bool Circuit_t::writefile(char*iname, char* fname, vector<string> candidate, vec
     return true;
 }
 
+void Circuit_t::updateName(vector<int>& nodeID, vector<string>& nodeName)
+{
+    nodeName.clear();
+    nodeName.resize(nodeID.size());
+    for (int i = 0; i < nodeID.size(); i++) {
+        nodeName[i] = allnodevec[nodeID[i]].name;
+    }
+}
+
 void Circuit_t::print()
 {
     for (int i = 0; i < allnodevec.size(); i++) {

@@ -159,6 +159,7 @@ public:
     vector<int> getbaseset(vector<int>& relatedPI, vector<int>& allcandidate, Circuit_t& F_v_ckt/*vector<int>& allpatchnode, Circuit_t& patchckt_off, vector<int>& allpatchnode_off*/);
     list<int> check_include(list<int>& subset, int& checknode);
     bool write_patch(vector<int>& relatedPI);
+    void updateName(vector<int>& nodeID, vector<string>& nodeName);
     void updatePatchPI(vector<int>& relatedPI, vector<string>& replaceName, vector<string>& patchName);
     void update_allpi();
     bool compareRelatedPI(vector<int>& relatedPI, int& node);

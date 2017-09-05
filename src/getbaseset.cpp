@@ -379,10 +379,17 @@ vector<int> Circuit_t::getbaseset(vector<int>& relatedPI, vector<int>& allcandid
 	//vector<int> topo_order_patch = getsort_topology(allpatchnode);	
 	random_sim_before_DLN(relatedPI, topo_order_cand, allcandidate,patchckt1_only, patchckt2_only);
 	Random_SIM_PBD_TB rsim_pbd_tb = get_PBD_table(allcandidate, patchckt1_only, patchckt2_only);
-
-
+    /*
+    cout << "rsim_pbd_tb: " << endl;
+    for (int i = 0; i < allcandidate.size(); i++) {
+        cout << allnodevec[allcandidate[i]].name << " PBD: " << endl;
+        for (int j = 0; j < rsim_pbd_tb.base_PBD_can_cover[allcandidate[i]].size(); j++) {
+            cout << "(" << rsim_pbd_tb.base_PBD_can_cover[allcandidate[i]][j].p1 << ", " << rsim_pbd_tb.base_PBD_can_cover[allcandidate[i]][j].p2 << ")" << endl;
+        }
+    }
+    */
     for (int sum_i = 1; sum_i <= MAX_WEIGHT_SUM; sum_i++) {
-        cout << "SUM " << sum_i << endl;
+        //cout << "SUM " << sum_i << endl;
         temp_clk = clock();
         double time_sec = double(temp_clk - start_clk)/CLOCKS_PER_SEC;
         if ( time_sec > TIME_LIMIT) {
@@ -500,6 +507,9 @@ vector<int> Circuit_t::getbaseset(vector<int>& relatedPI, vector<int>& allcandid
 	//vector<int> topo_order_patch = getsort_topology(allpatchnode);	
 	random_sim_before_DLN(relatedPI, topo_order_cand, allcandidate,patchckt1_only, patchckt2_only);
 	Random_SIM_PBD_TB rsim_pbd_tb = get_PBD_table(allcandidate, patchckt1_only, patchckt2_only);
+
+
+
     while (finish_flag == false) {
         weight_sum++;
         //cout << "sum: " << weight_sum << endl;
