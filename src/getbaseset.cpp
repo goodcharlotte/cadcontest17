@@ -376,7 +376,7 @@ vector<int> Circuit_t::getbaseset(vector<int>& relatedPI, vector<int>& allcandid
 	//F_v_ckt.print();
  
 	Solver DLN_network;
-	Solver DLN_network_unsat_part;
+	
 	unsigned int bound_unsatDLN;
 	map<int, int> id_map_assume = constructDLN(DLN_network, F_v_ckt, patchckt1_only, patchckt2_only, allcandidate);	
 	vector<int> topo_order_cand = getsort_topology(allcandidate);
@@ -433,7 +433,13 @@ vector<int> Circuit_t::getbaseset(vector<int>& relatedPI, vector<int>& allcandid
                             if (find_flag == false) {
                                 choosebase.clear();
                             } else {
+								Solver DLN_network_unsat_part;
 								bound_unsatDLN = constructDLN_unsat_part(DLN_network_unsat_part, F_v_ckt, patchckt1_only, patchckt2_only, allcandidate, choosebase);
+								if ( DLN_network_unsat_part.solve() == false) {
+									cout << "PASS ^0^ : DLN_network_unsat_part is UNSAT" << endl;
+								} else {
+									cout << "ERROR : DLN_network_unsat_part is SAT (must be UNSAT)" << endl;
+								}
 								DLN_network_unsat_part.toDimacs_nomap("mytest_AB.cnf", bound_unsatDLN+1);
 								writeLog(choosebase, "mytest_AB.cnf");                               
 								finish_flag = true;

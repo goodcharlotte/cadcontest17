@@ -873,7 +873,7 @@ int constructDLN_unsat_part(Solver &sat, Circuit_t &F_v_ckt, Circuit_t &patchckt
 
 	
 	check_mapvalue(relative_pi_patch2);	
-
+	bindpi2CNF(sat, relative_pi_f2, relative_pi_patch2);
 	/*
 	cout << "@@@ relative_pi_f1" << endl;
 	print_map(relative_pi_f1);
