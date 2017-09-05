@@ -66,6 +66,7 @@ void print_signature(const vector< vector<string> > &sig);
 void write_pla(const vector< vector<string> > &sig, vector<string> &piName, vector<string> &targetName,vector<int> graydiff);
 void constructPatch(string cktF_name, string cktG_name);
 
+
 //              0     1    2    3    4    5    6    7     8
 enum GateType {BUF, NOT, AND, NAND, OR, NOR, XOR, NXOR, PORT};
 
@@ -212,6 +213,9 @@ public:
 };
 
 
+map<int, int> constructDLN(Solver &sat, Circuit_t &F_v_ckt, Circuit_t &patchckt1_only , Circuit_t &patchckt2_only, vector<int> &allcandidate);
+int constructDLN_unsat_part(Solver &sat, Circuit_t &F_v_ckt, Circuit_t &patchckt1_only , Circuit_t &patchckt2_only, vector<int> &allcandidate, vector<int> &choosebase);
+bool is_basenode_all_cover(Solver &sat, map<int, int> &id_map, const vector<int> &choosebase);
 
 template <class T>
 void print_queue(queue<T> q)

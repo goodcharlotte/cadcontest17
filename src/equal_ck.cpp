@@ -29,6 +29,7 @@ using namespace std;
 #endif
 
 unsigned int sat_var_record[4] = {0, 0, 0, 0};
+unsigned int sat_var_record_partcnf[4] = {0, 0, 0, 0};
 
 void gate2CNF(Solver& sat, int gate_out, Node_t gate, unsigned int id_offset = 0);
 void miter2CNF(Solver& sat, int gate_in_1, int gate_in_2, int assume_lit, int gate_out);
@@ -37,7 +38,7 @@ void patchckt2CNF(Solver &sat, Circuit_t & ckt, map<string, int> &relative_pi, u
 map<string, int> fckt2CNF(Solver &sat, Circuit_t & ckt, vector<int> &allcandidate, unsigned int id_offset = 0);
 void in2_xnor2CNF(Solver &sat, int in1, int in2, int out);
 void bindpi2CNF(Solver &sat, map<string, int> &relative_pi_f, map<string, int> &relative_pi_patch);
-map<int, int> xor_SA1_2CNF(Solver &sat, Circuit_t &ckt, vector<int> &allcandidate, unsigned int id_offset /*= 0*/);
+map<int, int> DLNxnor_SA1_2CNF(Solver &sat, Circuit_t &ckt, vector<int> &allcandidate, unsigned int id_offset /*= 0*/);
 void check_mapvalue(map<string, int> &mymap);
 void init_mapvalue(map<string, int> &mymap);
 map<int, int> constructDLN(Solver &sat, Circuit_t &F_v_ckt, Circuit_t &patchckt1_only , Circuit_t &patchckt2_only, vector<int> &allcandidate);
@@ -562,17 +563,17 @@ void bindpi2CNF(Solver &sat, map<string, int> &relative_pi_f, map<string, int> &
 }
 
 
-map<int, int> xor_SA1_2CNF(Solver &sat, Circuit_t &ckt, vector<int> &allcandidate, unsigned int id_offset /*= 0*/)
+map<int, int> DLNxnor_SA1_2CNF(Solver &sat, Circuit_t &ckt, vector<int> &allcandidate, unsigned int id_offset /*= 0*/)
 {
  
-	int id_xor_out;
+	int id_xnor_out;
 	int id_stuckatone;
 	int id_assume;
 	int id_final_and_out;
 	/*
 	
 	      -------                    -------
-	g1----| nxor |------id_xor_out--- | or |-----id_stuckatone      == and all =>  id_final_and_out
+	g1----| nxor |------id_xnor_out--- | or |-----id_stuckatone      == and all =>  id_final_and_out
 	g2----|     |      id_assume---- |     |
 	      ------                     ------
 	
@@ -586,9 +587,9 @@ map<int, int> xor_SA1_2CNF(Solver &sat, Circuit_t &ckt, vector<int> &allcandidat
 	for (node_cout = 0; node_cout < ckt.allnodevec.size(); node_cout++) {
 		if (find(allcandidate.begin(), allcandidate.end(), node_cout) !=  allcandidate.end()) {
 
-			sat_ck_exist(sat, node_cout, "xor_SA1_2CNF ");
-			sat_ck_exist(sat, OFFSET_CNFID(node_cout, id_offset), "xor_SA1_2CNF ");
-			id_xor_out = sat.newVar();
+			sat_ck_exist(sat, node_cout, "DLNxnor_SA1_2CNF ");
+			sat_ck_exist(sat, OFFSET_CNFID(node_cout, id_offset), "DLNxnor_SA1_2CNF ");
+			id_xnor_out = sat.newVar();
 			id_stuckatone = sat.newVar();
 			id_assume = sat.newVar();
 			allid_stuckatone.push_back(id_stuckatone);
@@ -596,16 +597,16 @@ map<int, int> xor_SA1_2CNF(Solver &sat, Circuit_t &ckt, vector<int> &allcandidat
 			
 			//cout << "id_map_assume " << node_cout << "(" << ckt.allnodevec[node_cout].name << ")"
 			//" nxor " << OFFSET_CNFID(node_cout, id_offset) << " -> "<< id_assume << endl;
-			// id_xor_out = g1 nxor g2
-			in2_xnor2CNF(sat, node_cout, OFFSET_CNFID(node_cout, id_offset), id_xor_out);	
+			// id_xnor_out = g1 nxor g2
+			in2_xnor2CNF(sat, node_cout, OFFSET_CNFID(node_cout, id_offset), id_xnor_out);	
 			
-			// id_stuckatone = id_xor_out or id_assume
+			// id_stuckatone = id_xnor_out or id_assume
 			/*
 				C = A or B
 				(A V B V ~C) ^ (~A V C) ^ (~B V C) 
 			*/		
-			sat.addClause( mkLit(id_xor_out),  mkLit(id_assume), ~mkLit(id_stuckatone));
-			sat.addClause(~mkLit(id_xor_out),  mkLit(id_stuckatone));
+			sat.addClause( mkLit(id_xnor_out),  mkLit(id_assume), ~mkLit(id_stuckatone));
+			sat.addClause(~mkLit(id_xnor_out),  mkLit(id_stuckatone));
 			sat.addClause(~mkLit(id_assume) ,  mkLit(id_stuckatone));
 		}
 	}
@@ -638,6 +639,58 @@ map<int, int> xor_SA1_2CNF(Solver &sat, Circuit_t &ckt, vector<int> &allcandidat
 
 }
 
+
+
+
+
+void DLNxnor_base_2CNF(Solver &sat, Circuit_t &ckt, vector<int> &choosebase, unsigned int id_offset /*= 0*/)
+{
+ 
+	int id_xnor_out;
+	int id_final_and_out;
+	unsigned int node_cout;
+	vec<Lit> vec_lit;
+	vector<int> all_xnor_and;
+	//cout <<" DLNxnor_base_2CNF my choosebase \n"; 
+	//print_vector(choosebase);
+	for (node_cout = 0; node_cout < ckt.allnodevec.size(); node_cout++) {
+		if (find(choosebase.begin(), choosebase.end(), node_cout) !=  choosebase.end()) {
+
+			sat_ck_exist(sat, node_cout, "DLNxnor_base_2CNF ");
+			sat_ck_exist(sat, OFFSET_CNFID(node_cout, id_offset), "DLNxnor_base_2CNF ");
+			id_xnor_out = sat.newVar();
+			all_xnor_and.push_back(id_xnor_out);
+			// id_xnor_out = g1 nxor g2
+			in2_xnor2CNF(sat, node_cout, OFFSET_CNFID(node_cout, id_offset), id_xnor_out);	
+		}
+	}
+
+	
+	// and all all_xnor_and
+	/*
+		C = A and B
+		(~A V ~B V C) ^ (A V ~C) ^ (B V ~C) 
+	*/
+	id_final_and_out = sat.newVar();
+	vec_lit.clear();
+	//cout << "id_final_and_out " << id_final_and_out << endl;
+	for (node_cout = 0; node_cout < all_xnor_and.size(); node_cout++) {
+		vec_lit.push(~mkLit(all_xnor_and[node_cout]));		
+	}	
+	vec_lit.push(mkLit(id_final_and_out));
+	sat.addClause(vec_lit);
+
+	for (node_cout = 0; node_cout < all_xnor_and.size(); node_cout++) {
+		vec_lit.clear();
+		vec_lit.push(mkLit(all_xnor_and[node_cout]));
+		vec_lit.push(~mkLit(id_final_and_out));	
+		sat.addClause(vec_lit);
+	}
+	
+	//let output 1
+	sat.addClause(mkLit(id_final_and_out));
+
+}
 void check_mapvalue(map<string, int> &mymap)
 {
 	#if EN_ERROR_EXIT
@@ -728,7 +781,6 @@ map<int, int> constructDLN(Solver &sat, Circuit_t &F_v_ckt, Circuit_t &patchckt1
 	sat_var_record[2] = sat.nVars();
 	relative_pi_patch2 = relative_pi_f2;
 	init_mapvalue(relative_pi_patch2);
-	sat.toDimacs_nomap("mytest_A.cnf");
 	
 	if (!sat.okay()){ cout << "fckt2CNF 2 solver is in contradictory state\n";/*exit(1);*/}
 	
@@ -753,14 +805,14 @@ map<int, int> constructDLN(Solver &sat, Circuit_t &F_v_ckt, Circuit_t &patchckt1
 	print_map(relative_pi_patch1);
 	cout << "@@@ relative_pi_patch2" << endl;
 	print_map(relative_pi_patch2);
-	*/
+	
 	for ( i = 0; i < 4; i++) {
 		cout << "sat_var_record " << i << ' ' << sat_var_record[i] << '\n';
 	}	
-	
+	*/
 	if (!sat.okay()){ cout << "bindpi2CNF solver is in contradictory state\n"; /*exit(1);*/}
-	id_map_assume = xor_SA1_2CNF(sat, F_v_ckt, allcandidate, sat_var_record[1]);
-	if (!sat.okay()){ cout << "xor_SA1_2CNF solver is in contradictory state\n"; /*exit(1);*/}
+	id_map_assume = DLNxnor_SA1_2CNF(sat, F_v_ckt, allcandidate, sat_var_record[1]);
+	if (!sat.okay()){ cout << "DLNxnor_SA1_2CNF solver is in contradictory state\n"; /*exit(1);*/}
 	//cout << "len " << sat.nVars() << endl;
 	//cout << "cal " << sat.nClauses() << endl;
 	//sat.toDimacs("mytest_no_assume.cnf");
@@ -769,6 +821,85 @@ map<int, int> constructDLN(Solver &sat, Circuit_t &F_v_ckt, Circuit_t &patchckt1
 
 }
 
+
+int constructDLN_unsat_part(Solver &sat, Circuit_t &F_v_ckt, Circuit_t &patchckt1_only , Circuit_t &patchckt2_only, vector<int> &allcandidate, vector<int> &choosebase)
+{
+
+	unsigned int i;
+	
+	map<string, int> relative_pi_f1; //key: name , value: id used in CNF
+	map<string, int> relative_pi_f2; 
+	map<string, int> relative_pi_patch1;
+	map<string, int> relative_pi_patch2;
+
+	/////////the below should be partition A/////////////
+	//F.v 1
+	
+	relative_pi_f1 = fckt2CNF(sat, F_v_ckt, allcandidate, 0);
+	
+
+	sat_var_record_partcnf[0] = sat.nVars();
+	
+	if (!sat.okay()){ cout << "fckt2CNF 1 solver is in contradictory state\n";/*exit(1);*/}
+	
+	relative_pi_patch1 = relative_pi_f1;
+	init_mapvalue(relative_pi_patch1);
+	
+	//patch 1
+	patchckt2CNF(sat, patchckt1_only, relative_pi_patch1, sat_var_record_partcnf[0]);
+
+	sat_var_record_partcnf[1] = sat.nVars();
+
+	if (!sat.okay()){ cout << "patchckt2CNF 1 solver is in contradictory state\n"; /*exit(1);*/}
+	// relative_pi_f1 and relative_pi_f2 's name should be the same
+	check_mapvalue(relative_pi_patch1);	
+	bindpi2CNF(sat, relative_pi_f1, relative_pi_patch1);
+	
+	/////////the below should be partition B/////////////
+	
+	//F.v 2
+	relative_pi_f2 = fckt2CNF(sat, F_v_ckt, allcandidate, sat_var_record_partcnf[1]);
+	sat_var_record_partcnf[2] = sat.nVars();
+	relative_pi_patch2 = relative_pi_f2;
+	init_mapvalue(relative_pi_patch2);
+	
+	if (!sat.okay()){ cout << "fckt2CNF 2 solver is in contradictory state\n";/*exit(1);*/}
+	
+	//patch 2
+	patchckt2CNF(sat, patchckt2_only, relative_pi_patch2, sat_var_record_partcnf[2]);
+
+	if (!sat.okay()){ cout << "patchckt2CNF 2 solver is in contradictory state\n"; /*exit(1);*/}
+	sat_var_record_partcnf[3] = sat.nVars();
+
+	
+	check_mapvalue(relative_pi_patch2);	
+
+	/*
+	cout << "@@@ relative_pi_f1" << endl;
+	print_map(relative_pi_f1);
+	cout << "@@@ relative_pi_f2" << endl;
+	print_map(relative_pi_f2);	
+	
+	cout << "@@@ relative_pi_patch1" << endl;
+	print_map(relative_pi_patch1);
+	cout << "@@@ relative_pi_patch2" << endl;
+	print_map(relative_pi_patch2);
+	*/
+	for ( i = 0; i < 4; i++) {
+		cout << "sat_var_record_partcnf " << i << ' ' << sat_var_record_partcnf[i] << '\n';
+	}	
+	
+	if (!sat.okay()){ cout << "bindpi2CNF solver is in contradictory state\n"; /*exit(1);*/}
+	DLNxnor_base_2CNF(sat, F_v_ckt, choosebase, sat_var_record_partcnf[1]);
+	
+	
+	if (!sat.okay()){ cout << "DLNxnor_base_2CNF solver is in contradictory state\n"; /*exit(1);*/}
+	
+
+	//cout << "len " << sat.nVars() << endl;
+	//cout << "cal " << sat.nClauses() << endl;	
+	return sat_var_record_partcnf[1];
+}
 
 
 bool is_basenode_all_cover(Solver& sat, map<int, int> &id_map, const vector<int> &choosebase)
@@ -805,8 +936,7 @@ bool is_basenode_all_cover(Solver& sat, map<int, int> &id_map, const vector<int>
 		cout << "choosebase ";
 		print_vector(choosebase);
 		cout << "==> UNSAT ^____^ " << endl; 
-		sat.toDimacs_nomap("mytest_AB.cnf", assume, sat_var_record[1]+1);
-	
+		//sat.toDimacs_nomap("mytest_AB.cnf", assume, sat_var_record[1]+1);
 		return true;
 	} 
 	//cout << "SAT " << endl; 

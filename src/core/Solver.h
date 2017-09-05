@@ -79,6 +79,7 @@ public:
 	void	toDimacs_nomap	(FILE* f, Clause& c, vec<Var>& map, Var& max);
 	void	toDimacs_nomap	(const char *file, const vec<Lit>& assumps);
 	void    toDimacs_nomap  (const char *file, const vec<Lit>& assumps, const int after);
+	void    toDimacs_nomap  (const char *file, const int after);
 	void	toDimacs_nomap	(FILE* f, const vec<Lit>& assumps); 
 
     // Variable mode:
@@ -370,6 +371,7 @@ inline void     Solver::toDimacs     (const char* file, Lit p, Lit q){ vec<Lit> 
 inline void     Solver::toDimacs     (const char* file, Lit p, Lit q, Lit r){ vec<Lit> as; as.push(p); as.push(q); as.push(r); toDimacs(file, as); }
 
 inline void     Solver::toDimacs_nomap	(const char* file) { vec<Lit> as; toDimacs_nomap(file, as); };
+inline void     Solver::toDimacs_nomap  (const char *file, const int after) {vec<Lit> as; toDimacs_nomap(file, as, after);}
 
 //=================================================================================================
 // Debug etc:

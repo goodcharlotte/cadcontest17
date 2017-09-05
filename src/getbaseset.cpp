@@ -2,8 +2,6 @@
 #include "sstream"
 
 
-extern map<int, int> constructDLN(Solver &sat, Circuit_t &F_v_ckt, Circuit_t &patchckt1_only , Circuit_t &patchckt2_only, vector<int> &allcandidate);
-extern bool is_basenode_all_cover(Solver &sat, map<int, int> &id_map, const vector<int> &choosebase);
 
 #define INIT_SIZE 10000
 #define UNKNOW -1
@@ -268,6 +266,10 @@ void Circuit_t::recur_CEV(vector<int>& allcandidate, vector< vector<int> >& alls
 
 void Circuit_t::writeLog(vector<int>& choosebase, string cnfname_AB)
 {
+	string cmd_str;
+	cmd_str = "cp " + cnfname_AB + " " +cnfname_AB + ".backup";
+    system(cmd_str.c_str());
+
     string partition_file = "partition.log";
     string proof_file = "proof.log";
     int range = 0;
@@ -280,7 +282,7 @@ void Circuit_t::writeLog(vector<int>& choosebase, string cnfname_AB)
     file.close();
 
     
-    string cmd_str;
+    
     cmd_str = "sed -i '1d' " + cnfname_AB;
     system(cmd_str.c_str());
 
@@ -321,7 +323,7 @@ void Circuit_t::writeLog(vector<int>& choosebase, string cnfname_AB)
     system(cmd_str.c_str());
     for (int base_i = 0; base_i < choosebase.size(); base_i++) {
         stringstream ss;
-        ss << choosebase[base_i];
+        ss << choosebase[base_i] + 1;// let id map+1
         cmd_str = "sed -i '$ a\\";
         cmd_str += ss.str();
         cmd_str += "' ";
@@ -373,9 +375,10 @@ vector<int> Circuit_t::getbaseset(vector<int>& relatedPI, vector<int>& allcandid
 	//cout<<"------F_v_ckt"<<endl;
 	//F_v_ckt.print();
  
-	Solver DNF_network;
-	map<int, int> id_map_assume = constructDLN(DNF_network, F_v_ckt, patchckt1_only, patchckt2_only, allcandidate);	
-	
+	Solver DLN_network;
+	Solver DLN_network_unsat_part;
+	unsigned int bound_unsatDLN;
+	map<int, int> id_map_assume = constructDLN(DLN_network, F_v_ckt, patchckt1_only, patchckt2_only, allcandidate);	
 	vector<int> topo_order_cand = getsort_topology(allcandidate);
 	//vector<int> topo_order_patch = getsort_topology(allpatchnode);	
 	random_sim_before_DLN(relatedPI, topo_order_cand, allcandidate,patchckt1_only, patchckt2_only);
@@ -424,14 +427,16 @@ vector<int> Circuit_t::getbaseset(vector<int>& relatedPI, vector<int>& allcandid
 							//TODO: 
 							//if UNSAT, choosebase can cover, return true
 							
-							find_flag = is_basenode_all_cover(DNF_network, id_map_assume, choosebase);
+							find_flag = is_basenode_all_cover(DLN_network, id_map_assume, choosebase);
 							
 							//cout << "find_flag " << find_flag << endl;
                             if (find_flag == false) {
                                 choosebase.clear();
                             } else {
-                                writeLog(choosebase, "mytest_AB.cnf"); 
-                                finish_flag = true;
+								bound_unsatDLN = constructDLN_unsat_part(DLN_network_unsat_part, F_v_ckt, patchckt1_only, patchckt2_only, allcandidate, choosebase);
+								DLN_network_unsat_part.toDimacs_nomap("mytest_AB.cnf", bound_unsatDLN+1);
+								writeLog(choosebase, "mytest_AB.cnf");                               
+								finish_flag = true;
                                 break;
                             }
                         }
