@@ -53,6 +53,8 @@ using namespace::std;
 //#define DEBUG_ChangeNewPO
 #define DEBUG_GETBASE 1
 #define DEBUG_GETSUMSET 0
+#define DEBUG_DP 0
+#define DEBUG_RECUR 1
 
 #define DEBUG_WRITE_ID_NAME 0
 

@@ -91,7 +91,6 @@ int main(int argc, char * argv[])
     //patchckt_off.findRelatedNode(relatedPI, allpatchnode_off, allcandidate_off);
     choosebase = patchckt.getbaseset(relatedPI, allcandidate, F_v_ckt/* allpatchnode, patchckt_off, allpatchnode_off*/);
 	patchPI = F_v_ckt.inteporlation();
-	
 #endif
 
 #if DEBUG_GETSUMSET

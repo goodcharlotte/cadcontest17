@@ -2,11 +2,14 @@
 #include "sstream"
 
 
+extern map<int, int> constructDLN(Solver &sat, Circuit_t &F_v_ckt, Circuit_t &patchckt1_only , Circuit_t &patchckt2_only, vector<int> &allcandidate);
+extern bool is_basenode_all_cover(Solver &sat, map<int, int> &id_map, const vector<int> &choosebase);
 
 #define INIT_SIZE 10000
 #define UNKNOW -1
 #define NO_ANS 0
 #define HAVE_ANS 1
+#define ONCE_TIME 3
 
 bool check_redundantset(vector< list<int> >& tempset, list<int>& checkset)
 {
@@ -331,18 +334,132 @@ void Circuit_t::writeLog(vector<int>& choosebase, string cnfname_AB)
         system(cmd_str.c_str());
     }
 }
-
+#if DEBUG_RECUR
 vector<int> Circuit_t::getbaseset(vector<int>& relatedPI, vector<int>& allcandidate, Circuit_t& F_v_ckt/*vector<int>& allpatchnode, Circuit_t& patchckt_off, vector<int>& allpatchnode_off*/)
 {
     clock_t temp_clk;
     sortcost(allcandidate, 0, (allcandidate.size()-1) );
-#if 0
+    int MAX_WEIGHT_SUM = getMaxSum(allcandidate);
+    vector<int> choosebase;
+    vector< vector<int> > allsumset;
+    bool find_flag = false;
+/*
     cout << "All base nodes:" << endl;
     for (int i = 0; i < allcandidate.size(); i++) {
         cout << allnodevec[allcandidate[i]].name << " " << allnodevec[allcandidate[i]].cost << endl;
     }
     cout << endl;
+*/
+    
+    //TODO: patch_onset + patch_offset
+    //Circuit_t twopatchckt;
+    // twopatchckt.readfile("patch.v");
+    //twopatchckt.readfile2("patch2.v");
+	//cout<<"------twopatchckt"<<endl;
+	//twopatchckt.print();
+	Circuit_t patchckt1_only;
+	patchckt1_only.readfile("patch.v");
+	patchckt1_only.topology_oriPI(SIM_ALL);
+	Circuit_t patchckt2_only;
+	patchckt2_only.readfile("patch2.v");
+	patchckt2_only.topology_oriPI(SIM_ALL);
+	//cout<<"------patchckt1_only"<<endl;
+	//patchckt1_only.print();
+	//cout<<"------patchckt2_only"<<endl;
+	//patchckt2_only.print();
+	//cout<<"------F_v_ckt"<<endl;
+	//F_v_ckt.print();
+
+    
+	Solver DLN_network;
+	
+	unsigned int bound_unsatDLN;
+	map<int, int> id_map_assume = constructDLN(DLN_network, F_v_ckt, patchckt1_only, patchckt2_only, allcandidate);	
+	vector<int> topo_order_cand = getsort_topology(allcandidate);
+	//vector<int> topo_order_patch = getsort_topology(allpatchnode);	
+	random_sim_before_DLN(relatedPI, topo_order_cand, allcandidate,patchckt1_only, patchckt2_only);
+	Random_SIM_PBD_TB rsim_pbd_tb = get_PBD_table(allcandidate, patchckt1_only, patchckt2_only);
+
+
+    for (int sum_i = 1; sum_i <= MAX_WEIGHT_SUM; sum_i++) {
+        cout << "SUM " << sum_i << endl;
+        temp_clk = clock();
+        double time_sec = double(temp_clk - start_clk)/CLOCKS_PER_SEC;
+        if ( time_sec > TIME_LIMIT) {
+            cout << "time out:" << time_sec << endl;
+            break;
+        }
+        allsumset = getSumSet(allcandidate, sum_i);
+        choosebase.clear();
+        for (int all_i = 0; all_i < allsumset.size(); all_i++) {
+            //TODO:
+            //if UNSAT, choosebase can cover, return true
+            copy(allsumset[all_i].begin(), allsumset[all_i].end(), back_inserter(choosebase));
+            /*
+            for (int all_j = 0; all_j < allsumset[all_i].size(); all_j++) {
+                cout << allnodevec[allsumset[all_i][all_j]].name << " ";
+            }
+            cout << endl;
+            */
+            find_flag = is_basenode_all_cover(DLN_network, id_map_assume, choosebase);
+            //cout << "find_flag " << find_flag << endl;
+            if (find_flag == true) {
+                cout << "UNSAT" << endl;
+				Solver DLN_network_unsat_part;
+				bound_unsatDLN = constructDLN_unsat_part(DLN_network_unsat_part, F_v_ckt, patchckt1_only, patchckt2_only, allcandidate, choosebase);
+				//must writ file before solve, or will lead to contradictory state.
+                if (!DLN_network_unsat_part.okay()) { 
+                    cout << "ERROR : DLN_network_unsat_part solver is in contradictory state\n"; /*exit(1);*/
+                    exit(1);
+				}								
+                DLN_network_unsat_part.toDimacs_nomap("mytest_AB.cnf", bound_unsatDLN+1);
+				if ( DLN_network_unsat_part.solve() == false) {
+					cout << "PASS ^0^ : DLN_network_unsat_part is UNSAT" << endl;
+				} else {
+					cout << "ERROR : DLN_network_unsat_part is SAT (must be UNSAT)" << endl;
+				}
+				writeLog(choosebase, "mytest_AB.cnf");
+                break;
+            } else {
+                choosebase.clear();
+            }
+        }
+        
+        if (find_flag == true) {
+            break;
+        }
+
+/*
+    for (int i = 0; i < allbaseset.size(); i++) {
+        cout << "set[" << i << "] size:" << allbaseset[i].size() << endl;
+        for (int j = 0; j < allbaseset[i].size(); j++) {
+            cout << "{";
+            for (list_it = allbaseset[i][j].begin(); list_it != allbaseset[i][j].end(); ++list_it) {
+                int node = *list_it;
+                cout << allnodevec[node].name << "(" << allnodevec[node].cost << ")";
+                cout << " ";
+            }
+            cout << "}" << endl;
+        }
+        cout << "===================" << endl;
+    }
+*/
+    }
+    return choosebase;
+}
 #endif
+#if DEBUG_DY
+vector<int> Circuit_t::getbaseset(vector<int>& relatedPI, vector<int>& allcandidate, Circuit_t& F_v_ckt, vector<int>& allpatchnode, Circuit_t& patchckt_off, vector<int>& allpatchnode_off)
+{
+    clock_t temp_clk;
+    sortcost(allcandidate, 0, (allcandidate.size()-1) );
+/*
+    cout << "All base nodes:" << endl;
+    for (int i = 0; i < allcandidate.size(); i++) {
+        cout << allnodevec[allcandidate[i]].name << " " << allnodevec[allcandidate[i]].cost << endl;
+    }
+    cout << endl;
+*/
     vector<int> choosebase;
     vector< vector< list<int> > > allbaseset;
     list<int>::iterator list_it;
@@ -468,7 +585,7 @@ vector<int> Circuit_t::getbaseset(vector<int>& relatedPI, vector<int>& allcandid
         }
         //cout << "size: " << allbaseset.back().size() << endl;
     }
-#if 0 
+/* 
     for (int i = 0; i < allbaseset.size(); i++) {
         cout << "set[" << i << "] size:" << allbaseset[i].size() << endl;
         for (int j = 0; j < allbaseset[i].size(); j++) {
@@ -482,7 +599,8 @@ vector<int> Circuit_t::getbaseset(vector<int>& relatedPI, vector<int>& allcandid
         }
         cout << "===================" << endl;
     }
-#endif
+*/
 
     return choosebase;
 }
+#endif
