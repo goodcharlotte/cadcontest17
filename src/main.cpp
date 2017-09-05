@@ -10,7 +10,7 @@ clock_t start_clk;
 int main(int argc, char * argv[])
 {    
 	start_clk = clock();
- 
+	vector<int> patchPI;
     if (argc != 6) {
         cout << "Usage: ./rpgen <F.v> <G.v> <weight.txt> <patch.v> <out.v> " << endl;
         return 0;
@@ -90,6 +90,8 @@ int main(int argc, char * argv[])
     vector<int> allcandidate_off;
     //patchckt_off.findRelatedNode(relatedPI, allpatchnode_off, allcandidate_off);
     choosebase = patchckt.getbaseset(relatedPI, allcandidate, F_v_ckt/* allpatchnode, patchckt_off, allpatchnode_off*/);
+	patchPI = F_v_ckt.inteporlation();
+	
 #endif
 
 #if DEBUG_GETSUMSET
