@@ -435,12 +435,17 @@ vector<int> Circuit_t::getbaseset(vector<int>& relatedPI, vector<int>& allcandid
                             } else {
 								Solver DLN_network_unsat_part;
 								bound_unsatDLN = constructDLN_unsat_part(DLN_network_unsat_part, F_v_ckt, patchckt1_only, patchckt2_only, allcandidate, choosebase);
+								//must writ file before solve, or will lead to contradictory state.
+								if (!DLN_network_unsat_part.okay()) { 
+									cout << "ERROR : DLN_network_unsat_part solver is in contradictory state\n"; /*exit(1);*/
+									exit(1);
+								}
+								DLN_network_unsat_part.toDimacs_nomap("mytest_AB.cnf", bound_unsatDLN+1);
 								if ( DLN_network_unsat_part.solve() == false) {
 									cout << "PASS ^0^ : DLN_network_unsat_part is UNSAT" << endl;
 								} else {
 									cout << "ERROR : DLN_network_unsat_part is SAT (must be UNSAT)" << endl;
 								}
-								DLN_network_unsat_part.toDimacs_nomap("mytest_AB.cnf", bound_unsatDLN+1);
 								writeLog(choosebase, "mytest_AB.cnf");                               
 								finish_flag = true;
                                 break;

@@ -835,26 +835,18 @@ int constructDLN_unsat_part(Solver &sat, Circuit_t &F_v_ckt, Circuit_t &patchckt
 	/////////the below should be partition A/////////////
 	//F.v 1
 	
-	relative_pi_f1 = fckt2CNF(sat, F_v_ckt, allcandidate, 0);
-	
-
+	relative_pi_f1 = fckt2CNF(sat, F_v_ckt, allcandidate, 0);	
 	sat_var_record_partcnf[0] = sat.nVars();
-	
 	if (!sat.okay()){ cout << "fckt2CNF 1 solver is in contradictory state\n";/*exit(1);*/}
-	
 	relative_pi_patch1 = relative_pi_f1;
 	init_mapvalue(relative_pi_patch1);
-	
 	//patch 1
 	patchckt2CNF(sat, patchckt1_only, relative_pi_patch1, sat_var_record_partcnf[0]);
-
 	sat_var_record_partcnf[1] = sat.nVars();
-
 	if (!sat.okay()){ cout << "patchckt2CNF 1 solver is in contradictory state\n"; /*exit(1);*/}
 	// relative_pi_f1 and relative_pi_f2 's name should be the same
 	check_mapvalue(relative_pi_patch1);	
 	bindpi2CNF(sat, relative_pi_f1, relative_pi_patch1);
-	
 	/////////the below should be partition B/////////////
 	
 	//F.v 2
@@ -862,18 +854,14 @@ int constructDLN_unsat_part(Solver &sat, Circuit_t &F_v_ckt, Circuit_t &patchckt
 	sat_var_record_partcnf[2] = sat.nVars();
 	relative_pi_patch2 = relative_pi_f2;
 	init_mapvalue(relative_pi_patch2);
-	
 	if (!sat.okay()){ cout << "fckt2CNF 2 solver is in contradictory state\n";/*exit(1);*/}
-	
 	//patch 2
 	patchckt2CNF(sat, patchckt2_only, relative_pi_patch2, sat_var_record_partcnf[2]);
-
 	if (!sat.okay()){ cout << "patchckt2CNF 2 solver is in contradictory state\n"; /*exit(1);*/}
 	sat_var_record_partcnf[3] = sat.nVars();
-
-	
 	check_mapvalue(relative_pi_patch2);	
 	bindpi2CNF(sat, relative_pi_f2, relative_pi_patch2);
+	if (!sat.okay()){ cout << "bindpi2CNF solver is in contradictory state\n"; /*exit(1);*/}
 	/*
 	cout << "@@@ relative_pi_f1" << endl;
 	print_map(relative_pi_f1);
@@ -889,10 +877,7 @@ int constructDLN_unsat_part(Solver &sat, Circuit_t &F_v_ckt, Circuit_t &patchckt
 		cout << "sat_var_record_partcnf " << i << ' ' << sat_var_record_partcnf[i] << '\n';
 	}	
 	
-	if (!sat.okay()){ cout << "bindpi2CNF solver is in contradictory state\n"; /*exit(1);*/}
 	DLNxnor_base_2CNF(sat, F_v_ckt, choosebase, sat_var_record_partcnf[1]);
-	
-	
 	if (!sat.okay()){ cout << "DLNxnor_base_2CNF solver is in contradictory state\n"; /*exit(1);*/}
 	
 
