@@ -24,6 +24,8 @@
 //#define INTERPOLANT11
 //#define INTERPOLANT100
 //#define SolveCHAINF
+//#define SolveROOT_F
+//#define INTERPOLANT22
 using namespace::std;
 
 
@@ -61,6 +63,10 @@ struct Term{
 	int AorB; //	ROOT: A = 0  B = 1    CHAIN: -1  Initial: -1
 	string ans;
 	string name;
+	vector<int> Operator; // 0 == buffer 1 == OR 2 == AND
+	vector<string> outputWire;
+	vector<string> OperandName;
+	vector<int> PIID;
 	
 };
 int tmpwire = 0;
@@ -71,6 +77,7 @@ vector<int> AllVariables;
 vector<string> AllVariablesName;
 vector<int> PIforPatch;
 vector<string> PIforPatchName;
+vector<string> AlltempWire;
 
 int IsInAllVar(int number){
 	for(int i = 0; i < AllVariables.size(); i++){
@@ -174,7 +181,7 @@ void SortAB()
 	
 	
 }
-
+/*
 void SolveROOT() {
 	
 	#ifdef TESTINSERT
@@ -237,7 +244,7 @@ void SolveROOT() {
 			T[i].ans.insert(0, "( 1'b1 ) ");
 		} else {
 			cout<<"ERROR SHOULD BE A OR B (ROOT) CHECK IF THIS IS A CHAIN"<<i<<endl;
-			//getchar();
+			
 		}
 	}
 	
@@ -254,10 +261,146 @@ void SolveROOT() {
 	
 }
 
+*/
 
+
+void Circuit_t::SolveROOT_Fix() {
+	
+	
+	int literalNum = 0;
+	string tmpROOTName, tmpInternalName;
+	string tmpName;
+	string ROOT_tmpnamehead = "tmpwire_";
+	
+	
+	
+	
+	for (int i = 0; i < T.size(); i++) {
+		if(!T[i].root)
+			break;
+		#ifdef INTERPOLANT19
+			cout<<"Solving ROOT "<<i<<endl;
+			cout<<"T[i].AorB = "<<T[i].AorB<<endl;
+		#endif
+		
+		
+		literalNum = 0;
+		tmpROOTName.clear();
+		tmpROOTName += ROOT_tmpnamehead;
+		tmpROOTName += IntToString(i);
+		AlltempWire.push_back(tmpROOTName);
+		
+		
+		if(T[i].AorB == 0){  //A
+			for(int j = 0; j < T[i].literals.size(); j++) {
+				
+				if ( IsInB(T[i].literals[j]) ){
+					literalNum++;
+					
+					tmpName.clear();
+					if( T[i].literals[j] < 0 ){
+						#ifdef INTERPOLANT19
+							cout<<"literal = "<<T[i].literals[j]<<endl;
+						#endif
+						tmpName += "~";
+						tmpName += allnodevec[ (T[i].literals[j]*(-1))-1 ].name;
+						T[i].PIID.push_back((T[i].literals[j]*(-1))-1);
+						T[i].OperandName.push_back(tmpName);
+						#ifdef INTERPOLANT19
+							cout<<"Operand Name = "<<tmpName<<endl;
+						#endif
+					} else {
+						#ifdef INTERPOLANT19
+							cout<<"literal = "<<T[i].literals[j]<<endl;
+						#endif
+						tmpName += allnodevec[(T[i].literals[j])-1].name;
+						T[i].PIID.push_back((T[i].literals[j])-1);
+						T[i].OperandName.push_back(tmpName);
+						#ifdef INTERPOLANT19
+							cout<<"Operand Name = "<<tmpName<<endl;
+						#endif
+					}
+					
+					if(literalNum == 1) ;
+					else if(literalNum == 2) {
+						T[i].Operator.push_back(1);
+					} else if(literalNum > 2) {
+						tmpInternalName.clear();
+						tmpInternalName += tmpROOTName;
+						tmpInternalName += "_";
+						tmpInternalName += IntToString(literalNum-3);
+						AlltempWire.push_back(tmpInternalName);
+						T[i].Operator.push_back(1);
+						T[i].outputWire.push_back(tmpInternalName);
+						T[i].OperandName.push_back(tmpInternalName);
+						
+					}
+				}
+				
+				
+				
+			}
+			
+			if(literalNum == 0) {
+				T[i].outputWire.push_back(tmpROOTName);
+				T[i].Operator.push_back(0);
+				T[i].OperandName.push_back("1'b0");
+			} else if(literalNum == 1) {
+				T[i].outputWire.push_back(tmpROOTName);
+				T[i].Operator.push_back(0);
+			}else {
+				T[i].outputWire.push_back(tmpROOTName);
+			}
+			
+			
+		
+		} else if (T[i].AorB == 1) { // B
+			T[i].outputWire.push_back(tmpROOTName);
+			T[i].Operator.push_back(0);
+			T[i].OperandName.push_back("1'b1");
+		} else {
+			cout<<"ERROR SHOULD BE A OR B (ROOT) CHECK IF THIS IS A CHAIN"<<i<<endl;
+			
+		}
+	}
+	
+	#ifdef INTERPOLANT20
+		for (int i = 0; i < T.size(); i++) {
+			if(!T[i].root)
+				break;
+			
+			cout<<endl<<"Final A is "<<endl;
+			for(int j = 0; j < VariableInA.size(); j++)
+				cout<<VariableInA[j]<<" ";
+			cout<<endl<<"Final B is "<<endl;
+			for(int j = 0; j < VariableInB.size(); j++)
+				cout<<VariableInB[j]<<" ";
+			cout<<endl;
+			
+			cout<<i<<" name is "<<T[i].name<<endl<<endl;
+			for (int j = 0; j < T[i].Operator.size(); j++) {
+				cout<<"assign "<<T[i].outputWire[j]<<" = "<<T[i].OperandName[j*2]<<" ";
+				if(T[i].Operator[j] == 0)
+					cout<<";"<<endl;
+				else if(T[i].Operator[j] == 1){
+					cout<<"| "<<T[i].OperandName[j*2+1]<<" ;"<<endl;
+				}
+				else{
+					cout<<"ERROR Operator SHOULD NOT BE "<<T[i].Operator[j]<<endl;
+				}
+			}
+			cout<<i<<" end"<<endl<<endl;
+			
+		}
+	#endif
+	
+	
+	
+}
+
+
+/*
 void SolveCHAIN(int CHAINId) {
-	
-	
 	
 	// First Two Clause
 	if(IsInB(T[CHAINId].Operateliteral[0])) {  // c1 and c2
@@ -311,6 +454,44 @@ void SolveCHAIN(int CHAINId) {
 	#endif
 	
 }
+*/
+void SolveCHAIN_Fix(int CHAINId) {
+	
+	int interwirenum = 0;
+	string Clause_tmpoutputname;
+	string tmpName;
+	string Clause_tmpName = "tmpwire_";
+	tmpName += "tmpwire_";
+	Clause_tmpName += IntToString(CHAINId);
+	Clause_tmpoutputname += Clause_tmpName;
+	Clause_tmpoutputname += "_";
+	
+	AlltempWire.push_back(Clause_tmpName);
+	for (int i = 0; i < T[CHAINId].Operateliteral.size(); i++) {
+		if(i == 0) {
+			T[CHAINId].OperandName.push_back(tmpName+IntToString(T[CHAINId].OperateTermID[0]));
+			T[CHAINId].OperandName.push_back(tmpName+IntToString(T[CHAINId].OperateTermID[1]));
+		} else {
+			T[CHAINId].OperandName.push_back(tmpName+IntToString(T[CHAINId].OperateTermID[i+1]));
+			T[CHAINId].OperandName.push_back(Clause_tmpoutputname+IntToString(interwirenum));
+			T[CHAINId].outputWire.push_back(Clause_tmpoutputname+IntToString(interwirenum));
+			AlltempWire.push_back(Clause_tmpoutputname+IntToString(interwirenum));
+			interwirenum++;
+		}
+		
+		if(IsInB(T[CHAINId].Operateliteral[i])) {
+			T[CHAINId].Operator.push_back(2);
+		} else {
+			T[CHAINId].Operator.push_back(1);
+		}
+		
+	}
+	T[CHAINId].outputWire.push_back(Clause_tmpName);
+	
+	
+	
+}
+
 
 void FindInterpoland(int CHAINId) {
 	
@@ -319,7 +500,36 @@ void FindInterpoland(int CHAINId) {
 		#ifdef INTERPOLANT5
 			cout<<"Now Id : "<<i<<endl;
 		#endif
-		SolveCHAIN(i);
+		SolveCHAIN_Fix(i);
+	//	SolveCHAIN(i);
+		
+		#ifdef INTERPOLANT21
+			cout<<endl<<"Final A is "<<endl;
+			for(int j = 0; j < VariableInA.size(); j++)
+				cout<<VariableInA[j]<<" ";
+			cout<<endl<<"Final B is "<<endl;
+			for(int j = 0; j < VariableInB.size(); j++)
+				cout<<VariableInB[j]<<" ";
+			cout<<endl<<endl;
+			
+			cout<<i<<" name is "<<T[i].name<<endl;
+			for (int j = 0; j < T[i].Operator.size(); j++) {
+				cout<<"assign "<<T[i].outputWire[j]<<" = "<<T[i].OperandName[j*2]<<" ";
+				if(T[i].Operator[j] == 0)
+					cout<<";"<<endl;
+				else if(T[i].Operator[j] == 1){
+					cout<<"| "<<T[i].OperandName[j*2+1]<<" ;"<<endl;
+				}
+				else if(T[i].Operator[j] == 2){
+					cout<<"& "<<T[i].OperandName[j*2+1]<<" ;"<<endl;
+				}
+				else {
+					cout<<"ERROR Operator SHOULD NOT BE "<<T[i].Operator[j]<<endl;
+				}
+			}
+			cout<<i<<" end"<<endl<<endl;
+		#endif
+		
 		
 	}
 	
@@ -405,12 +615,12 @@ void IncreaseTerm(string Tname, bool RootOrChain)
 				
 				if(IDorLIT) {
 					cout<<"ERROR: LAST ONE SHOULD NOT BE LIT"<<endl;
-					//getchar();
+					
 				}
 				
 				if(!CLast) {
 					cout<<"CLast SHOULD BE TRUE IN THE END"<<endl;
-					//getchar();
+					
 				}
 				
 				NewT.CHAINLast.push_back(StringToInt(tmplit));
@@ -480,7 +690,7 @@ void readPartition(char* filename)
 			else {
 				cout<<"ERROR: SHOULD BE A OR B"<<endl;
 				cout<<"tmpstr = "<<tmpstr<<endl;
-				//getchar();
+				
 			}
 		} else if(tmpstr.find("PI") != -1){
 				
@@ -565,7 +775,7 @@ void readPartition(char* filename)
 						}
 						else {
 							cout<<"ERROR: T[i].AorB SHOULD BE NULL (-1) BUT IT IS "<<T[i].AorB<<endl;
-							//getchar();
+							
 						}
 						break;
 					}
@@ -575,9 +785,11 @@ void readPartition(char* filename)
 	}
 	
 	SortAB();
-	cout<<"SortAB"<<endl;
-	SolveROOT();
-	cout<<"SolveROOT"<<endl;
+	//cout<<"SortAB"<<endl;
+	//SolveROOT();
+	
+	
+	
 	fin.close();
 	return ;
 }
@@ -636,7 +848,7 @@ int readMinisatLog(char* filename)   //return First Chain Id
 	fin.close();
 	return rootCount;
 }
-
+/*
 void Circuit_t::WriteInterpoland()
 {
 	string tmpnamehead = "tmpwire_";
@@ -690,7 +902,7 @@ void Circuit_t::WriteInterpoland()
 					OperateInvolve = 0;
 				} else if ( (tmpstr.back() == '|' || tmpstr.back() == '&') && OperateInvolve != -1) {
 					cout<<"ERROR OperateInvolve SHOULD BE -1"<<endl;
-					//getchar();
+					
 				} else if (tmpstr.back() == ' ' || tmpstr.back() == ')'){
 					
 				} else if (tmpstr.back() == '-') {
@@ -753,7 +965,7 @@ void Circuit_t::WriteInterpoland()
 							for(int i = 0; i < checkstr.size();i++){
 								tmpstr.push_back(checkstr[i]);
 							}
-						} else */
+						} else */ /*
 						if(IsInPI(StringToInt(tmpcheck)-1)!=-1) {
 							
 							tmpstr.push_back(checkstr[0]);
@@ -809,7 +1021,7 @@ void Circuit_t::WriteInterpoland()
 							for(int i = 0; i < checkstr.size();i++){
 								tmpstr.push_back(checkstr[i]);
 							}
-						} else */
+						} else */ /*
 						if(IsInPI(StringToInt(tmpcheck)-1)!=-1) {
 							
 							checkstr.clear();
@@ -933,7 +1145,7 @@ void Circuit_t::WriteInterpoland()
 		getline(fin, bufferstr, '\n');
 		#ifdef INTERPOLANT14
 			cout<<"bufferstr = "<<bufferstr<<endl;
-			//getchar();
+			
 		#endif
 		if(bufferstr.find("endmodule")!=-1){
 			ffout<<bufferstr<<endl<<endl;
@@ -947,7 +1159,7 @@ void Circuit_t::WriteInterpoland()
 	
 	#ifdef INTERPOLANT100
 			cout<<"start ABC"<<endl;
-			getchar();
+			
 	#endif
 	
 	
@@ -970,7 +1182,7 @@ void Circuit_t::WriteInterpoland()
 	
 	#ifdef INTERPOLANT100
 			cout<<"end ABC"<<endl;
-			getchar();
+			
 	#endif
 	
 	
@@ -980,7 +1192,123 @@ void Circuit_t::WriteInterpoland()
 	
 }
 
+*/
+void Circuit_t::WriteInterpoland_Fix() {
+	#ifdef INTERPOLANT22
+		cout<<"T size is: "<<T.size()<<endl;
+	#endif
+	vector<int>::iterator eraseit;
+	vector<bool> Visit_Clause;
+	for(int i = 0; i < T.size(); i++)
+		Visit_Clause.push_back(false);
+	
+	vector<int> Q;
+	vector<int> Collect_ROOT;
+	string tmpnamehead = "tmpwire_";
+	string tmpname;
+	ofstream fout;
+	ifstream fin;
+	fout.open("tmp_inte0_patch.v",ios::out);
+	fout<<"assign t_0 = "<<tmpnamehead+(IntToString(T.size()-1))<<" ;"<<endl;
+	Q.push_back(T.size()-1);
+	while(!Q.empty()){
+		if(Visit_Clause[Q[0]] == true) {
+			Q.erase(Q.begin());
+		}
+		else {
+			Visit_Clause[Q[0]] = true;
+			
+			if(!T[Q[0]].root){
+				for (int i = 0; i < T[Q[0]].OperateTermID.size(); i++){
+					Q.push_back(T[Q[0]].OperateTermID[i]);
+				}
+			} else{
+				Collect_ROOT.push_back(Q[0]);
+			}
+			
+			for(int i = 0; i < T[Q[0]].Operator.size(); i++) {
+				fout<<"assign "<<T[Q[0]].outputWire[i]<<" = "<<T[Q[0]].OperandName[i*2]<<" ";
+				if(T[Q[0]].Operator[i] == 0){
+					fout<<";"<<endl;
+				} else if(T[Q[0]].Operator[i] == 1) {
+					fout<<"| "<<T[Q[0]].OperandName[i*2+1]<<" ;"<<endl;
+				} else if(T[Q[0]].Operator[i] == 2) {
+					fout<<"& "<<T[Q[0]].OperandName[i*2+1]<<" ;"<<endl;
+				} else {
+					cout<<"ERROR Operator SHOULD NOT BE "<<T[0].Operator[i]<<endl;
+				}
+			}
+			Q.erase(Q.begin());
+		}
+	}
+	fout<<"endmodule"<<endl<<endl;
+	fout.close();
+	
+	sort(Collect_ROOT.begin(), Collect_ROOT.end());
+	
+	eraseit = unique(Collect_ROOT.begin(), Collect_ROOT.end());
+	Collect_ROOT.erase(eraseit, Collect_ROOT.end());
+	
+	for(int i = 0; i < Collect_ROOT.size(); i++){
+		
+		for(int j =0; j < T[Collect_ROOT[i]].PIID.size(); j++)
+			PIforPatch.push_back(T[Collect_ROOT[i]].PIID[j]);
+	}
+	sort(PIforPatch.begin(), PIforPatch.end());
+	
+	eraseit = unique(PIforPatch.begin(), PIforPatch.end());
+	PIforPatch.erase(eraseit, PIforPatch.end());
+	
+	fin.open("tmp_inte0_patch.v",ios::in);
+	string tmpstr;
+	fout.open("tmp_inte1_patch.v",ios::out);
+	fout<<"module  patch ( ";
+	for(int i = 0; i < PIforPatch.size(); i++)
+		fout<<allnodevec[PIforPatch[i]].name<<" , ";
+	fout<<"t_0 );"<<endl;
+	fout<<"input ";
+	for(int i = 0; i < PIforPatch.size()-1; i++)
+		fout<<allnodevec[PIforPatch[i]].name<<" , ";
+	fout<<allnodevec[PIforPatch[PIforPatch.size()-1]].name<<" ;"<<endl;
+	fout<<"output t_0 ;"<<endl;
+	fout<<"wire ";
+	for(int i = 0; i < AlltempWire.size()-1; i++)
+		fout<<AlltempWire[i]<<" , ";
+	fout<<AlltempWire[AlltempWire.size()-1]<<" ;"<<endl;
+	while(1) {
+		tmpstr.clear();
+		getline(fin, tmpstr, '\n');
+		if(tmpstr.find("endmodule")!=-1){
+			fout<<tmpstr<<endl<<endl;
+			break;
+		} else{
+			fout<<tmpstr<<endl;
+		}
+	}
+	
+	
+	ofstream w_file2;
+    w_file2.open("resyntemp_Patch_Fix.script",ios::out);
+    w_file2 << "read_verilog tmp_inte1_patch.v"<< endl;
+    //w_file2 << "resyn2" << endl;
+    //w_file2 << "resyn2rs" << endl;
+    //w_file2 << "compress2rs" << endl;
+    //w_file2 << "resyn2rs" << endl;
+    //w_file2 << "compress2rs" << endl;
+    w_file2 << "resyn2rs" << endl;
+    w_file2 << "compress2rs" << endl;
+    w_file2 << "read_library mcnc.genlib" << endl;
+    w_file2 << "map" << endl;
+    w_file2 << "write_verilog " << "patch.v" << endl;
+    w_file2.close();
 
+    system("./abc -f resyntemp_Patch_Fix.script");
+	
+	
+	
+	
+	
+}
 
 vector<int> Circuit_t::inteporlation()
 { 
@@ -994,6 +1322,15 @@ vector<int> Circuit_t::inteporlation()
 	CHAINfirstID = readMinisatLog(minisatname);
 
 	readPartition(partitionname);
+	
+	#ifdef SolveROOT_F
+		cout<<"SolveROOT_Fix"<<endl;
+	#endif
+	SolveROOT_Fix();
+	#ifdef SolveROOT_F
+		cout<<"end SolveROOT_Fix"<<endl;
+	#endif
+	
 	
 	#ifdef INTERPOLANT
 		for (int i = 0; i < T.size(); i++) {
@@ -1028,13 +1365,13 @@ vector<int> Circuit_t::inteporlation()
 		}
 	#endif
 	FindInterpoland(CHAINfirstID);
-	
+	WriteInterpoland_Fix();
 	#ifdef INTERPOLANT9
 		for (int i = 0; i < T.size(); i++)
 			cout<<i<<" ans : "<<T[i].ans<<endl;
 	#endif
 	
-	WriteInterpoland();
+	//WriteInterpoland();
 	
 	#ifdef INTERPOLANT100
 		cout<<"end inteporlation"<<endl;
