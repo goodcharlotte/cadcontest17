@@ -629,7 +629,23 @@ void Circuit_t::random_sim_gene_input(vector<int> &relatedPI, Circuit_t &ckt1, C
 		exit(1);
 	}
 	#endif
-	
+    
+    //constant 0 & constant 1
+    if (allnodevalue.size() > 1) {
+        allnodevalue[0] = 0;
+        allnodevalue[1] = -1;
+    }
+    //constant 0 & constant 1
+    if (ckt1.allnodevalue.size() > 1) {
+        ckt1.allnodevalue[0] = 0;
+        ckt1.allnodevalue[1] = -1;
+    }
+    //constant 0 & constant 1
+    if (ckt2.allnodevalue.size() > 1) {
+        ckt2.allnodevalue[0] = 0;
+        ckt2.allnodevalue[1] = -1;
+    }
+
 	for (unsigned int i = 0; i < relatedPI.size(); i++) {
 		int random_num = rand();
 		//cout << bitset<SHOW_BIT_SET>(random_num) << " = " << random_num << endl;
