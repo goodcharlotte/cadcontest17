@@ -12,6 +12,10 @@ using namespace::std;
 #define STR_COMPARE_FAIL  "fail"
 #define SYMBOL_ERROR      'X'
 
+
+
+#define EN_ERROR_EXIT 1
+
 string compare_minterm(string str1, string str2);
 string to_str(int num, int leng);
 vector<string> McCluskey(vector<string> &minterm);
@@ -29,11 +33,12 @@ void print_signature(const vector< vector<string> > &sig)
 }
 
 string compare_minterm(string str1, string str2) {
-	
+	#if EN_ERROR_EXIT
 	if (str1.size() != str2.size()) {
 		cout << "Error : in compare_minterm , str1.size() != str2.size()" << endl;
 		exit(1);
 	}
+	#endif
 	int size = str1.size();
 	int diff_idx = -1;
 	for (int i = 0; i < size; i++) {
@@ -433,11 +438,15 @@ int Circuit_t::calculate_gate_out(GateType gate_type, vector<int> in)
 					break;
 				case PORT:
 					cout << "Error: calculate_gate_out case PORT, PI & target node should not go there!!" <<endl; 
+					#if EN_ERROR_EXIT
 					exit(1);
+					#endif 
 					break;
 				default:
 					cout << "Error: calculate_gate_out case default , should not go there!!" <<endl; 
+					#if EN_ERROR_EXIT
 					exit(1);
+					#endif
 					break;					
 			}  
 		}
@@ -489,9 +498,7 @@ void Circuit_t::init_simulation()
 						   281470681808895,
 						   4294967295};
 	#else 
-		int offset_value[5];
-		cout << "Error : Please choose OFFSET_BIT = 5 or 6" <<endl;
-		exit(1);
+		#error : Please choose OFFSET_BIT = 5 or 6
 	#endif 
 	
 	input_target_pattern(0);
@@ -611,6 +618,7 @@ void Circuit_t::random_sim_gene_input(vector<int> &relatedPI, Circuit_t &ckt1, C
 	srand (time(NULL));
 	//cout << "random_sim_gene_input relatedPI.size() = " << relatedPI.size() << endl;
 	
+	#if EN_ERROR_EXIT
 	//do some check
 	if (!((relatedPI.size() == ckt1.pi.size()) &&
     	(ckt2.pi.size() == ckt1.pi.size()))) {
@@ -620,6 +628,7 @@ void Circuit_t::random_sim_gene_input(vector<int> &relatedPI, Circuit_t &ckt1, C
 		cout << "ckt2.pi.size " << ckt2.pi.size() << endl;
 		exit(1);
 	}
+	#endif
 	
 	for (unsigned int i = 0; i < relatedPI.size(); i++) {
 		int random_num = rand();
@@ -790,13 +799,14 @@ void Circuit_t::random_sim_before_DLN(vector<int> &relatedPI,
 										Circuit_t &patchckt2_only)
 {
 	
-	
+	#if EN_ERROR_EXIT
 	if ((patchckt1_only.po.size() != 1) || (patchckt2_only.po.size() != 1)){
 		cout << "Error : "	<< "patchckt1_only po size" << patchckt1_only.po.size() << endl;
 		cout << "        "	<< "patchckt2_only po size" << patchckt2_only.po.size() << endl;
 		cout << "(Should be only one po)" << endl;
 		exit(1);
 	}
+	#endif
 	unsigned int i;
 	int id_t0_p1;
 	int id_t0_p2;
@@ -870,12 +880,13 @@ Random_SIM_PBD_TB Circuit_t::get_PBD_table(vector<int> &allcandidate, Circuit_t 
 	//check if and gate = 1, doesn't make sense
 	// result_t0_p1 bit=1==> onset
 	// result_t0_p2 bit=1==> offset
+	#if EN_ERROR_EXIT
 	if ((result_t0_p1 & result_t0_p2) != 0) {
 		cout << "Error : get_PBD_table patch1 and patch2 output in contradictory" << endl;
 		cout << "result_t0_p1 & result_t0_p2" << endl;
 		exit(1);
 	}
-	
+	#endif
 	rsim_pbd_tb.PBD_needed = get_PBD_needed(result_t0_p1, dc);
 	//cout << "~~~PBD_needed" << endl;
 	//print_vector(rsim_pbd_tb.PBD_needed);

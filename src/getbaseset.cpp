@@ -417,7 +417,7 @@ vector<int> Circuit_t::getbaseset(vector<int>& relatedPI, vector<int>& allcandid
 				//must writ file before solve, or will lead to contradictory state.
                 if (!DLN_network_unsat_part.okay()) { 
                     cout << "ERROR : DLN_network_unsat_part solver is in contradictory state\n"; /*exit(1);*/
-                    exit(1);
+                    //exit(1);
 				}								
                 DLN_network_unsat_part.toDimacs_nomap("mytest_AB.cnf", bound_unsatDLN+1);
 				if ( DLN_network_unsat_part.solve() == false) {
