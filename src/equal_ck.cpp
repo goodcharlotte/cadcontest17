@@ -309,11 +309,11 @@ void gate2CNF(Solver& sat, int gate_out, Node_t gate, unsigned int id_offset)
 
 					
 			} else {	
-				cout << "gate_out "<<  OFFSET_CNFID(gate_out, id_offset) << endl;
+				//cout << "gate_out "<<  OFFSET_CNFID(gate_out, id_offset) << endl;
 				clause_num = (1 << ((gate.in).size()));
 				vec_lit.clear();
 				bit1_num = 0;
-				cout << "XOR clause_num " << clause_num << endl;
+				//cout << "XOR clause_num " << clause_num << endl;
 				for (int i = 0; i < clause_num; i++) {
 					vec_lit.clear();
 					bit1_num = 0;				
@@ -506,26 +506,7 @@ map<string, int> fckt2CNF(Solver &sat, Circuit_t & ckt, vector<int> &allcandidat
 	return relative_pi;
 }
 
-void in2_xor_not2CNF(Solver &sat, int in1, int in2, int out)
-{
-	int xor_out = sat.newVar();
-	cout << "in2_xor_not2CNF xor_out" << xor_out << endl;
-	//C = A xor B
-	sat.addClause(~mkLit(in1), ~mkLit(in2), ~mkLit(xor_out));
-	sat.addClause( mkLit(in1),  mkLit(in2), ~mkLit(xor_out));
-	sat.addClause( mkLit(in1), ~mkLit(in2),  mkLit(xor_out));
-	sat.addClause(~mkLit(in1),  mkLit(in2),  mkLit(xor_out));
-	
-	/*
-		C = not A
-		(A V C) ^ (-A V ~C)
-	*/
-	sat.addClause(mkLit(xor_out), mkLit(out));	
-	sat.addClause(~mkLit(xor_out), ~mkLit(out));	
-	
-	
-	
-}
+
 void in2_xnor2CNF(Solver &sat, int in1, int in2, int out)
 {
 	/*
@@ -696,7 +677,6 @@ void DLNxnor_base_2CNF(Solver &sat, Circuit_t &ckt, vector<int> &choosebase, uns
 			all_xnor_and.push_back(id_xnor_out);
 			// id_xnor_out = g1 nxor g2
 			in2_xnor2CNF(sat, node_cout, OFFSET_CNFID(node_cout, id_offset), id_xnor_out);	
-			//in2_xor_not2CNF(sat, node_cout, OFFSET_CNFID(node_cout, id_offset), id_xnor_out);
 			#if DEBUG_DLN
 			cout << node_cout << " xnor " << OFFSET_CNFID(node_cout, id_offset) << " = " << id_xnor_out << endl;
 			#endif
