@@ -443,19 +443,6 @@ void Circuit_t::findRelatedNode(vector<int> relatedPI, vector<int>& allpatchnode
 
 void Circuit_t::sortcost(vector<int>& array, int left, int right)
 {
-    if (array.size() == 0) {
-		return;
-	}
-	
-	for (int i = 0; i < array.size() - 1; i++) {
-        for (int j = i + 1; j < array.size(); j++) {
-            if (allnodevec[array[i]].cost > allnodevec[array[j]].cost) {
-                swap(array[i], array[j]);
-            }
-        }
-    }
-    
-    /*
     if (left < right) {
         // divide (partition)
         int pivot = array[(left + right) / 2];
@@ -475,10 +462,9 @@ void Circuit_t::sortcost(vector<int>& array, int left, int right)
         }
 
         // then conquer
-        quicksort(array, left, i - 1);
-        quicksort(array, j + 1, right);
+        sortcost(array, left, i - 1);
+        sortcost(array, j + 1, right);
     }
-    */
 }
 
 void Circuit_t::removecostINF(vector<int>& allcandidate)
