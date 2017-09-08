@@ -180,6 +180,14 @@ void Circuit_t::updateCostSumFlag(vector<int>& allcandidate, int costsum_index)
         costsum_flag.push_back(UNKNOW);
     }
 
+    start_index = 0;
+    while (costsum_flag[start_index] != UNKNOW) {
+        start_index++;
+        if (start_index == costsum_index) {
+            break;
+        }
+    }
+
     if (start_index < getMaxCost(allcandidate)) {
         updateSingleCost(allcandidate);
     }
@@ -333,10 +341,49 @@ void Circuit_t::writeLog(vector<int>& choosebase, string cnfname_AB)
         system(cmd_str.c_str());
     }
 }
+
+vector<int> Circuit_t::check_cost(vector<int>& allcandidate)
+{
+    vector<bool> remove_flag(allnodevec.size(), false);
+    //Check BUF and NOT (pick small cost)
+    int node = 0;
+    int in_node = 0;
+    for (int i = 0; i < allcandidate.size(); i++) {
+        node = allcandidate[i];
+        if ((allnodevec[node].type == NOT) || (allnodevec[node].type == BUF)) {
+            if (allnodevec[node].in.size() == 1) {
+                in_node = allnodevec[node].in[0];
+                if (allnodevec[node].cost < allnodevec[in_node].cost) {
+                    remove_flag[in_node] = true;
+                } else {
+                    remove_flag[node] = true;
+                }
+            } else {
+                cout << "ERROR! gate NOT & gate BUF has only one input!" << endl;
+            }
+        }
+    }
+
+    vector<int> temp_vec;
+    for (int i = 0; i < allcandidate.size(); i++) {
+        node = allcandidate[i];
+        if (remove_flag[node] == false) {
+            temp_vec.push_back(node);
+        } else {
+            //cout << "skip NOT& BUF: " << allnodevec[node].name << endl; 
+            continue;
+        }
+    }
+
+    return temp_vec;
+
+}
+
 vector<int> Circuit_t::getbaseset(vector<int>& relatedPI, vector<int>& allcandidate, Circuit_t& F_v_ckt)
 {
     clock_t temp_clk;
     int MAX_WEIGHT_SUM = getMaxSum(allcandidate);
+    vector<int> nobuf_candidate = check_cost(allcandidate);
     vector<int> choosebase;
     vector< vector<int> > allsumset;
     bool find_flag = false;
@@ -347,7 +394,7 @@ vector<int> Circuit_t::getbaseset(vector<int>& relatedPI, vector<int>& allcandid
     }
     cout << endl;
 */
-    
+
     //TODO: patch_onset + patch_offset
     //Circuit_t twopatchckt;
     //twopatchckt.readfile("patch.v");
@@ -381,15 +428,17 @@ vector<int> Circuit_t::getbaseset(vector<int>& relatedPI, vector<int>& allcandid
 	vector<int> topo_order_cand = getsort_topology(allcandidate);
 	random_sim_before_DLN(relatedPI, topo_order_cand, allcandidate,patchckt1_only, patchckt2_only);
 	Random_SIM_PBD_TB rsim_pbd_tb = get_PBD_table(allcandidate, patchckt1_only, patchckt2_only);
+
     for (int sum_i = 1; sum_i <= MAX_WEIGHT_SUM; sum_i++) {
-        //cout << "SUM " << sum_i << endl;
+        cout << "SUM " << sum_i << endl;
         temp_clk = clock();
         double time_sec = double(temp_clk - start_clk)/CLOCKS_PER_SEC;
         if ( time_sec > TIME_LIMIT) {
             cout << "time out:" << time_sec << endl;
             break;
         }
-        allsumset = getSumSet(allcandidate, sum_i);
+
+        allsumset = getSumSet(nobuf_candidate, sum_i);
         choosebase.clear();
         for (int all_i = 0; all_i < allsumset.size(); all_i++) {
             //TODO:

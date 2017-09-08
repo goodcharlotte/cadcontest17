@@ -540,23 +540,25 @@ void Circuit_t::findReplaceCost(vector<int>& relatedPI, vector<int>& allcandidat
 	vector<int> topo_order_patch = getsort_topology(allpatchnode);
 	//cout << "topo_order_cand size " << topo_order_cand.size() << endl;
 	vector<int> possible_candidate;
+    vector<int> nobuf_possible_candidate;
 	for (int p_wire = 0; p_wire < allpatchnode.size(); p_wire++) {
         int p_node = allpatchnode[p_wire];
         bool find_replace = false;
 		possible_candidate = random_sim_compare(relatedPI, topo_order_cand, topo_order_patch, p_node);
-        sortcost(possible_candidate, 0, possible_candidate.size() - 1);
+        nobuf_possible_candidate = check_cost(possible_candidate);
+        sortcost(nobuf_possible_candidate, 0, nobuf_possible_candidate.size() - 1);
 		//cout << "===current p wire " << allnodevec[allpatchnode[p_wire]].name << endl;
 		//for(int i = 0; i < possible_candidate.size(); i++) {
 			//cout << allnodevec[possible_candidate[i]].name << " " << allnodevec[possible_candidate[i]].cost << endl;
 		//}
-		for (int can_wire = 0; can_wire < possible_candidate.size(); can_wire++) {
+		for (int can_wire = 0; can_wire < nobuf_possible_candidate.size(); can_wire++) {
             //cout << "time: " << time_sec << endl;
             stop_clk = clock();
             double time_sec = double(stop_clk - start_clk)/CLOCKS_PER_SEC;
-            if ( time_sec > 1500) {
+            if ( time_sec > TIME_LIMIT  ) {
                 break;
             }
-            int can_node = possible_candidate[can_wire];
+            int can_node = nobuf_possible_candidate[can_wire];
             if (allnodevec[can_node].cost == INF) {
                 break;
             }
@@ -589,7 +591,7 @@ void Circuit_t::findReplaceCost(vector<int>& relatedPI, vector<int>& allcandidat
             //cout << "time: " << time_sec << endl;
             stop_clk = clock();
             double time_sec = double(stop_clk - start_clk)/CLOCKS_PER_SEC;
-            if ( time_sec > 1500) {
+            if ( time_sec > TIME_LIMIT ) {
                 break;
             }
             int can_node = allcandidate[can_wire];

@@ -153,10 +153,11 @@ public:
     vector<int> findRelatedPO();
     vector<int> findRelatedPI(vector<int> relatedPO);
     void findRelatedNode(vector<int> relatedPI, vector<int>& allpatchnode, vector<int>& allcandidate);
+    vector<int> check_cost(vector<int>& allcandidate);
     void findReplaceCost(vector<int>& relatedPI, vector<int>& allcandidate, vector<int>& allpatchnode, vector<Node_t>& PatchNode);
     void findReplaceNode(vector<Node_t>& PatchNode);
     int getMaxSum(vector<int>& allcandidate);
-    vector<int> getbaseset(vector<int>& relatedPI, vector<int>& allcandidate, Circuit_t& F_v_ckt/*vector<int>& allpatchnode, Circuit_t& patchckt_off, vector<int>& allpatchnode_off*/);
+    vector<int> getbaseset(vector<int>& relatedPI, vector<int>& allcandidate, Circuit_t& F_v_ckt);
     list<int> check_include(list<int>& subset, int& checknode);
     bool write_patch(vector<int>& relatedPI);
     void updateName(vector<int>& nodeID, vector<string>& nodeName);

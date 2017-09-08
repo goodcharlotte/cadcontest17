@@ -770,7 +770,7 @@ vector<int> Circuit_t::random_sim_compare(vector<int> &relatedPI, vector<int> &t
 
 	
 	while((count_fail < END_RANDSIM_RATIO * total_cand) && (try_times < END_RANDSIM_TIMES)) {
-		//if (timeout(1500)) {
+		//if (timeout(TIME_LIMIT)) {
 		//	break;
 		//}
 		random_sim_gene_input(relatedPI);
