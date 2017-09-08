@@ -348,18 +348,38 @@ vector<int> Circuit_t::check_cost(vector<int>& allcandidate)
     //Check BUF and NOT (pick small cost)
     int node = 0;
     int in_node = 0;
+    int fanin_cost = 0;
+
     for (int i = 0; i < allcandidate.size(); i++) {
         node = allcandidate[i];
-        if ((allnodevec[node].type == NOT) || (allnodevec[node].type == BUF)) {
-            if (allnodevec[node].in.size() == 1) {
-                in_node = allnodevec[node].in[0];
-                if (allnodevec[node].cost < allnodevec[in_node].cost) {
+        if (allnodevec[node].cost == INF) {
+            remove_flag[node] = true;
+            continue;
+        }
+        // PI
+        if (allnodevec[node].in.size() == 0) {
+            continue;
+        }
+
+        fanin_cost = 0;
+        for (int fanin = 0; fanin < allnodevec[node].in.size(); fanin++) {
+            in_node = allnodevec[node].in[fanin];
+            fanin_cost += allnodevec[in_node].cost;
+            if (allnodevec[in_node].cost == INF) {
+                break;
+            }
+        }
+
+        if (allnodevec[node].cost > fanin_cost) {
+            remove_flag[node] = true;
+        } else {
+            if ((allnodevec[node].type == NOT) || (allnodevec[node].type == BUF)) {
+                if (allnodevec[node].in.size() == 1) {
+                    in_node = allnodevec[node].in[0];
                     remove_flag[in_node] = true;
                 } else {
-                    remove_flag[node] = true;
+                    cout << "ERROR! gate NOT & gate BUF has only one input!" << endl;
                 }
-            } else {
-                cout << "ERROR! gate NOT & gate BUF has only one input!" << endl;
             }
         }
     }
