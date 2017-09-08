@@ -9,7 +9,6 @@ extern bool is_basenode_all_cover(Solver &sat, map<int, int> &id_map, const vect
 #define UNKNOW -1
 #define NO_ANS 0
 #define HAVE_ANS 1
-#define ONCE_TIME 3
 
 bool check_redundantset(vector< list<int> >& tempset, list<int>& checkset)
 {
@@ -334,11 +333,9 @@ void Circuit_t::writeLog(vector<int>& choosebase, string cnfname_AB)
         system(cmd_str.c_str());
     }
 }
-#if DEBUG_RECUR
-vector<int> Circuit_t::getbaseset(vector<int>& relatedPI, vector<int>& allcandidate, Circuit_t& F_v_ckt/*vector<int>& allpatchnode, Circuit_t& patchckt_off, vector<int>& allpatchnode_off*/)
+vector<int> Circuit_t::getbaseset(vector<int>& relatedPI, vector<int>& allcandidate, Circuit_t& F_v_ckt)
 {
     clock_t temp_clk;
-    sortcost(allcandidate, 0, (allcandidate.size()-1) );
     int MAX_WEIGHT_SUM = getMaxSum(allcandidate);
     vector<int> choosebase;
     vector< vector<int> > allsumset;
@@ -353,15 +350,21 @@ vector<int> Circuit_t::getbaseset(vector<int>& relatedPI, vector<int>& allcandid
     
     //TODO: patch_onset + patch_offset
     //Circuit_t twopatchckt;
-    // twopatchckt.readfile("patch.v");
+    //twopatchckt.readfile("patch.v");
     //twopatchckt.readfile2("patch2.v");
 	//cout<<"------twopatchckt"<<endl;
 	//twopatchckt.print();
 	Circuit_t patchckt1_only;
-	patchckt1_only.readfile("patch.v");
+    string patchStr1 = "patch.v";
+    string patchStr2 = "patch2.v";
+    char patchStr3[1024];
+    char patchStr4[1024];
+    strcpy(patchStr3, patchStr1.c_str());
+    strcpy(patchStr4, patchStr2.c_str());
+	patchckt1_only.readfile(patchStr3);
 	patchckt1_only.topology_oriPI(SIM_ALL);
 	Circuit_t patchckt2_only;
-	patchckt2_only.readfile("patch2.v");
+	patchckt2_only.readfile(patchStr4);
 	patchckt2_only.topology_oriPI(SIM_ALL);
 	//cout<<"------patchckt1_only"<<endl;
 	//patchckt1_only.print();
@@ -376,18 +379,8 @@ vector<int> Circuit_t::getbaseset(vector<int>& relatedPI, vector<int>& allcandid
 	unsigned int bound_unsatDLN;
 	map<int, int> id_map_assume = constructDLN(DLN_network, F_v_ckt, patchckt1_only, patchckt2_only, allcandidate);	
 	vector<int> topo_order_cand = getsort_topology(allcandidate);
-	//vector<int> topo_order_patch = getsort_topology(allpatchnode);	
 	random_sim_before_DLN(relatedPI, topo_order_cand, allcandidate,patchckt1_only, patchckt2_only);
 	Random_SIM_PBD_TB rsim_pbd_tb = get_PBD_table(allcandidate, patchckt1_only, patchckt2_only);
-    /*
-    cout << "rsim_pbd_tb: " << endl;
-    for (int i = 0; i < allcandidate.size(); i++) {
-        cout << allnodevec[allcandidate[i]].name << " PBD: " << endl;
-        for (int j = 0; j < rsim_pbd_tb.base_PBD_can_cover[allcandidate[i]].size(); j++) {
-            cout << "(" << rsim_pbd_tb.base_PBD_can_cover[allcandidate[i]][j].p1 << ", " << rsim_pbd_tb.base_PBD_can_cover[allcandidate[i]][j].p2 << ")" << endl;
-        }
-    }
-    */
     for (int sum_i = 1; sum_i <= MAX_WEIGHT_SUM; sum_i++) {
         //cout << "SUM " << sum_i << endl;
         temp_clk = clock();
@@ -431,186 +424,9 @@ vector<int> Circuit_t::getbaseset(vector<int>& relatedPI, vector<int>& allcandid
                 choosebase.clear();
             }
         }
-        
         if (find_flag == true) {
             break;
         }
-
-/*
-    for (int i = 0; i < allbaseset.size(); i++) {
-        cout << "set[" << i << "] size:" << allbaseset[i].size() << endl;
-        for (int j = 0; j < allbaseset[i].size(); j++) {
-            cout << "{";
-            for (list_it = allbaseset[i][j].begin(); list_it != allbaseset[i][j].end(); ++list_it) {
-                int node = *list_it;
-                cout << allnodevec[node].name << "(" << allnodevec[node].cost << ")";
-                cout << " ";
-            }
-            cout << "}" << endl;
-        }
-        cout << "===================" << endl;
-    }
-*/
     }
     return choosebase;
 }
-#endif
-#if DEBUG_DY
-vector<int> Circuit_t::getbaseset(vector<int>& relatedPI, vector<int>& allcandidate, Circuit_t& F_v_ckt, vector<int>& allpatchnode, Circuit_t& patchckt_off, vector<int>& allpatchnode_off)
-{
-    clock_t temp_clk;
-    sortcost(allcandidate, 0, (allcandidate.size()-1) );
-/*
-    cout << "All base nodes:" << endl;
-    for (int i = 0; i < allcandidate.size(); i++) {
-        cout << allnodevec[allcandidate[i]].name << " " << allnodevec[allcandidate[i]].cost << endl;
-    }
-    cout << endl;
-*/
-    vector<int> choosebase;
-    vector< vector< list<int> > > allbaseset;
-    list<int>::iterator list_it;
-    allbaseset.push_back(*(new vector< list<int> >));
-    
-    int MAX_WEIGHT_SUM = getMaxSum(allcandidate);
-    int MAX_WEIGHT = allnodevec[allcandidate.back()].cost;
-    int weight_sum = 0;
-    int candidate_ptr, weight_ptr, set_ptr, choose_ptr;
-    bool finish_flag = false;
-    bool find_flag = false;
-    candidate_ptr = weight_ptr = set_ptr = choose_ptr = 0;
-
-    //TODO: patch_onset + patch_offset
-    //Circuit_t twopatchckt;
-    // twopatchckt.readfile("patch.v");
-    //twopatchckt.readfile2("patch2.v");
-	//cout<<"------twopatchckt"<<endl;
-	//twopatchckt.print();
-	Circuit_t patchckt1_only;
-	patchckt1_only.readfile("patch.v");
-	patchckt1_only.topology_oriPI(SIM_ALL);
-	Circuit_t patchckt2_only;
-	patchckt2_only.readfile("patch2.v");
-	patchckt2_only.topology_oriPI(SIM_ALL);
-	//cout<<"------patchckt1_only"<<endl;
-	//patchckt1_only.print();
-	//cout<<"------patchckt2_only"<<endl;
-	//patchckt2_only.print();
-	//cout<<"------F_v_ckt"<<endl;
-	//F_v_ckt.print();
- 
-	Solver DLN_network;
-	
-	unsigned int bound_unsatDLN;
-	map<int, int> id_map_assume = constructDLN(DLN_network, F_v_ckt, patchckt1_only, patchckt2_only, allcandidate);	
-	vector<int> topo_order_cand = getsort_topology(allcandidate);
-	//vector<int> topo_order_patch = getsort_topology(allpatchnode);	
-	random_sim_before_DLN(relatedPI, topo_order_cand, allcandidate,patchckt1_only, patchckt2_only);
-	Random_SIM_PBD_TB rsim_pbd_tb = get_PBD_table(allcandidate, patchckt1_only, patchckt2_only);
-
-
-
-    while (finish_flag == false) {
-        weight_sum++;
-        //cout << "sum: " << weight_sum << endl;
-        allbaseset.push_back(*(new vector< list<int> >));
-        //Find: weight_sum == node.cost
-        while (1) {
-            if (candidate_ptr >= allcandidate.size()) {
-                break;
-            }
-            int node = allcandidate[candidate_ptr];
-            if (allnodevec[node].cost != weight_sum) {
-                break;
-            }
-            
-            allbaseset.back().push_back(*(new list<int>));
-            allbaseset.back().back().push_back(node);
-
-            candidate_ptr++;
-        }
-
-        //Find: weight_sum == sum of nodes' costs
-        choose_ptr = 0;
-        for (set_ptr = allbaseset.size()-1; set_ptr >= 0; set_ptr--) {
-            weight_ptr = weight_sum - set_ptr;
-            if (finish_flag == true) break;
-            if (weight_ptr > set_ptr) break;
-            if (weight_ptr > MAX_WEIGHT) break;
-            while (finish_flag == false) {
-                if (choose_ptr >= allcandidate.size()) {
-                    break;
-                }
-                int node = allcandidate[choose_ptr];
-                if (allnodevec[node].cost != weight_ptr) break;
-                for (int subset_i = 0; subset_i < allbaseset[set_ptr].size(); subset_i++) {
-                    //new item in the subset -> add, or skip
-                    list<int> new_subset = check_include(allbaseset[set_ptr][subset_i], allcandidate[choose_ptr]);
-                    if (new_subset.size() > 0) {
-                        if (check_redundantset(allbaseset.back(), new_subset) == false) {
-                            allbaseset.back().push_back(new_subset);
-                            copy(allbaseset.back().back().begin(), allbaseset.back().back().end(), back_inserter(choosebase));
-                            
-							//TODO: 
-							//if UNSAT, choosebase can cover, return true
-							
-							find_flag = is_basenode_all_cover(DLN_network, id_map_assume, choosebase);
-							
-							//cout << "find_flag " << find_flag << endl;
-                            if (find_flag == false) {
-                                choosebase.clear();
-                            } else {
-								Solver DLN_network_unsat_part;
-								bound_unsatDLN = constructDLN_unsat_part(DLN_network_unsat_part, F_v_ckt, patchckt1_only, patchckt2_only, allcandidate, choosebase);
-								//must writ file before solve, or will lead to contradictory state.
-								if (!DLN_network_unsat_part.okay()) { 
-									cout << "ERROR : DLN_network_unsat_part solver is in contradictory state\n"; /*exit(1);*/
-									exit(1);
-								}
-								DLN_network_unsat_part.toDimacs_nomap("mytest_AB.cnf", bound_unsatDLN+1);
-								if ( DLN_network_unsat_part.solve() == false) {
-									cout << "PASS ^0^ : DLN_network_unsat_part is UNSAT" << endl;
-								} else {
-									cout << "ERROR : DLN_network_unsat_part is SAT (must be UNSAT)" << endl;
-								}
-								writeLog(choosebase, "mytest_AB.cnf");                               
-								finish_flag = true;
-                                break;
-                            }
-                        }
-                    }
-                    temp_clk = clock();
-                    double time_sec = double(temp_clk - start_clk)/CLOCKS_PER_SEC;
-                    if ( time_sec > 1500) {
-                        finish_flag = true;
-                        //cout << "time out:" << time_sec << endl;
-                    }
-
-                }
-                choose_ptr++;
-            }
-        }
-        if (weight_sum == MAX_WEIGHT_SUM) {
-            finish_flag = true;
-        }
-        //cout << "size: " << allbaseset.back().size() << endl;
-    }
-/* 
-    for (int i = 0; i < allbaseset.size(); i++) {
-        cout << "set[" << i << "] size:" << allbaseset[i].size() << endl;
-        for (int j = 0; j < allbaseset[i].size(); j++) {
-            cout << "{";
-            for (list_it = allbaseset[i][j].begin(); list_it != allbaseset[i][j].end(); ++list_it) {
-                int node = *list_it;
-                cout << allnodevec[node].name << "(" << allnodevec[node].cost << ")";
-                cout << " ";
-            }
-            cout << "}" << endl;
-        }
-        cout << "===================" << endl;
-    }
-*/
-
-    return choosebase;
-}
-#endif
