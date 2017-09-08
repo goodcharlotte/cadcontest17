@@ -77,7 +77,7 @@ int main(int argc, char * argv[])
         Circuit_t F_v_ckt;// F.v
         F_v_ckt.readfile(argv[1]);
         choosebase = patchckt.getbaseset(relatedPI, allcandidate, F_v_ckt);
-        patchPI = F_v_ckt.inteporlation();
+        patchPI = F_v_ckt.inteporlation(argv[4]);
         patchckt.updateName(patchPI, cktfWireName);
         patchckt.updateName(patchPI, patchPIName);
         cout << "*** Interpolation cost sum : " << patchckt.getCostSum(patchPI, patchPI.size()-1) << " ***" << endl;

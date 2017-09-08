@@ -212,8 +212,8 @@ public:
 	bool IsPiReplace(int node1, vector <int> &New, vector <int> &relateNode, vector <int> &NodetoCheck, vector <int> &visit, vector <int> &ready);
 	void ReplacePi(vector <int> &New, vector <int> &RelateNode);
     void updateNewPI();
-	void WriteInterpoland_Fix();
-	vector<int> inteporlation();
+	void WriteInterpoland_Fix(char* patchname);
+	vector<int> inteporlation(char* patchname);
 	void SolveROOT_Fix();
     vector<int> newpo;
 };
