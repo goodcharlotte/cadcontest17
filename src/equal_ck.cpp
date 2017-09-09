@@ -16,7 +16,7 @@ using namespace std;
 } while(0)
 	
 
-#define EN_ERROR_EXIT 1
+#define EN_ERROR_EXIT 0
 
 #if EN_ERROR_EXIT
 #define sat_ck_exist(curr_sat, id, error_info) do { \

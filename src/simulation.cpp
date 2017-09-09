@@ -14,7 +14,7 @@ using namespace::std;
 
 
 
-#define EN_ERROR_EXIT 1
+#define EN_ERROR_EXIT 0
 
 string compare_minterm(string str1, string str2);
 string to_str(int num, int leng);
