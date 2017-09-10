@@ -541,6 +541,13 @@ void Circuit_t::findReplaceCost(vector<int>& relatedPI, vector<int>& allcandidat
 	//cout << "topo_order_cand size " << topo_order_cand.size() << endl;
 	vector<int> possible_candidate;
     vector<int> nobuf_possible_candidate;
+    int timeout = 0;
+    if (target.size() == 1) {
+        timeout = MID_TIME_LIMIT;
+    } else {
+        timeout = TIME_LIMIT;
+    }
+
 	for (int p_wire = 0; p_wire < allpatchnode.size(); p_wire++) {
         int p_node = allpatchnode[p_wire];
         bool find_replace = false;
@@ -555,7 +562,7 @@ void Circuit_t::findReplaceCost(vector<int>& relatedPI, vector<int>& allcandidat
             //cout << "time: " << time_sec << endl;
             stop_clk = clock();
             double time_sec = double(stop_clk - start_clk)/CLOCKS_PER_SEC;
-            if ( time_sec > TIME_LIMIT  ) {
+            if ( time_sec > timeout ) {
                 break;
             }
             int can_node = nobuf_possible_candidate[can_wire];
@@ -714,7 +721,7 @@ vector<int> Circuit_t::ReplaceNode(vector<int>& allcutnode)
 
 bool Circuit_t::write_patch(vector<int>& relatedPI)
 {
-    string fname = "patch.v";
+    string fname = "mincut_patch.v";
     ofstream file(fname.c_str());
     bool first = true;
     bool skip = true;
@@ -727,6 +734,13 @@ bool Circuit_t::write_patch(vector<int>& relatedPI)
 	for (int i = 0; i < allnodevec.size(); i++) {
 		allnodevec[i].patch_flag = true;
 	}
+	
+    for (int i = 0; i < po.size(); i++) {
+        if (allnodevec[po[i]].in.size() > 0) {
+            alloutput.push_back(po[i]);
+            file << allnodevec[po[i]].name << " , ";
+        }
+    }
 	
     for (int i = 0; i < relatedPI.size(); i++) {
         if (allnodevec[relatedPI[i]].out.size() > 0) {
@@ -746,13 +760,6 @@ bool Circuit_t::write_patch(vector<int>& relatedPI)
         }
     }
 
-    for (int i = 0; i < po.size(); i++) {
-        if (allnodevec[po[i]].in.size() > 0) {
-            file << " , " << allnodevec[po[i]].name;
-            alloutput.push_back(po[i]);
-        }
-    }
-	
     file  << " );" << endl;
 
     file << "input ";

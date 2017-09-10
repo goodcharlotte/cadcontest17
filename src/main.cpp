@@ -12,7 +12,10 @@ int main(int argc, char * argv[])
     start_clk = clock();
     bool INTER_FLAG = false;
     bool MINCUT_FLAG = false;
+    int first_timeout = MID_TIME_LIMIT;
+    int final_timeout = TIME_LIMIT;
     vector<int> patchPI;
+
     if (argc != 6) {
         cout << "Usage: ./rpgen <F.v> <G.v> <weight.txt> <patch.v> <out.v> " << endl;
         return 0;
@@ -25,11 +28,11 @@ int main(int argc, char * argv[])
     }
 
     if (cktf.target.size() == 1) {
-        INTER_FLAG = true;
-        MINCUT_FLAG = false;
-    } else if (cktf.target.size() > 1) {
-        INTER_FLAG = false;
         MINCUT_FLAG = true;
+        INTER_FLAG = true;
+    } else if (cktf.target.size() > 1) {
+        MINCUT_FLAG = true;
+        INTER_FLAG = false;
     } else {
         cout << "ERROR! NO TARGET IN CKTF!" << endl;
     }
@@ -71,18 +74,11 @@ int main(int argc, char * argv[])
     patchckt.findRelatedNode(relatedPI, allpatchnode, allcandidate);
     patchckt.sortcost(allcandidate, 0, allcandidate.size() - 1);
 
-    if (INTER_FLAG == true) {
-        cout << "*** INTERPOLATION ***" << endl;
-        vector<int> choosebase;
-        Circuit_t F_v_ckt;// F.v
-        F_v_ckt.readfile(argv[1]);
-        choosebase = patchckt.getbaseset(relatedPI, allcandidate, F_v_ckt);
-        patchPI = F_v_ckt.inteporlation(argv[4]);
-        patchckt.updateName(patchPI, cktfWireName);
-        patchckt.updateName(patchPI, patchPIName);
-        cout << "*** Interpolation cost sum : " << patchckt.getCostSum(patchPI, patchPI.size()-1) << " ***" << endl;
-    } //end interpolation
-
+    int mincut_cost = INF;
+    int inter_cost = INF;
+    string cmdstr;
+    char cmdchar[1024];
+ 
     if (MINCUT_FLAG == true) {
         cout << "*** MINCUT ***" << endl;
         //ReplaceNode: (UNSAT & INV_UNSAT) id, (No replaced node) -1
@@ -106,7 +102,43 @@ int main(int argc, char * argv[])
         patchRelatedPI = cktp.ReplaceNode(allcutnode);
         cktp.write_patch(patchRelatedPI);
         cktp.updatePatchPI(patchRelatedPI, cktfWireName, patchPIName);
+        mincut_cost = cktp.getCostSum(patchRelatedPI, patchRelatedPI.size() - 1);
+        cout << "*** Mincut cost sum : " << mincut_cost << " ***" << endl;
     }//end mincut
+
+    if (INTER_FLAG == true) {
+        patchckt.check_INV_cost(allcandidate);
+        cout << "*** INTERPOLATION ***" << endl;
+        vector<int> choosebase;
+        Circuit_t F_v_ckt;// F.v
+        F_v_ckt.readfile(argv[1]);
+        choosebase = patchckt.getbaseset(relatedPI, allcandidate, F_v_ckt);
+        if (choosebase.size() > 0) {
+            patchPI = F_v_ckt.inteporlation(argv[4]);
+            inter_cost = patchckt.getCostSum(patchPI, patchPI.size()-1);
+        }
+
+        cout << "*** InteIrpolation cost sum : " << inter_cost << " ***" << endl;
+        
+        if (inter_cost < mincut_cost) {
+            patchckt.updateName(patchPI, cktfWireName);
+            patchckt.updateName(patchPI, patchPIName);
+            cout << "*** Update Patch I/O ***" << endl;
+        }
+    } //end interpolation
+
+    if (inter_cost < mincut_cost) {
+        cmdstr = "cp patch.v " + string(argv[4]);
+        strcpy(cmdchar, cmdstr.c_str());
+        system(cmdchar);
+        cout << "Use patch in interpolation: " << cmdstr << endl;
+    } else {
+        cmdstr = "cp mincut_patch.v " + string(argv[4]);
+        strcpy(cmdchar, cmdstr.c_str());
+        system(cmdchar);
+        cout << "Use patch in mincut: " << cmdstr << endl;
+    }
+
 
     //====================================
     //  Write final result (out.v) 

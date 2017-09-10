@@ -46,6 +46,7 @@ using namespace::std;
 
 #define INF 9999999
 #define TIME_LIMIT 1500
+#define MID_TIME_LIMIT 600
 //#define DEBUG_MATCH
 //#define DEBUG_READFILE2
 //#define Debug_PO
@@ -154,6 +155,7 @@ public:
     vector<int> findRelatedPI(vector<int> relatedPO);
     void findRelatedNode(vector<int> relatedPI, vector<int>& allpatchnode, vector<int>& allcandidate);
     vector<int> check_cost(vector<int>& allcandidate);
+    void check_INV_cost(vector<int>& allcandidate);
     void findReplaceCost(vector<int>& relatedPI, vector<int>& allcandidate, vector<int>& allpatchnode, vector<Node_t>& PatchNode);
     void findReplaceNode(vector<Node_t>& PatchNode);
     int getMaxSum(vector<int>& allcandidate);

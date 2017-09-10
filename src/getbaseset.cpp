@@ -227,7 +227,7 @@ int Circuit_t::getCostSum(vector<int>& allcandidate, int start_index)
     int node = 0;
     while (start_index >= 0) {
         node = allcandidate[start_index];
-        costsum += allnodevec[node].cost;
+        costsum += abs(allnodevec[node].cost);
         start_index--;
     }
     return costsum;
@@ -399,6 +399,16 @@ vector<int> Circuit_t::check_cost(vector<int>& allcandidate)
 
 }
 
+void Circuit_t::check_INV_cost(vector<int>& allcandidate) 
+{
+    for (int i = 0; i < allcandidate.size(); i++) {
+        int node = allcandidate[i];
+        if (allnodevec[node].cost < 0) {
+            allnodevec[node].cost = abs(allnodevec[node].cost);
+        }
+    }
+}
+
 vector<int> Circuit_t::getbaseset(vector<int>& relatedPI, vector<int>& allcandidate, Circuit_t& F_v_ckt)
 {
     clock_t temp_clk;
@@ -461,6 +471,10 @@ vector<int> Circuit_t::getbaseset(vector<int>& relatedPI, vector<int>& allcandid
         allsumset = getSumSet(nobuf_candidate, sum_i);
         choosebase.clear();
         for (int all_i = 0; all_i < allsumset.size(); all_i++) {
+            if ( time_sec > TIME_LIMIT) {
+                cout << "time out:" << time_sec << endl;
+                break;
+            }
             //TODO:
             //if UNSAT, choosebase can cover, return true
             copy(allsumset[all_i].begin(), allsumset[all_i].end(), back_inserter(choosebase));
