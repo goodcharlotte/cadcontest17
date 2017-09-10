@@ -116,7 +116,7 @@ void Circuit_t::initCostSumFlag(vector<int>& allcandidate)
     }
 
     costsum_flag.clear();
-    costsum_flag.resize(UNKNOW, temp_size + 1);
+    costsum_flag.resize((temp_size + 1), UNKNOW);
     updateSingleCost(allcandidate);
     //costsum_flag[0]
     costsum_flag[0] = NO_ANS;
