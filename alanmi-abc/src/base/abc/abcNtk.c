@@ -1445,6 +1445,7 @@ void Abc_NtkFixNonDrivenNets( Abc_Ntk_t * pNtk )
     }
 
     // print the warning
+    /*
     if ( vNets->nSize > 0 )
     {
         printf( "Warning: Constant-0 drivers added to %d non-driven nets in network \"%s\":\n", Vec_PtrSize(vNets), pNtk->pName );
@@ -1460,6 +1461,7 @@ void Abc_NtkFixNonDrivenNets( Abc_Ntk_t * pNtk )
         }
         printf( "\n" );
     }
+    */
     Vec_PtrFree( vNets );
 }
 

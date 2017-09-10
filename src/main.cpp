@@ -144,6 +144,6 @@ int main(int argc, char * argv[])
     //====================================
     //  Remove temporary files 
     //====================================
-    system("rm -f *cnf tmp*v resynPatch.script resynPatch2.script resyntemp_Patch_Fix.script proof.log partition.log simp.script");
+    system("rm -f *cnf tmp*v mincut_patch.v patch2.v temp.v resynPatch.script resynPatch2.script resyntemp_Patch_Fix.script proof.log partition.log simp.script");
     return 0;
 }
