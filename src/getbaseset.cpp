@@ -471,6 +471,8 @@ vector<int> Circuit_t::getbaseset(vector<int>& relatedPI, vector<int>& allcandid
         allsumset = getSumSet(nobuf_candidate, sum_i);
         choosebase.clear();
         for (int all_i = 0; all_i < allsumset.size(); all_i++) {
+            temp_clk = clock();
+            time_sec = double(temp_clk - start_clk)/CLOCKS_PER_SEC;
             if ( time_sec > TIME_LIMIT) {
                 cout << "time out:" << time_sec << endl;
                 break;
