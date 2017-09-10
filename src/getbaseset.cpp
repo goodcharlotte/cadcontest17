@@ -238,7 +238,7 @@ void Circuit_t::recur_CEV(vector<int>& allcandidate, vector< vector<int> >& alls
     clock_t temp_clk = clock();
     double time_sec = double(temp_clk - start_clk)/CLOCKS_PER_SEC;
     if ( time_sec > TIME_LIMIT) {
-        cout << "time out:" << time_sec << endl;
+        //cout << "time out:" << time_sec << endl;
         return;
     }
 
