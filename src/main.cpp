@@ -123,20 +123,15 @@ int main(int argc, char * argv[])
         if (inter_cost < mincut_cost) {
             patchckt.updateName(patchPI, cktfWireName);
             patchckt.updateName(patchPI, patchPIName);
-            cout << "*** Update Patch I/O ***" << endl;
+            //cout << "*** Update Patch I/O ***" << endl;
         }
     } //end interpolation
 
-    if (inter_cost < mincut_cost) {
-        cmdstr = "cp patch.v " + string(argv[4]);
-        strcpy(cmdchar, cmdstr.c_str());
-        system(cmdchar);
-        cout << "Use patch in interpolation: " << cmdstr << endl;
-    } else {
+    if (inter_cost > mincut_cost) {
         cmdstr = "cp mincut_patch.v " + string(argv[4]);
         strcpy(cmdchar, cmdstr.c_str());
         system(cmdchar);
-        cout << "Use patch in mincut: " << cmdstr << endl;
+        //cout << "Use patch in mincut: " << cmdstr << endl;
     }
 
 
@@ -149,6 +144,6 @@ int main(int argc, char * argv[])
     //====================================
     //  Remove temporary files 
     //====================================
-    system("rm -f *cnf tmp*v resynPatch.script resyntemp_Patch_Fix.script proof.log partition.log simp.script");
+    system("rm -f *cnf tmp*v resynPatch.script resynPatch2.script resyntemp_Patch_Fix.script proof.log partition.log simp.script");
     return 0;
 }

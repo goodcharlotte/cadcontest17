@@ -89,7 +89,7 @@ int Circuit_t::minCut(vector<int>& allcutnode)
     edge_array<int> earray;
     leda::list<node> cut;
     int cut_value = MAX_FLOW_T(G, ledanodevec[sidx], ledanodevec[tidx], weight, earray, cut);
-    cout << "final cost: " << cut_value << endl;
+    //cout << "final cost: " << cut_value << endl;
     //cout << "cut: "; node v; forall(v, cut) G.print_node(v);
     //cout << endl;
     node v;

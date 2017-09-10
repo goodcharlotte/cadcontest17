@@ -285,7 +285,7 @@ void Circuit_t::writeLog(vector<int>& choosebase, string cnfname_AB)
     string tmpstr;
     ifstream file(cnfname_AB.c_str());
     file >> tmpstr >> range;
-    cout << "range: " << range << endl;
+    //cout << "range: " << range << endl;
     file.close();
 
     string cmd_str;
@@ -460,11 +460,11 @@ vector<int> Circuit_t::getbaseset(vector<int>& relatedPI, vector<int>& allcandid
 	Random_SIM_PBD_TB rsim_pbd_tb = get_PBD_table(allcandidate, patchckt1_only, patchckt2_only);
 
     for (int sum_i = 1; sum_i <= MAX_WEIGHT_SUM; sum_i++) {
-        cout << "SUM " << sum_i << endl;
+        //cout << "SUM " << sum_i << endl;
         temp_clk = clock();
         double time_sec = double(temp_clk - start_clk)/CLOCKS_PER_SEC;
         if ( time_sec > TIME_LIMIT) {
-            cout << "time out:" << time_sec << endl;
+            //cout << "time out:" << time_sec << endl;
             break;
         }
 
@@ -474,7 +474,7 @@ vector<int> Circuit_t::getbaseset(vector<int>& relatedPI, vector<int>& allcandid
             temp_clk = clock();
             time_sec = double(temp_clk - start_clk)/CLOCKS_PER_SEC;
             if ( time_sec > TIME_LIMIT) {
-                cout << "time out:" << time_sec << endl;
+                //cout << "time out:" << time_sec << endl;
                 break;
             }
             //TODO:
@@ -489,7 +489,7 @@ vector<int> Circuit_t::getbaseset(vector<int>& relatedPI, vector<int>& allcandid
             find_flag = is_basenode_all_cover(DLN_network, id_map_assume, choosebase);
             //cout << "find_flag " << find_flag << endl;
             if (find_flag == true) {
-                cout << "UNSAT" << endl;
+                //cout << "UNSAT" << endl;
 				Solver DLN_network_unsat_part;
 				bound_unsatDLN = constructDLN_unsat_part(DLN_network_unsat_part, F_v_ckt, patchckt1_only, patchckt2_only, allcandidate, choosebase);
 				//must writ file before solve, or will lead to contradictory state.
