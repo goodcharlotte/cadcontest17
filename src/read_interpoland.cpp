@@ -133,7 +133,7 @@ void Circuit_t::SolveROOT_Fix() {
 	
 	for (int i = 0; i < T.size(); i++) {
 		if(!T[i].root)
-			break;
+			continue;
 
 		
 		
@@ -250,11 +250,14 @@ void SolveCHAIN_Fix(int CHAINId) {
 
 void FindInterpoland(int CHAINId) {
 	
-	for(int i = CHAINId; i < T.size(); i++) {
+	for(int i = 0; i < T.size(); i++) {
 		
-
-		SolveCHAIN_Fix(i);
-				
+		if(T[i].root)
+			continue;
+		else {
+			SolveCHAIN_Fix(i);
+		}
+		
 		
 	}
 	

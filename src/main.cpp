@@ -72,7 +72,6 @@ int main(int argc, char * argv[])
     patchckt.update_allpi();
     vector<int> allcandidate;
     patchckt.findRelatedNode(relatedPI, allpatchnode, allcandidate);
-    patchckt.sortcost(allcandidate, 0, allcandidate.size() - 1);
 
     int mincut_cost = INF;
     int inter_cost = INF;
@@ -112,6 +111,7 @@ int main(int argc, char * argv[])
         vector<int> choosebase;
         Circuit_t F_v_ckt;// F.v
         F_v_ckt.readfile(argv[1]);
+        patchckt.sortcost(allcandidate, 0, allcandidate.size() - 1);
         choosebase = patchckt.getbaseset(relatedPI, allcandidate, F_v_ckt);
         if (choosebase.size() > 0) {
             patchPI = F_v_ckt.inteporlation(argv[4]);
